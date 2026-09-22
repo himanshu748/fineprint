@@ -1,13 +1,17 @@
 import { dossierSchema } from '@/lib/model';
 import { checkDossier } from '@/lib/engine';
 import { loadRulePack } from '@/lib/sanity';
+import { readRequestJson, RequestBodyError } from '@/lib/request-body';
+import { sameOrigin } from '@/lib/request-origin';
 export const runtime = 'nodejs';
 export async function POST(request: Request) {
+  if (!sameOrigin(request))
+    return Response.json(
+      { error: 'Open FinePrint directly to check your project.' },
+      { status: 403 },
+    );
   try {
-    const text = await request.text();
-    if (text.length > 16_000)
-      return Response.json({ error: 'This project dossier is too large.' }, { status: 413 });
-    const parsed = dossierSchema.safeParse(JSON.parse(text));
+    const parsed = dossierSchema.safeParse(await readRequestJson(request, 16_000));
     if (!parsed.success)
       return Response.json(
         { error: 'Some project facts are invalid. Check the date, team size, and project name.' },
@@ -18,12 +22,12 @@ export async function POST(request: Request) {
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch (error) {
-    if (error instanceof SyntaxError)
-      return Response.json({ error: 'Send a valid project dossier.' }, { status: 400 });
+    if (error instanceof RequestBodyError)
+      return Response.json({ error: error.message }, { status: error.status });
     return Response.json(
       {
         error:
-          'The configured rule source could not be loaded. Check the Sanity connection and retry; the app has not substituted a local result.',
+          'The current rule source could not be loaded. Retry, or choose the dated saved rules to continue. Your project facts are still here.',
       },
       { status: 503 },
     );

@@ -57,6 +57,39 @@ try {
   checks.push('Production starts locked');
   const body = JSON.stringify({ dossier: examples[0].dossier, ruleId: 'origin' });
   const headers: Record<string, string> = { 'Content-Type': 'application/json', Origin: base };
+  const manualBody = JSON.stringify(examples[0].dossier);
+  const manualCheck = await fetch(`${base}/api/check`, {
+    method: 'POST',
+    headers,
+    body: manualBody,
+  });
+  assert.equal(manualCheck.status, 200);
+  const manualReport = await manualCheck.json();
+  assert.equal(manualReport.sourceMode, 'snapshot');
+  assert.equal(manualReport.findings.length, 19);
+  checks.push('Anonymous manual checks work with dated rules and providers disabled');
+  assert.equal(
+    (
+      await fetch(`${base}/api/check`, {
+        method: 'POST',
+        headers: { ...headers, Origin: 'https://other.example' },
+        body: manualBody,
+      })
+    ).status,
+    403,
+  );
+  checks.push('Cross-origin manual check returns 403');
+  assert.equal(
+    (
+      await fetch(`${base}/api/check`, {
+        method: 'POST',
+        headers,
+        body: 'x'.repeat(16_001),
+      })
+    ).status,
+    413,
+  );
+  checks.push('Oversized manual check returns 413');
   assert.equal((await fetch(`${base}/api/explain`, { method: 'POST', headers, body })).status, 401);
   checks.push('Unauthenticated explanation returns 401');
   const unlock = await fetch(`${base}/api/access`, {

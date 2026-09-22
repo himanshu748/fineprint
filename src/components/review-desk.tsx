@@ -18,20 +18,18 @@ import {
   Files,
   GitCompareArrows,
   LoaderCircle,
-  PanelLeftClose,
   Plus,
-  RotateCcw,
-  Save,
   Search,
-  Settings2,
   ShieldQuestion,
   SlidersHorizontal,
+  MessageSquareText,
   Sparkles,
   X,
 } from 'lucide-react';
 import {
   dossierSchema,
   savedCaseSchema,
+  reportSchema,
   factLabels,
   type Dossier,
   type FactKey,
@@ -41,14 +39,26 @@ import {
   type Status,
 } from '@/lib/model';
 import { blankDossier, examples, rulePack } from '@/lib/rules';
-import { changedFindings, formatFact, reportMarkdown } from '@/lib/engine';
+import { checkDossier, changedFindings, formatFact, reportMarkdown } from '@/lib/engine';
+import { ReviewLibrary, downloadText } from './review-library';
+import { useReviews } from './use-reviews';
+import {
+  exportWorkspace,
+  importWorkspace,
+  maxReviews,
+  mergeAnswerFacts,
+  newReview,
+  nextFact,
+  type PersonalReview,
+} from '@/lib/review-workspace';
+import type { AskResponse } from '@/lib/agent-schema';
 import { AgentAccessForm } from './agent-access-form';
 import { AskFinePrint } from './ask-fineprint';
 import { AgentTrace } from './agent-trace';
 import type { TraceStep } from '@/lib/agent-trace';
 
 type SavedCase = { id: string; name: string; savedAt: string; dossier: Dossier; report: Report };
-type View = 'review' | 'sources' | 'saved' | 'evaluation' | 'connection';
+type View = 'reviews' | 'review' | 'sources' | 'saved' | 'evaluation' | 'connection';
 type Pane = 'facts' | 'findings' | 'sources';
 const statusLabels: Record<Status, string> = {
   supported: 'Supported',
@@ -95,7 +105,7 @@ function TriSelect({
 }) {
   const value = dossier[field];
   return (
-    <label className="field">
+    <label className="field" data-field={field}>
       <span>{factLabels[field]}</span>
       <select
         value={value === null ? 'unknown' : value ? 'yes' : 'no'}
@@ -123,19 +133,29 @@ function downloadReport(report: Report) {
 }
 
 export function ReviewDesk() {
-  const [view, setView] = useState<View>('review');
+  const reviews = useReviews();
+  const [hydrated, setHydrated] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [focusField, setFocusField] = useState<FactKey | null>(null);
+  const factsRef = useRef<HTMLElement>(null);
+  const [view, setView] = useState<View>('reviews');
   const [pane, setPane] = useState<Pane>('findings');
-  const [dossier, setDossier] = useState<Dossier>(examples[0].dossier);
+  const [dossier, setDossier] = useState<Dossier>({
+    ...blankDossier,
+    entriesPerPath: null,
+    seeksMultiplePrizes: null,
+  });
   const [report, setReport] = useState<Report | null>(null);
   const [baseline, setBaseline] = useState<Report | null>(null);
   const [comparing, setComparing] = useState(false);
   const [selected, setSelected] = useState('origin');
   const [filter, setFilter] = useState<'all' | 'attention' | 'supported'>('all');
-  const [scope, setScope] = useState<'all' | 'eligibility' | 'submission'>('eligibility');
+  const [scope, setScope] = useState<'all' | 'eligibility' | 'submission'>('all');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [isExample, setIsExample] = useState(true);
+  const [isExample, setIsExample] = useState(false);
   const [saved, setSaved] = useState<SavedCase[]>([]);
   const [connection, setConnection] = useState({
     rules: false,
@@ -174,25 +194,42 @@ export function ReviewDesk() {
     setShowAccess(false);
   }
 
-  async function runCheck(facts: Dossier, remember = true) {
+  async function runCheck(facts: Dossier, remember = true, useSnapshot = false) {
     setError('');
-    if (!dossierSchema.safeParse(facts).success) {
-      setError('Add a project name and valid project facts before checking.');
+    const validated = dossierSchema.safeParse(facts);
+    if (!validated.success) {
+      setError(
+        validated.error.issues
+          .slice(0, 3)
+          .map(
+            (issue) =>
+              `${factLabels[issue.path[0] as FactKey] ?? 'Project facts'}: ${issue.message}`,
+          )
+          .join(' '),
+      );
       return;
     }
     const requestId = ++checkRequest.current;
     setBusy(true);
     clearExplanation();
     try {
-      const response = await fetch('/api/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(facts),
-      });
-      const data = await response.json();
+      let data: Report;
+      if (useSnapshot) {
+        data = checkDossier(validated.data, rulePack, undefined, 'snapshot');
+      } else {
+        const response = await fetch('/api/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(validated.data),
+          signal: AbortSignal.timeout(20_000),
+        });
+        const raw = await response.json();
+        if (!response.ok) throw new Error(raw.error || 'The check did not complete. Please retry.');
+        data = reportSchema.parse(raw) as Report;
+      }
       if (requestId !== checkRequest.current) return;
-      if (!response.ok) throw new Error(data.error || 'The check did not complete. Please retry.');
       if (remember && report) setBaseline(report);
+      setDossier(validated.data);
       setReport(data);
       if (remember && report) setComparing(true);
       setPane('findings');
@@ -219,7 +256,6 @@ export function ReviewDesk() {
     } catch {
       setNotice('Saved data could not be read. You can still create a new review.');
     }
-    void runCheck(examples[0].dossier, false);
     void fetch('/api/connection')
       .then((res) => res.json())
       .then(setConnection)
@@ -228,9 +264,115 @@ export function ReviewDesk() {
       .then((res) => res.json())
       .then(setAccess)
       .catch(() => {});
-    // A first review is requested once; later reviews require an explicit action.
+    // Read browser storage after hydration; examples never become a visitor’s project.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const activeReview = reviews.workspace.reviews.find((r) => r.id === reviews.workspace.activeId);
+  const rememberReview = reviews.update;
+  useEffect(() => {
+    if (!reviews.ready || hydrated) return;
+    if (activeReview && !activeReview.archived) {
+      setDossier(activeReview.dossier);
+      setReport(activeReview.report as Report | null);
+      setBaseline(activeReview.previousReport as Report | null);
+      setAssistantOpen(Boolean(activeReview.question || activeReview.answer));
+      setView('review');
+    }
+    setHydrated(true);
+  }, [reviews.ready, hydrated, activeReview]);
+  useEffect(() => {
+    if (!hydrated || isExample || !reviews.workspace.activeId) return;
+    rememberReview(reviews.workspace.activeId, { dossier, report, previousReport: baseline });
+  }, [hydrated, isExample, reviews.workspace.activeId, dossier, report, baseline, rememberReview]);
+  useEffect(() => {
+    if (!focusField || pane !== 'facts' || view !== 'review') return;
+    const label = factsRef.current?.querySelector<HTMLElement>(`[data-field="${focusField}"]`);
+    const section = label?.closest('details');
+    if (section) section.open = true;
+    const input = label?.querySelector<HTMLElement>('input, select, textarea');
+    input?.focus({ preventScroll: true });
+    label?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    setFocusField(null);
+  }, [focusField, pane, view]);
+
+  function openReview(item: PersonalReview) {
+    checkRequest.current++;
+    clearExplanation();
+    setBusy(false);
+    setError('');
+    reviews.activate(item.id);
+    setDossier(item.dossier);
+    setReport(item.report as Report | null);
+    setBaseline(item.previousReport as Report | null);
+    setComparing(false);
+    setIsExample(false);
+    setView('review');
+    setPane(item.report ? 'findings' : 'facts');
+    setAssistantOpen(Boolean(item.question || item.answer));
+    setSelected(
+      item.report?.findings.find((f) => f.status === 'blocked' || f.status === 'unclear')?.rule
+        .id ?? 'origin',
+    );
+  }
+  function createReview(details: Pick<Dossier, 'name' | 'track' | 'origin' | 'startedAt'>) {
+    if (reviews.workspace.reviews.length >= maxReviews) {
+      setNotice(
+        'This device has reached its 30-review limit. Back up reviews you want to keep, then delete an archived review to make space.',
+      );
+      return false;
+    }
+    try {
+      const item = newReview(details.name, details.track, details);
+      reviews.add(item);
+      checkRequest.current++;
+      clearExplanation();
+      setDossier(item.dossier);
+      setReport(null);
+      setBaseline(null);
+      setComparing(false);
+      setIsExample(false);
+      setView('review');
+      setPane('findings');
+      setSelected('origin');
+      setAssistantOpen(false);
+      setError('');
+      setNotice('');
+      void runCheck(item.dossier, false);
+      return true;
+    } catch {
+      setNotice('Add a project name and a valid start date, or leave the date blank.');
+      return false;
+    }
+  }
+  function jumpToFact(field: FactKey) {
+    setView('review');
+    setPane('facts');
+    setFocusField(field);
+  }
+  function applyAnswer(answer: AskResponse) {
+    const base = isExample
+      ? { ...blankDossier, entriesPerPath: null, seeksMultiplePrizes: null }
+      : dossier;
+    const facts = mergeAnswerFacts(base, answer);
+    if (!activeReview || isExample) {
+      if (reviews.workspace.reviews.length >= maxReviews) {
+        setNotice('The device review limit has been reached. Export your report to keep a copy.');
+        return;
+      }
+      const item = newReview(facts.name, facts.track);
+      reviews.add({ ...item, dossier: facts, question: answer.question, answer });
+      setReport(null);
+      setBaseline(null);
+    }
+    setDossier(facts);
+    setIsExample(false);
+    setScope('all');
+    setAssistantOpen(false);
+    setNotice('Quoted facts added. Your other answers and notes have been kept.');
+    void runCheck(facts, Boolean(activeReview && !isExample));
+  }
+  const next = nextFact(report);
 
   const dirty = report ? JSON.stringify(dossier) !== JSON.stringify(report.dossier) : false;
   const activeFinding = report?.findings.find((f) => f.rule.id === selected) ?? report?.findings[0];
@@ -264,7 +406,8 @@ export function ReviewDesk() {
 
   function update(field: FactKey, value: unknown) {
     setDossier((current) => ({ ...current, [field]: value }));
-    setIsExample(false);
+    checkRequest.current++;
+    setBusy(false);
     clearExplanation();
   }
   function selectFinding(finding: Finding) {
@@ -275,41 +418,26 @@ export function ReviewDesk() {
   function loadExample(index: number) {
     const facts = { ...examples[index].dossier };
     setDossier(facts);
+    reviews.activate(null);
+    setBaseline(null);
+    setComparing(false);
+    setReport(null);
+    setAssistantOpen(false);
     setIsExample(true);
     setView('review');
     setSelected(index === 2 ? 'entry-limit' : 'origin');
-    void runCheck(facts);
-  }
-  function saveCase() {
-    if (!report || dirty) {
-      setNotice('Check the updated facts before saving a snapshot.');
-      return;
-    }
-    const next = [
-      {
-        id: crypto.randomUUID(),
-        name: report.dossier.name,
-        savedAt: new Date().toISOString(),
-        dossier: report.dossier,
-        report,
-      },
-      ...saved,
-    ].slice(0, 12);
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next));
-      setSaved(next);
-      setNotice('Snapshot saved on this device.');
-    } catch {
-      setNotice('Browser storage is full or unavailable. Export the report to keep a copy.');
-    }
+    void runCheck(facts, false);
   }
   function restoreCase(item: SavedCase) {
-    setDossier(item.dossier);
-    setBaseline(item.report);
-    setReport(null);
-    setComparing(true);
-    setView('review');
-    setIsExample(false);
+    if (reviews.workspace.reviews.length >= maxReviews) {
+      setNotice(
+        'This device has reached its review limit. You can still export this saved report.',
+      );
+      return;
+    }
+    const created = newReview(item.dossier.name, item.dossier.track);
+    reviews.add({ ...created, dossier: item.dossier, report: item.report });
+    openReview({ ...created, dossier: item.dossier, report: item.report });
     void runCheck(item.dossier, false);
   }
   async function explainFinding() {
@@ -388,32 +516,31 @@ export function ReviewDesk() {
           FinePrint<span className="brand-period">.</span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
-          <button className={view === 'review' ? 'active' : ''} onClick={() => setView('review')}>
-            Review desk
+          <button
+            className={view === 'reviews' ? 'active' : ''}
+            onClick={() => {
+              setCreating(false);
+              setView('reviews');
+            }}
+          >
+            My reviews
           </button>
+          {(activeReview || isExample) && (
+            <button className={view === 'review' ? 'active' : ''} onClick={() => setView('review')}>
+              Current review
+            </button>
+          )}
           <button className={view === 'sources' ? 'active' : ''} onClick={() => setView('sources')}>
             Sources
-          </button>
-          <button className={view === 'saved' ? 'active' : ''} onClick={() => setView('saved')}>
-            Saved <span className="nav-count">{saved.length}</span>
-          </button>
-          <button
-            className={view === 'evaluation' ? 'active' : ''}
-            onClick={() => void openEvaluation()}
-          >
-            Evaluation
           </button>
         </nav>
         <button
           className="connection-button"
-          aria-label="View source and model connections"
+          aria-label="How FinePrint works"
           onClick={() => setView('connection')}
         >
-          <span
-            className={`connection-dot ${report?.sourceMode === 'sanity' ? 'connected' : ''}`}
-          />
-          <span>{report?.sourceMode === 'sanity' ? 'Sanity sources' : 'Local source pack'}</span>
-          <Settings2 size={15} aria-hidden="true" />
+          <CircleHelp size={18} />
+          <span>Help & privacy</span>
         </button>
       </header>
 
@@ -426,12 +553,64 @@ export function ReviewDesk() {
             </button>
           </div>
         )}
-        {view === 'review' && (
+        {reviews.storageError && (
+          <div className="error-banner storage-warning" role="alert">
+            <CircleAlert size={18} />
+            <span>{reviews.storageError}</span>
+            <button
+              onClick={() =>
+                downloadText(
+                  reviews.recoveryData ?? exportWorkspace(reviews.workspace),
+                  reviews.recoveryData
+                    ? 'fineprint-preserved-data.json'
+                    : 'fineprint-unsaved-reviews.json',
+                )
+              }
+            >
+              {reviews.recoveryData ? 'Download preserved data' : 'Download backup'}
+            </button>
+            <button onClick={() => window.location.reload()}>Reload saved copy</button>
+          </div>
+        )}
+        {!hydrated && (
+          <div className="workspace-loading" role="status">
+            Opening your reviews…
+          </div>
+        )}
+        {view === 'reviews' && hydrated && (
+          <ReviewLibrary
+            workspace={reviews.workspace}
+            ready={reviews.ready}
+            startCreating={creating}
+            savedCount={saved.length}
+            onCreate={createReview}
+            onOpen={openReview}
+            onArchive={reviews.archive}
+            onRemoveArchived={reviews.removeArchived}
+            onImport={(raw) => {
+              const result = importWorkspace(raw, reviews.workspace);
+              reviews.setWorkspace(result.workspace);
+              setNotice(
+                result.imported
+                  ? `${result.imported} ${result.imported === 1 ? 'review' : 'reviews'} imported. Recheck against the current rules.`
+                  : 'Those reviews are already on this device.',
+              );
+            }}
+            onExample={() => loadExample(1)}
+            onSnapshots={() => setView('saved')}
+            onSources={() => setView('sources')}
+          />
+        )}
+        {view === 'review' && hydrated && (
           <>
             <div className="page-heading">
               <div>
-                <h1>Know where your project stands.</h1>
-                <p>Check the rules that apply. Understand the answer.</p>
+                <h1>{isExample ? 'Sample review' : dossier.name || 'Untitled review'}</h1>
+                <p>
+                  {isExample
+                    ? 'Illustrative facts. Start your own review to check your submission.'
+                    : 'Your facts, the applicable rules, and what to do next.'}
+                </p>
               </div>
               <a
                 className="event-selector"
@@ -448,70 +627,140 @@ export function ReviewDesk() {
               </a>
             </div>
 
-            <AskFinePrint
-              dossier={dossier}
-              onApply={(next) => {
-                checkRequest.current++;
-                setBusy(false);
-                clearExplanation();
-                if (report) setBaseline(report);
-                setDossier(next.dossier);
-                setReport(next);
-                setComparing(Boolean(report));
-                setIsExample(false);
-                setScope('all');
-                setPane('findings');
-                setSelected(
-                  next.findings.find((f) => f.status === 'blocked' || f.status === 'unclear')?.rule
-                    .id ?? 'origin',
-                );
-                setNotice(
-                  'Agent facts applied. Review the extracted facts and source interpretations before relying on them.',
-                );
-              }}
-            />
-            <div className="desk-toolbar">
-              <div className="examples">
-                <span>Try a scenario</span>
-                {examples.map((example, index) => (
-                  <button
-                    key={example.id}
-                    title={example.description}
-                    className={
-                      isExample &&
-                      dossier.origin === example.dossier.origin &&
-                      dossier.entriesPerPath === example.dossier.entriesPerPath
-                        ? 'selected'
-                        : ''
-                    }
-                    onClick={() => loadExample(index)}
-                    disabled={busy}
-                  >
-                    {example.name}
-                    <ArrowUpRightSmall />
-                  </button>
-                ))}
-              </div>
-              <div className="toolbar-actions">
-                <button onClick={saveCase} disabled={!report || busy || dirty}>
-                  <Save size={15} />
-                  Save snapshot
+            <div className="review-work-actions">
+              <span className={reviews.storageError ? 'save-state failed' : 'save-state'}>
+                {isExample
+                  ? 'Sample · not saved as your work'
+                  : reviews.storageError
+                    ? 'Changes are not saved'
+                    : 'Autosave on this device'}
+              </span>
+              <button
+                className="text-button"
+                onClick={() => {
+                  setCreating(true);
+                  setView('reviews');
+                }}
+              >
+                <Plus size={15} /> New review
+              </button>
+            </div>
+            {isExample && (
+              <div className="example-notice">
+                <span>This is a sample. None of these facts describe your project.</span>
+                <button
+                  className="secondary-button"
+                  onClick={() => {
+                    setCreating(true);
+                    setView('reviews');
+                  }}
+                >
+                  Start my own review <ArrowRight size={15} />
                 </button>
+              </div>
+            )}
+            <details
+              className="assistant-drawer"
+              open={assistantOpen}
+              onToggle={(event) => setAssistantOpen(event.currentTarget.open)}
+            >
+              <summary>
+                <MessageSquareText size={19} />
+                <span>
+                  Ask a question about the rules
+                  <small>Optional AI help with source citations</small>
+                </span>
+                <ChevronDown size={18} />
+              </summary>
+              <AskFinePrint
+                key={reviews.workspace.activeId ?? 'sample'}
+                dossier={dossier}
+                initialQuestion={isExample ? '' : activeReview?.question}
+                initialResult={isExample ? null : (activeReview?.answer as AskResponse | null)}
+                onRemember={(question, answer) => {
+                  if (activeReview && !isExample)
+                    rememberReview(activeReview.id, { question, answer });
+                }}
+                onManualReview={() => {
+                  setAssistantOpen(false);
+                  jumpToFact(next?.field ?? 'origin');
+                }}
+                onSources={() => setView('sources')}
+                onApply={applyAnswer}
+              />
+            </details>
+            <div className="desk-toolbar">
+              {isExample ? (
+                <div className="examples">
+                  <span>Sample reviews</span>
+                  {examples.map((example, index) => (
+                    <button key={example.id} onClick={() => loadExample(index)} disabled={busy}>
+                      {example.name}
+                      <ArrowUpRightSmall />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="review-checked-at">
+                  {report
+                    ? `Last checked ${new Date(report.checkedAt).toLocaleString()}`
+                    : 'Your first check is being prepared.'}
+                </p>
+              )}
+              <div className="toolbar-actions">
                 <button
                   onClick={() => report && downloadReport(report)}
                   disabled={!report || busy || dirty}
                 >
-                  <ArrowDownToLine size={15} />
-                  Export report
+                  <ArrowDownToLine size={15} /> Download report
                 </button>
               </div>
             </div>
+            {report && !dirty && next && (
+              <div className="next-fact" aria-label="Next step">
+                <div>
+                  <strong>Next: {next.title.toLowerCase()}</strong>
+                  <p>{next.question}</p>
+                </div>
+                <button className="secondary-button" onClick={() => jumpToFact(next.field)}>
+                  Add this fact <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
+            {report && !dirty && !next && (
+              <div className="next-fact">
+                <div>
+                  <strong>
+                    {report.counts.blocked
+                      ? 'Review your blockers before submitting.'
+                      : report.counts.unclear
+                        ? 'Confirm the unresolved rules with the organizer.'
+                        : 'Your stated facts have been checked.'}
+                  </strong>
+                  <p>Open a finding to see its official source and next step.</p>
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="error-banner" role="alert">
                 <CircleAlert size={18} />
                 <span>{error}</span>
-                <button onClick={() => void runCheck(dossier)}>Retry</button>
+                {dossierSchema.safeParse(dossier).success && (
+                  <>
+                    <button onClick={() => void runCheck(dossier)}>Retry</button>
+                    <button onClick={() => void runCheck(dossier, true, true)}>
+                      Use saved rules · Sep 20
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+            {report?.sourceMode === 'snapshot' && (
+              <div className="warning-banner">
+                <Clock3 size={17} />
+                Using saved rules captured September 20, 2026. Recheck when connected to refresh the
+                source connection.
               </div>
             )}
             {report?.sourceHealth === 'aging-snapshot' && (
@@ -539,7 +788,7 @@ export function ReviewDesk() {
               ))}
             </div>
             <div className="workbench" data-pane={pane}>
-              <aside className="facts-pane" aria-label="Project facts">
+              <aside ref={factsRef} className="facts-pane" aria-label="Project facts">
                 <div className="pane-header">
                   <h2>Project facts</h2>
                   <SlidersHorizontal size={17} />
@@ -558,7 +807,7 @@ export function ReviewDesk() {
                       </>
                     )}
                   </div>
-                  <label className="field project-name">
+                  <label className="field project-name" data-field="name">
                     <span>Project name</span>
                     <input
                       value={dossier.name}
@@ -566,7 +815,7 @@ export function ReviewDesk() {
                       maxLength={100}
                     />
                   </label>
-                  <label className="field">
+                  <label className="field" data-field="track">
                     <span>Target path</span>
                     <select value={dossier.track} onChange={(e) => update('track', e.target.value)}>
                       <option value="path-one">Path One · AI agent</option>
@@ -579,7 +828,7 @@ export function ReviewDesk() {
                       Project history
                       <ChevronDown size={15} />
                     </summary>
-                    <label className="field">
+                    <label className="field" data-field="origin">
                       <span>What existed before the event?</span>
                       <select
                         value={dossier.origin ?? 'unknown'}
@@ -593,7 +842,7 @@ export function ReviewDesk() {
                         <option value="existing">The application itself</option>
                       </select>
                     </label>
-                    <label className="field">
+                    <label className="field" data-field="startedAt">
                       <span>Entry development began</span>
                       <input
                         type="text"
@@ -615,7 +864,7 @@ export function ReviewDesk() {
                       Team & participation
                       <ChevronDown size={15} />
                     </summary>
-                    <label className="field">
+                    <label className="field" data-field="teamSize">
                       <span>Team size</span>
                       <input
                         type="number"
@@ -661,7 +910,7 @@ export function ReviewDesk() {
                       Entries & prizes
                       <ChevronDown size={15} />
                     </summary>
-                    <label className="field">
+                    <label className="field" data-field="entriesPerPath">
                       <span>Entries in the same path</span>
                       <input
                         type="number"
@@ -688,7 +937,7 @@ export function ReviewDesk() {
                     {dossier.requiresLogin !== false && (
                       <TriSelect field="judgeAccess" dossier={dossier} onChange={update} />
                     )}
-                    <label className="field">
+                    <label className="field" data-field="projectIdentifier">
                       <span>Sanity project ID or dataset URL</span>
                       <input
                         placeholder="Project ID or public URL"
@@ -704,7 +953,7 @@ export function ReviewDesk() {
                       Evidence & context
                       <ChevronDown size={15} />
                     </summary>
-                    <label className="field">
+                    <label className="field" data-field="evidenceNote">
                       <span>What supports these facts?</span>
                       <textarea
                         rows={5}
@@ -731,25 +980,8 @@ export function ReviewDesk() {
                     disabled={busy}
                   >
                     {busy ? <LoaderCircle size={17} className="spin" /> : <FileSearch size={17} />}{' '}
-                    {busy ? 'Checking requirements…' : 'Check eligibility'}
+                    {busy ? 'Checking requirements…' : 'Check rules'}
                     {!busy && <ArrowRight size={17} />}
-                  </button>
-                  <button
-                    className="text-button new-review"
-                    onClick={() => {
-                      checkRequest.current++;
-                      clearExplanation();
-                      setDossier({ ...blankDossier });
-                      setReport(null);
-                      setBaseline(null);
-                      setIsExample(false);
-                      setPane('facts');
-                      setNotice('A blank dossier is ready. Unknown facts will stay unknown.');
-                    }}
-                    disabled={busy}
-                  >
-                    <Plus size={14} />
-                    Start with my own project
                   </button>
                 </div>
               </aside>
@@ -1089,7 +1321,7 @@ export function ReviewDesk() {
                 <span className="small-dot" />
                 Source pack {report?.packVersion ?? rulePack.version}
               </span>
-              <span>Private by default · snapshots stay on this device</span>
+              <span>Saved on this device · download a backup to keep your work</span>
               <a
                 href="https://dev.to/challenges/sanity-2026-09-16"
                 target="_blank"
@@ -1107,7 +1339,7 @@ export function ReviewDesk() {
             <PageIntro
               title="Every finding has a source."
               description="Three official pages, kept distinct. Contradictions and source authority remain visible."
-              onBack={() => setView('review')}
+              onBack={() => setView(activeReview || isExample ? 'review' : 'reviews')}
             />
             <div className="source-library">
               {(report?.sources ?? rulePack.sources).map((source) => (
@@ -1165,7 +1397,7 @@ export function ReviewDesk() {
             <PageIntro
               title="Keep the decision trail."
               description="Saved snapshots belong to this browser. Restore one to check it again against the current rule pack."
-              onBack={() => setView('review')}
+              onBack={() => setView(activeReview || isExample ? 'review' : 'reviews')}
             />
             {saved.length ? (
               <div className="saved-list">
@@ -1217,7 +1449,7 @@ export function ReviewDesk() {
             <PageIntro
               title="Test the difficult cases."
               description="Authored regression scenarios check uncertainty, rule scope, and boundary conditions. These are software checks, not measured real-world accuracy."
-              onBack={() => setView('review')}
+              onBack={() => setView(activeReview || isExample ? 'review' : 'reviews')}
             />
             {evaluation ? (
               <>
@@ -1300,80 +1532,88 @@ export function ReviewDesk() {
         )}
 
         {view === 'connection' && (
-          <div className="secondary-view connection-view">
+          <div className="secondary-view product-help">
             <PageIntro
-              title="Connect the source agent."
-              description="The review desk works with a dated rule snapshot. Sanity supplies the live structured content and Knowledge Base for the agent."
-              onBack={() => setView('review')}
+              title="How FinePrint works"
+              description="Check the rules, keep the evidence, and know what still needs an answer."
+              onBack={() => setView(activeReview || isExample ? 'review' : 'reviews')}
             />
-            <div className="connection-steps">
-              {[
-                {
-                  title: 'Structured rules',
-                  body: 'Load the curated competition, source versions, and linked requirements from Sanity Content Lake.',
-                  ready: connection.rules,
-                },
-                {
-                  title: 'Knowledge Base',
-                  body: 'Read the reviewed source material through a Sanity Context MCP endpoint in Knowledge Base mode.',
-                  ready: connection.context,
-                },
-                {
-                  title: 'Agent model',
-                  body: 'The agent selects Knowledge Base entries, extracts quoted facts and calls the rules checker. Source interpretation stays visible alongside the typed result.',
-                  ready: connection.model,
-                },
-              ].map((step) => (
-                <article key={step.title}>
-                  <StatusIcon status={step.ready ? 'supported' : 'missing'} size={22} />
-                  <div>
-                    <h2>{step.title}</h2>
-                    <p>{step.body}</p>
-                  </div>
-                  <span className={`status-tag ${step.ready ? 'supported' : 'missing'}`}>
-                    {step.ready ? 'Configured' : 'Not configured'}
-                  </span>
-                </article>
-              ))}
-            </div>
-            <div className="info-note">
-              <ShieldQuestion size={22} />
-              <div>
-                <h3>Configured is not verified.</h3>
-                <p>
-                  A successful source-agent response is the proof of a live retrieval. If a
-                  configured provider fails, the app shows the failure. It never presents a local
-                  explanation as a live agent run.
-                </p>
-              </div>
-            </div>
-            <div className="connection-help">
-              {access.required && access.authorized && (
-                <button className="secondary-button" onClick={() => void lockAgent()}>
-                  Lock source agent on this browser
-                </button>
-              )}
-              <h2>Server configuration</h2>
+            <section>
+              <h2>Which events can I check?</h2>
               <p>
-                The source project includes an environment template, rule-pack JSON Schema and seed
-                script, and a connection verifier. Keep tokens on the server. This screen never
-                accepts or exposes credentials.
+                FinePrint currently covers 19 selected requirements of the DEV × Sanity Challenge.
+                Choose Path One, Path Two, or both. Other events are not supported yet.
               </p>
-              <button
-                className="secondary-button"
-                onClick={() => {
-                  void fetch('/api/connection')
-                    .then((r) => r.json())
-                    .then(setConnection);
-                  setNotice(
-                    'Configuration refreshed. Run a source explanation to verify the connection.',
-                  );
-                }}
-              >
-                <RotateCcw size={16} />
-                Refresh configuration
+              <button className="text-button" onClick={() => setView('sources')}>
+                Read the official sources <ArrowRight size={15} />
               </button>
-            </div>
+            </section>
+            <section>
+              <h2>What does a result mean?</h2>
+              <p>
+                Supported means your stated facts meet a particular check. Blocked identifies a
+                mismatch. Missing fact means more information is needed. Rules unclear preserves a
+                source conflict for the organizer to resolve. A report is not approval to enter or
+                win a prize.
+              </p>
+            </section>
+            <section>
+              <h2>Where is my work saved?</h2>
+              <p>
+                Your reviews, questions and answers autosave in this browser. They are not uploaded
+                to the public rules dataset or synced to an account. Anyone using this browser
+                profile can open them. A backup downloads your project facts; a report downloads the
+                findings. Clearing browser data removes local reviews.
+              </p>
+              <button className="text-button" onClick={() => setView('reviews')}>
+                Manage reviews and backups <ArrowRight size={15} />
+              </button>
+            </section>
+            <section>
+              <h2>Do I need to use AI?</h2>
+              <p>
+                No. Add facts and use Check rules as often as you need. Optional questions and
+                explanations share an allowance of five requests per ten minutes in a regional pool.
+                If it is busy, continue with the form. The AI service receives your question and any
+                facts you explicitly include; avoid putting passwords or private access codes in a
+                question.
+              </p>
+            </section>
+            <section>
+              <h2>How current are the rules?</h2>
+              <p>
+                The current source capture is September 20, 2026. Each finding links to its official
+                source. Check that page for changes before submitting. A saved report shows when
+                your facts were checked. If a connection fails, you can explicitly choose the dated
+                saved rules.
+              </p>
+            </section>
+            <details className="product-transparency">
+              <summary>Technology and verification</summary>
+              <p>
+                Sanity Content Lake holds the curated requirements. Sanity Context supplies the
+                Knowledge Base. Modal runs the model that reads sources and proposes facts. The
+                typed checker computes the report; model and check disagreements remain visible.
+              </p>
+              <p>
+                Provider setup:{' '}
+                {connection.rules && connection.context && connection.model
+                  ? 'configured'
+                  : 'partially configured'}
+                . A completed source read is the evidence of a live connection.
+              </p>
+              <button className="text-button" onClick={() => void openEvaluation()}>
+                Inspect the authored test cases <ArrowRight size={15} />
+              </button>
+              <a href="https://github.com/himanshu748/fineprint" target="_blank" rel="noreferrer">
+                View the source code <ExternalLink size={14} />
+              </a>
+            </details>
+            {access.required && access.authorized && (
+              <button className="secondary-button" onClick={() => void lockAgent()}>
+                Lock AI access on this browser
+              </button>
+            )}
           </div>
         )}
       </main>
@@ -1407,7 +1647,7 @@ function PageIntro({
     <div className="secondary-heading">
       <button className="text-button" onClick={onBack}>
         <ArrowLeft size={15} />
-        Review desk
+        Back to review
       </button>
       <h1>{title}</h1>
       <p>{description}</p>

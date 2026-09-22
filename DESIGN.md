@@ -276,6 +276,8 @@ Forest and sage connect the application to the landing; slate neutrals support d
 
 ## Layout
 
+The personal review library is a centered 1120px surface. A plain event-scope strip precedes the creation form: explanatory copy at left, labeled fields at right. It stacks below 900px. Reviews are rows with a name, last checked status, edit date and Continue action. Archive and backup controls remain secondary. On phones, creation actions and backup controls wrap or stack with 16px field text. The active review adds an autosave state, a next-missing-fact action and an optional AI disclosure above the established workbench.
+
 The desk has a 78px app bar and a centered container up to 1600px with 36px padding. The workbench is one bordered surface with facts, findings, and sources in 266px / flexible / 294px columns. Its desktop height is viewport-relative with a 560px minimum. Pane headers, report context, and the check action remain visible while long contents scroll.
 
 At 1500px and above, side panes widen to 282px and 324px. At 1190px and below, they narrow to 236px and 265px and outer padding becomes 26px by 20px. At 1000px and below, sources move under the other two panes, the workbench becomes content-height, and internal scrolling is released. At 700px and below, three labeled pane tabs select one visible pane, app navigation wraps to a separate row, and page side padding is 15px.
@@ -325,6 +327,8 @@ Desk fields are white, bordered, 7px round, and padded 9px by 10px. Their final 
 The question path selector stays visible; the adjacent checkbox explicitly includes desk facts. Busy requests disable the fields and submit action. Errors use a red alert with the actual error text; there is no separate invented field-error style.
 
 ### Navigation
+
+Primary app navigation is My reviews, Current review when one is open, and Sources. Help & privacy contains product guidance and a collapsed technical section. Example scenarios and evaluation diagnostics are learning paths rather than the first visitor experience. The landing header links to My reviews.
 
 Desk navigation uses muted, weight-650 text, a forest active label, and a 2px bottom rule. Hover darkens the label without a fill. Phone pane tabs use a pale rail with a white selected inset and retain all three pane names. The landing’s sticky header pairs the wordmark with an in-page link and a bordered desk link; ordinary links underline on hover. Focus remains visible on links, controls, and disclosure summaries.
 

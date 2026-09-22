@@ -4,7 +4,7 @@
 
 **Scope:** one carefully curated competition, the DEV Sanity Challenge. Help a builder distinguish new work with reused components from an already-existing application, expose the real submission-limit disagreement, and see how changed project facts affect selected findings. Show source authority and unknown facts rather than an eligibility score.
 
-**Core journey:** open the landing page → ask a question in the review desk → inspect the real Knowledge Base reads, quoted facts and typed check → explicitly apply those facts to the desk → inspect official sources → change one fact and compare → save locally or export. An illustrative case or manually declared facts can also start a review.
+**Core journey:** open the landing page → create a personal review for the supported event → follow the next missing fact → check rules and inspect official sources → return to the autosaved review as the project changes. Optional source questions expose real Knowledge Base reads, quoted facts and typed checks; applying them preserves other answers. Backup/import moves project facts between browsers and requires rechecking. Examples remain a separate learning path.
 
 **Sponsor role:** Sanity Content Lake stores versioned sources and typed requirements. Sanity Knowledge Base organizes these records into entries. The source agent actually reads that Knowledge Base through a dedicated Context MCP endpoint. Modal supplies the agent model, as explicitly selected by the user.
 
@@ -16,4 +16,4 @@
 
 **Privacy boundary:** only public curated source records go to the Sanity dataset. Snapshot storage stays in this browser. Asking a question shares it and any explicitly included form facts with Modal; requesting an explanation shares the selected finding's relevant declared facts. Credentials stay server-side. Public live requests retain the existing shared regional limit.
 
-**Outside this delivery:** arbitrary-event crawling, repository inference, organizer outreach, automatic submissions, a deployed multi-user service, legal guarantees and hackathon judging outcomes.
+**Outside this delivery:** arbitrary-event crawling, repository inference, organizer outreach, automatic submissions, accounts and cloud synchronization, legal guarantees and hackathon judging outcomes.

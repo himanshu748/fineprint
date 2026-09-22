@@ -38,3 +38,8 @@ Official DEV challenge, event-specific rules, general rules, and Sanity Context 
 
 ## September 22 continuation
 The user approved Claude's product-focused landing without 3D, a public question agent with existing request limits, a public repository and redeployment. The page demonstrates source retrieval, conflicting rules and a real before/after check. The agent reads Sanity Context, proposes quoted facts, invokes the typed checker and displays its source interpretation alongside the check. User confirmation in the recovered Claude session supersedes the earlier Three.js direction. Build directly in code using the established review-desk visual language.
+
+## Personal review workflow
+The user asked for a usable product, not a project showcase. New visitors create their own named review for either supported path; they do not inherit an example's answers. Reviews autosave locally, resume after reload, and preserve unfinished input separately from the last validated report. The next missing fact is a direct action. Source questions are optional, and the ordinary checks do not consume the shared AI allowance. Examples, provider diagnostics and fixture evaluation sit outside the primary task.
+
+Keep up to 30 reviews on the device, with archive/restore, confirmed deletion of archived reviews, facts-only JSON backup/import and Markdown report export. Imports preserve existing work and discard imported verdicts. Storage errors and conflicting tabs pause saving visibly. No account or cloud sync is promised; the supported event and dated source boundary remain explicit.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowRight, CircleAlert, LoaderCircle, MessageSquareText } from 'lucide-react';
 import {
   askResponseSchema,
@@ -8,7 +8,7 @@ import {
   type AskResponse,
   type AgentError,
 } from '@/lib/agent-schema';
-import type { Dossier, Report, Status } from '@/lib/model';
+import type { Dossier, Status } from '@/lib/model';
 import { formatFact } from '@/lib/engine';
 import { AgentTrace } from './agent-trace';
 import { AgentAccessForm } from './agent-access-form';
@@ -34,19 +34,37 @@ const prompts = [
 export function AskFinePrint({
   dossier,
   onApply,
+  initialQuestion = '',
+  initialResult = null,
+  onRemember,
+  onManualReview,
+  onSources,
 }: {
   dossier: Dossier;
-  onApply: (report: Report) => void;
+  onApply: (answer: AskResponse) => void;
+  initialQuestion?: string;
+  initialResult?: AskResponse | null;
+  onRemember: (question: string, answer: AskResponse | null) => void;
+  onManualReview: () => void;
+  onSources: () => void;
 }) {
-  const [question, setQuestion] = useState('');
-  const [track, setTrack] = useState<Dossier['track']>('path-one');
+  const [question, setQuestion] = useState(initialQuestion);
+  const [track, setTrack] = useState<Dossier['track']>(dossier.track);
   const [includeFacts, setIncludeFacts] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<AskResponse | null>(null);
+  const [result, setResult] = useState<AskResponse | null>(initialResult);
   const [error, setError] = useState<AgentError | null>(null);
   const [unlock, setUnlock] = useState(false);
   const [applied, setApplied] = useState(false);
   const answerRef = useRef<HTMLDivElement>(null);
+  const remember = useRef(onRemember);
+  remember.current = onRemember;
+  useEffect(() => {
+    remember.current(question, result);
+  }, [question, result]);
+  useEffect(() => {
+    setTrack(dossier.track);
+  }, [dossier.track]);
 
   async function ask(event: FormEvent) {
     event.preventDefault();
@@ -76,6 +94,8 @@ export function AskFinePrint({
         throw new Error(
           'The response could not be validated. Your existing report has not changed.',
         );
+      // Preserve a completed answer even if its panel was closed while it ran.
+      remember.current(question, parsed.data);
       setResult(parsed.data);
       requestAnimationFrame(() => answerRef.current?.focus({ preventScroll: true }));
     } catch (failure) {
@@ -147,7 +167,7 @@ export function AskFinePrint({
               disabled={busy}
               onChange={(event) => setIncludeFacts(event.target.checked)}
             />
-            Also use the facts in my review desk
+            Include my current project facts
           </label>
           <button
             className="primary-button ask-submit"
@@ -159,9 +179,9 @@ export function AskFinePrint({
           </button>
         </div>
         <p className="ask-privacy">
-          Your question{includeFacts ? ' and selected project facts are' : ' is'} sent to Modal.
-          Sanity supplies the rule sources. Saved reports stay in this browser. Public demo: five
-          shared runs per ten minutes.
+          Your question{includeFacts ? ' and selected project facts are' : ' is'} sent to Modal. A
+          copy of your question and answer is saved in this browser. AI requests share an allowance
+          of five runs per ten minutes. The form works without AI.
         </p>
       </form>
       {busy && (
@@ -189,6 +209,9 @@ export function AskFinePrint({
             {error.error}
           </p>
           {error.trace && <AgentTrace steps={error.trace} />}
+          <button className="secondary-button" onClick={onManualReview}>
+            Continue with the form <ArrowRight size={15} />
+          </button>
         </div>
       )}
       {result && (
@@ -200,19 +223,27 @@ export function AskFinePrint({
           <p className="answered-question">For: {result.question}</p>
           <p className="answer-prose">{result.answer}</p>
           <div className="ask-citations">
-            <span>Read from Sanity</span>
+            <span>Sources read</span>
             {result.citations.map((path) => (
-              <code key={path}>{path}</code>
+              <span className="source-topic" key={path} title={path}>
+                {path.replaceAll('_', ' ').replaceAll('/', ' / ')}
+              </span>
             ))}
+            <button className="text-button" onClick={onSources}>
+              Read the official rules <ArrowRight size={14} />
+            </button>
           </div>
           <div className="ask-comparisons">
-            <h4>Source interpretation and typed checks</h4>
-            <p>Agreement is a comparison, not independent verification.</p>
+            <h4>Checks behind this answer</h4>
+            <p>
+              Your stated facts are checked against the rules. Different interpretations stay
+              visible.
+            </p>
             {result.comparison.map((item) => (
               <div className="ask-comparison" key={item.ruleId}>
                 <strong>{item.title}</strong>
                 <span>
-                  Agent <b className={`status-tag ${item.agent}`}>{labels[item.agent]}</b>
+                  Source reading <b className={`status-tag ${item.agent}`}>{labels[item.agent]}</b>
                 </span>
                 <span>
                   Rule check <b className={`status-tag ${item.engine}`}>{labels[item.engine]}</b>
@@ -272,19 +303,19 @@ export function AskFinePrint({
               facts.
               <br />
               <small>
-                Applying replaces the desk with this question’s facts and keeps the current report
-                for comparison.
+                Add the quoted facts to your review and check again. Your other answers and notes
+                stay as entered.
               </small>
             </p>
             <button
               className="secondary-button"
               disabled={applied}
               onClick={() => {
-                onApply(result.report);
+                onApply(result);
                 setApplied(true);
               }}
             >
-              {applied ? 'Applied to review desk' : 'Review these facts below'}
+              {applied ? 'Facts added to your review' : 'Add these facts to my review'}
               <ArrowDown size={16} />
             </button>
           </div>

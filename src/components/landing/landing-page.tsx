@@ -33,7 +33,7 @@ export function LandingPage() {
         <nav aria-label="Landing navigation">
           <a href="#sources">How it works</a>
           <Link href="/review">
-            Open the desk
+            My reviews
             <ArrowUpRight size={16} />
           </Link>
         </nav>
@@ -52,7 +52,7 @@ export function LandingPage() {
             </p>
             <div className="hero-actions">
               <Link className="product-cta" href="/review">
-                Check your project
+                Start a free review
                 <ArrowRight size={18} />
               </Link>
               <a href="#sources">
@@ -61,9 +61,9 @@ export function LandingPage() {
               </a>
             </div>
             <p className="hero-scope">
-              Made for the DEV × Sanity Challenge.
+              Currently checking the DEV × Sanity Challenge.
               <br />
-              Ask a question. See the source. Keep the uncertainty.
+              No account needed. Your work saves on this device.
             </p>
           </div>
           <RecordedAnswer
@@ -73,11 +73,11 @@ export function LandingPage() {
         </section>
         <div className="product-context">
           <span>
-            Built with <strong>Sanity Context</strong> + <strong>Modal</strong>
+            Your project. <strong>Your saved review.</strong>
           </span>
           <p>
-            Your words become stated facts. The agent reads the Knowledge Base. Every finding keeps
-            its source.
+            Start with what you know, follow the next question, and return when your project
+            changes. Each finding keeps its official source.
           </p>
         </div>
         <section className="product-section" id="sources" aria-labelledby="sources-title">
@@ -88,7 +88,7 @@ export function LandingPage() {
               were used and when the source was captured.
             </p>
             <a className="product-text-link" href="/review">
-              Inspect a real finding
+              Check your project
               <ArrowUpRight size={16} />
             </a>
           </div>
@@ -170,7 +170,7 @@ export function LandingPage() {
             <span className="status-tag unclear">Rules unclear</span>
             <p>{conflict.question}</p>
             <Link href="/review">
-              Explore this case
+              Start a review
               <ArrowRight size={17} />
             </Link>
           </div>
@@ -200,10 +200,10 @@ export function LandingPage() {
               <br />
               read the FinePrint.
             </h2>
-            <p>Start with the part you’re unsure about.</p>
+            <p>Create a review. Keep the sources and your next steps together.</p>
           </div>
           <Link className="product-cta" href="/review">
-            Ask your first question
+            Start a free review
             <ArrowRight size={19} />
           </Link>
         </section>
@@ -213,7 +213,7 @@ export function LandingPage() {
           FinePrint.
         </a>
         <p>
-          Selected rules of one event. Explicit unknowns.
+          Free rule checks. Optional AI help. Built with Sanity Context and Modal.
           <br />A review is not an eligibility certificate or organizer approval.
         </p>
         <a href="https://dev.to/challenges/sanity-2026-09-16" target="_blank" rel="noreferrer">

@@ -2,15 +2,17 @@
 
 [Live app](https://fineprint-kappa.vercel.app) · [Review desk](https://fineprint-kappa.vercel.app/review)
 
-Ask which Sanity Challenge rules apply to your project. FinePrint reads a Sanity Knowledge Base through Context MCP, extracts quoted facts from your question, calls a typed rules checker and returns a cited answer. Source interpretation and the typed result stay visible together, including disagreements.
+Check which Sanity Challenge rules apply to your project, save your progress, and return as your project changes. FinePrint guides you through missing facts and links each finding to its official source. Optional AI questions read a Sanity Knowledge Base through Context MCP and compare the source interpretation with a typed rules check.
 
 ## Try it
 
-1. Open the review desk and choose **An earlier project** or **Two entries, one path**.
-2. Ask FinePrint. The live agent runs without an access code on the public deployment.
-3. Inspect the accepted facts and actual tool/model steps. Unknown facts remain missing.
-4. Choose **Review these facts below** to apply the result to the desk. This preserves the previous report for comparison.
-5. Change a fact, recheck and inspect the official sources behind the changed finding.
+1. Open **My reviews**, enter your project name, and choose Path One, Path Two, or both. Leave unknown facts unanswered.
+2. Create your review and follow **Add this fact** to the next missing answer. **Check rules** refreshes the findings without using AI.
+3. Open a finding to inspect its declared facts and official sources. Changes stay separate from the last checked report until you check again.
+4. For help with a rule, expand **Ask a question about the rules**. Review the cited answer and quoted facts before choosing **Add these facts to my review**; your other answers and notes are preserved.
+5. Return through **My reviews**. Drafts, reports, questions and answers autosave in this browser. Download a facts backup to move browsers, or a Markdown report to keep the findings.
+
+No account is required. Archive and restore reviews, or delete an archived review after confirming. Backups preserve existing reviews on import and require a fresh check. An example review is available separately and is always labeled illustrative.
 
 The homepage contains a clearly labeled recorded source explanation, an expandable official source, the real FAQ/contest submission-limit conflict and an interactive check comparison. It makes no live model request. The old Three.js scene has been removed.
 
@@ -29,7 +31,8 @@ The typed engine matches 42 authored regression scenarios. The recorded Modal ba
 - **Modal:** DeepSeek V4.1 Flash selects source entries and proposes quoted facts and interpretations.
 - **Typed check:** the agent invokes `check_requirements`. Zod validates proposals, conservative guards reject unsupported quotes, then the condition engine evaluates the facts. The agent cannot overwrite the resulting statuses.
 - **Output:** the question flow retains only citation paths actually read and discloses removed paths. Per-finding explanations reject any unretrieved citation. Provider failures stay errors.
-- **Storage:** at most 12 report snapshots in the browser, with Markdown export. The question and optionally selected facts are sent to Modal during a live run. They are not saved to the public Sanity dataset.
+- **Storage:** up to 30 personal reviews in browser storage, including archived reviews. Unfinished drafts survive reloads; another tab's changes pause autosave rather than overwrite work. JSON backups contain project facts, not imported verdicts or AI answers; Markdown exports retain the checked report. Earlier saved snapshots remain accessible. There is no account or cloud sync. Clearing browser data removes local work.
+- **Privacy:** manual checks send declared facts to the application server. Optional questions and included facts are sent to Modal; per-finding explanations send the relevant facts. Personal reviews are not stored in the public Sanity dataset. Anyone using the same browser profile can open its saved reviews.
 
 The question flow is bounded to four model rounds, six retrieved entries and 45,000 source characters. Explanations use up to three rounds. Both routes share the existing Vercel Firewall rule: five requests per ten minutes in a shared regional bucket. This is not a hard global spend cap. An additional process-local guard allows two concurrent runs and 20 requests per hour.
 
@@ -44,6 +47,8 @@ npm run dev
 ```
 
 The desk works with a dated local rule pack without provider credentials. Live questions require a read-only Sanity Context token and a Modal endpoint. The existing authenticated Modal CLI can be used only in local development; production requires a server-side invocation credential.
+
+If a hosted rule check cannot reach its source, the desk offers **Use saved rules · Sep 20** explicitly and labels the resulting report. AI failures and rate limits leave the manual workflow available. Neither mode automatically refreshes the official websites.
 
 Production fails closed when the Vercel request-limit configuration is unavailable. Optional access-code deployments set `FINEPRINT_REQUIRE_ACCESS_CODE=true` and configure the access key and session secret. Otherwise the agent is public, still subject to the request limit.
 
@@ -69,6 +74,8 @@ npm run format:check
 - `src/lib/engine.ts`: applicability, uncertainty, conditions and comparisons.
 - `src/lib/rules.ts`: dated source snapshot and illustrative dossiers.
 - `src/components/ask-fineprint.tsx`: public question flow and inspectable results.
+- `src/components/review-library.tsx`: create, resume, archive and transfer personal reviews.
+- `src/lib/review-workspace.ts`: draft validation, safe backups, fact merging and storage conflicts.
 - `src/components/landing/`: product demonstrations, without WebGL.
 - `sanity/`: schema for the structured rules.
 - `evaluation/`: authored scenarios and recorded provider results.
