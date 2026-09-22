@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "track": {
+      "type": "string",
+      "enum": [
+        "path-one",
+        "path-two",
+        "both"
+      ]
+    },
+    "origin": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "new",
+            "components",
+            "existing"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "startedAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 40
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "teamSize": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "adultTeam": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "eligibleResidency": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "devMembership": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "excludedAffiliation": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "priorWorkCredited": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "substantialNewWork": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "usesSanity": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "usesContext": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "usesKnowledgeBase": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "aiBuilt": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "supportedFrontend": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "entriesPerPath": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "separatePosts": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "englishSubmission": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "requiresLogin": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "judgeAccess": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "projectIdentifier": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 300
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "publishedPost": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hasChallengeTag": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "seeksMultiplePrizes": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "evidenceNote": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  },
+  "required": [
+    "name",
+    "track",
+    "origin",
+    "startedAt",
+    "teamSize",
+    "adultTeam",
+    "eligibleResidency",
+    "devMembership",
+    "excludedAffiliation",
+    "priorWorkCredited",
+    "substantialNewWork",
+    "usesSanity",
+    "usesContext",
+    "usesKnowledgeBase",
+    "aiBuilt",
+    "supportedFrontend",
+    "entriesPerPath",
+    "separatePosts",
+    "englishSubmission",
+    "requiresLogin",
+    "judgeAccess",
+    "projectIdentifier",
+    "publishedPost",
+    "hasChallengeTag",
+    "seeksMultiplePrizes",
+    "evidenceNote"
+  ],
+  "additionalProperties": false
+}

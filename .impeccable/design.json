@@ -1,0 +1,745 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-22T05:48:12.624884Z",
+  "title": "Design System: FinePrint",
+  "extensions": {
+    "colorMeta": {
+      "page": {
+        "role": "neutral",
+        "displayName": "Cool Page",
+        "tonalRamp": [
+          "oklch(15.0% 0.0025 228.8)",
+          "oklch(26.4% 0.0025 228.8)",
+          "oklch(37.9% 0.0025 228.8)",
+          "oklch(49.3% 0.0025 228.8)",
+          "oklch(60.7% 0.0025 228.8)",
+          "oklch(72.1% 0.0025 228.8)",
+          "oklch(83.6% 0.0025 228.8)",
+          "oklch(95.0% 0.0025 228.8)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White Surface",
+        "tonalRamp": [
+          "oklch(15.0% 0.0000 0.0)",
+          "oklch(26.4% 0.0000 0.0)",
+          "oklch(37.9% 0.0000 0.0)",
+          "oklch(49.3% 0.0000 0.0)",
+          "oklch(60.7% 0.0000 0.0)",
+          "oklch(72.1% 0.0000 0.0)",
+          "oklch(83.6% 0.0000 0.0)",
+          "oklch(95.0% 0.0000 0.0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "tonalRamp": [
+          "oklch(15.0% 0.0237 233.6)",
+          "oklch(26.4% 0.0237 233.6)",
+          "oklch(37.9% 0.0237 233.6)",
+          "oklch(49.3% 0.0237 233.6)",
+          "oklch(60.7% 0.0237 233.6)",
+          "oklch(72.1% 0.0237 233.6)",
+          "oklch(83.6% 0.0237 233.6)",
+          "oklch(95.0% 0.0237 233.6)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Slate",
+        "tonalRamp": [
+          "oklch(15.0% 0.0229 234.2)",
+          "oklch(26.4% 0.0229 234.2)",
+          "oklch(37.9% 0.0229 234.2)",
+          "oklch(49.3% 0.0229 234.2)",
+          "oklch(60.7% 0.0229 234.2)",
+          "oklch(72.1% 0.0229 234.2)",
+          "oklch(83.6% 0.0229 234.2)",
+          "oklch(95.0% 0.0229 234.2)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15.0% 0.0066 208.8)",
+          "oklch(26.4% 0.0066 208.8)",
+          "oklch(37.9% 0.0066 208.8)",
+          "oklch(49.3% 0.0066 208.8)",
+          "oklch(60.7% 0.0066 208.8)",
+          "oklch(72.1% 0.0066 208.8)",
+          "oklch(83.6% 0.0066 208.8)",
+          "oklch(95.0% 0.0066 208.8)"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Line Strong",
+        "tonalRamp": [
+          "oklch(15.0% 0.0120 203.5)",
+          "oklch(26.4% 0.0120 203.5)",
+          "oklch(37.9% 0.0120 203.5)",
+          "oklch(49.3% 0.0120 203.5)",
+          "oklch(60.7% 0.0120 203.5)",
+          "oklch(72.1% 0.0120 203.5)",
+          "oklch(83.6% 0.0120 203.5)",
+          "oklch(95.0% 0.0120 203.5)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Forest Ink",
+        "tonalRamp": [
+          "oklch(15.0% 0.0752 172.0)",
+          "oklch(26.4% 0.0752 172.0)",
+          "oklch(37.9% 0.0752 172.0)",
+          "oklch(49.3% 0.0752 172.0)",
+          "oklch(60.7% 0.0752 172.0)",
+          "oklch(72.1% 0.0752 172.0)",
+          "oklch(83.6% 0.0752 172.0)",
+          "oklch(95.0% 0.0752 172.0)"
+        ]
+      },
+      "accent-dark": {
+        "role": "primary",
+        "displayName": "Forest Ink Hover",
+        "tonalRamp": [
+          "oklch(15.0% 0.0635 169.6)",
+          "oklch(26.4% 0.0635 169.6)",
+          "oklch(37.9% 0.0635 169.6)",
+          "oklch(49.3% 0.0635 169.6)",
+          "oklch(60.7% 0.0635 169.6)",
+          "oklch(72.1% 0.0635 169.6)",
+          "oklch(83.6% 0.0635 169.6)",
+          "oklch(95.0% 0.0635 169.6)"
+        ]
+      },
+      "sage": {
+        "role": "primary",
+        "displayName": "Sage",
+        "tonalRamp": [
+          "oklch(15.0% 0.0100 164.9)",
+          "oklch(26.4% 0.0100 164.9)",
+          "oklch(37.9% 0.0100 164.9)",
+          "oklch(49.3% 0.0100 164.9)",
+          "oklch(60.7% 0.0100 164.9)",
+          "oklch(72.1% 0.0100 164.9)",
+          "oklch(83.6% 0.0100 164.9)",
+          "oklch(95.0% 0.0100 164.9)"
+        ]
+      },
+      "red": {
+        "role": "secondary",
+        "displayName": "Blocked Red",
+        "tonalRamp": [
+          "oklch(15.0% 0.1383 29.7)",
+          "oklch(26.4% 0.1383 29.7)",
+          "oklch(37.9% 0.1383 29.7)",
+          "oklch(49.3% 0.1383 29.7)",
+          "oklch(60.7% 0.1383 29.7)",
+          "oklch(72.1% 0.1383 29.7)",
+          "oklch(83.6% 0.1383 29.7)",
+          "oklch(95.0% 0.1383 29.7)"
+        ]
+      },
+      "red-bg": {
+        "role": "secondary",
+        "displayName": "Red Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0133 28.9)",
+          "oklch(26.4% 0.0133 28.9)",
+          "oklch(37.9% 0.0133 28.9)",
+          "oklch(49.3% 0.0133 28.9)",
+          "oklch(60.7% 0.0133 28.9)",
+          "oklch(72.1% 0.0133 28.9)",
+          "oklch(83.6% 0.0133 28.9)",
+          "oklch(95.0% 0.0133 28.9)"
+        ]
+      },
+      "amber": {
+        "role": "secondary",
+        "displayName": "Unresolved Amber",
+        "tonalRamp": [
+          "oklch(15.0% 0.0964 75.9)",
+          "oklch(26.4% 0.0964 75.9)",
+          "oklch(37.9% 0.0964 75.9)",
+          "oklch(49.3% 0.0964 75.9)",
+          "oklch(60.7% 0.0964 75.9)",
+          "oklch(72.1% 0.0964 75.9)",
+          "oklch(83.6% 0.0964 75.9)",
+          "oklch(95.0% 0.0964 75.9)"
+        ]
+      },
+      "amber-bg": {
+        "role": "secondary",
+        "displayName": "Amber Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0199 84.6)",
+          "oklch(26.4% 0.0199 84.6)",
+          "oklch(37.9% 0.0199 84.6)",
+          "oklch(49.3% 0.0199 84.6)",
+          "oklch(60.7% 0.0199 84.6)",
+          "oklch(72.1% 0.0199 84.6)",
+          "oklch(83.6% 0.0199 84.6)",
+          "oklch(95.0% 0.0199 84.6)"
+        ]
+      },
+      "blue": {
+        "role": "secondary",
+        "displayName": "Context Blue",
+        "tonalRamp": [
+          "oklch(15.0% 0.0968 258.6)",
+          "oklch(26.4% 0.0968 258.6)",
+          "oklch(37.9% 0.0968 258.6)",
+          "oklch(49.3% 0.0968 258.6)",
+          "oklch(60.7% 0.0968 258.6)",
+          "oklch(72.1% 0.0968 258.6)",
+          "oklch(83.6% 0.0968 258.6)",
+          "oklch(95.0% 0.0968 258.6)"
+        ]
+      },
+      "blue-bg": {
+        "role": "secondary",
+        "displayName": "Blue Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0120 259.8)",
+          "oklch(26.4% 0.0120 259.8)",
+          "oklch(37.9% 0.0120 259.8)",
+          "oklch(49.3% 0.0120 259.8)",
+          "oklch(60.7% 0.0120 259.8)",
+          "oklch(72.1% 0.0120 259.8)",
+          "oklch(83.6% 0.0120 259.8)",
+          "oklch(95.0% 0.0120 259.8)"
+        ]
+      },
+      "supported": {
+        "role": "secondary",
+        "displayName": "Supported Green",
+        "tonalRamp": [
+          "oklch(15.0% 0.0948 151.8)",
+          "oklch(26.4% 0.0948 151.8)",
+          "oklch(37.9% 0.0948 151.8)",
+          "oklch(49.3% 0.0948 151.8)",
+          "oklch(60.7% 0.0948 151.8)",
+          "oklch(72.1% 0.0948 151.8)",
+          "oklch(83.6% 0.0948 151.8)",
+          "oklch(95.0% 0.0948 151.8)"
+        ]
+      },
+      "supported-bg": {
+        "role": "secondary",
+        "displayName": "Supported Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0116 153.7)",
+          "oklch(26.4% 0.0116 153.7)",
+          "oklch(37.9% 0.0116 153.7)",
+          "oklch(49.3% 0.0116 153.7)",
+          "oklch(60.7% 0.0116 153.7)",
+          "oklch(72.1% 0.0116 153.7)",
+          "oklch(83.6% 0.0116 153.7)",
+          "oklch(95.0% 0.0116 153.7)"
+        ]
+      },
+      "unclear": {
+        "role": "secondary",
+        "displayName": "Rules Unclear Text",
+        "tonalRamp": [
+          "oklch(15.0% 0.0831 259.7)",
+          "oklch(26.4% 0.0831 259.7)",
+          "oklch(37.9% 0.0831 259.7)",
+          "oklch(49.3% 0.0831 259.7)",
+          "oklch(60.7% 0.0831 259.7)",
+          "oklch(72.1% 0.0831 259.7)",
+          "oklch(83.6% 0.0831 259.7)",
+          "oklch(95.0% 0.0831 259.7)"
+        ]
+      },
+      "not-applicable": {
+        "role": "neutral",
+        "displayName": "Not Applicable",
+        "tonalRamp": [
+          "oklch(15.0% 0.0232 219.9)",
+          "oklch(26.4% 0.0232 219.9)",
+          "oklch(37.9% 0.0232 219.9)",
+          "oklch(49.3% 0.0232 219.9)",
+          "oklch(60.7% 0.0232 219.9)",
+          "oklch(72.1% 0.0232 219.9)",
+          "oklch(83.6% 0.0232 219.9)",
+          "oklch(95.0% 0.0232 219.9)"
+        ]
+      },
+      "not-applicable-bg": {
+        "role": "neutral",
+        "displayName": "Not Applicable Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0025 228.8)",
+          "oklch(26.4% 0.0025 228.8)",
+          "oklch(37.9% 0.0025 228.8)",
+          "oklch(49.3% 0.0025 228.8)",
+          "oklch(60.7% 0.0025 228.8)",
+          "oklch(72.1% 0.0025 228.8)",
+          "oklch(83.6% 0.0025 228.8)",
+          "oklch(95.0% 0.0025 228.8)"
+        ]
+      },
+      "selected": {
+        "role": "primary",
+        "displayName": "Selected",
+        "tonalRamp": [
+          "oklch(15.0% 0.0091 161.4)",
+          "oklch(26.4% 0.0091 161.4)",
+          "oklch(37.9% 0.0091 161.4)",
+          "oklch(49.3% 0.0091 161.4)",
+          "oklch(60.7% 0.0091 161.4)",
+          "oklch(72.1% 0.0091 161.4)",
+          "oklch(83.6% 0.0091 161.4)",
+          "oklch(95.0% 0.0091 161.4)"
+        ]
+      },
+      "selected-line": {
+        "role": "primary",
+        "displayName": "Selected Line",
+        "tonalRamp": [
+          "oklch(15.0% 0.0304 161.0)",
+          "oklch(26.4% 0.0304 161.0)",
+          "oklch(37.9% 0.0304 161.0)",
+          "oklch(49.3% 0.0304 161.0)",
+          "oklch(60.7% 0.0304 161.0)",
+          "oklch(72.1% 0.0304 161.0)",
+          "oklch(83.6% 0.0304 161.0)",
+          "oklch(95.0% 0.0304 161.0)"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Green",
+        "tonalRamp": [
+          "oklch(15.0% 0.0855 170.8)",
+          "oklch(26.4% 0.0855 170.8)",
+          "oklch(37.9% 0.0855 170.8)",
+          "oklch(49.3% 0.0855 170.8)",
+          "oklch(60.7% 0.0855 170.8)",
+          "oklch(72.1% 0.0855 170.8)",
+          "oklch(83.6% 0.0855 170.8)",
+          "oklch(95.0% 0.0855 170.8)"
+        ]
+      },
+      "field-bg": {
+        "role": "neutral",
+        "displayName": "Field Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0025 165.1)",
+          "oklch(26.4% 0.0025 165.1)",
+          "oklch(37.9% 0.0025 165.1)",
+          "oklch(49.3% 0.0025 165.1)",
+          "oklch(60.7% 0.0025 165.1)",
+          "oklch(72.1% 0.0025 165.1)",
+          "oklch(83.6% 0.0025 165.1)",
+          "oklch(95.0% 0.0025 165.1)"
+        ]
+      },
+      "control-hover": {
+        "role": "neutral",
+        "displayName": "Control Hover",
+        "tonalRamp": [
+          "oklch(15.0% 0.0069 174.4)",
+          "oklch(26.4% 0.0069 174.4)",
+          "oklch(37.9% 0.0069 174.4)",
+          "oklch(49.3% 0.0069 174.4)",
+          "oklch(60.7% 0.0069 174.4)",
+          "oklch(72.1% 0.0069 174.4)",
+          "oklch(83.6% 0.0069 174.4)",
+          "oklch(95.0% 0.0069 174.4)"
+        ]
+      },
+      "pane-navigation": {
+        "role": "neutral",
+        "displayName": "Pane Navigation",
+        "tonalRamp": [
+          "oklch(15.0% 0.0075 164.9)",
+          "oklch(26.4% 0.0075 164.9)",
+          "oklch(37.9% 0.0075 164.9)",
+          "oklch(49.3% 0.0075 164.9)",
+          "oklch(60.7% 0.0075 164.9)",
+          "oklch(72.1% 0.0075 164.9)",
+          "oklch(83.6% 0.0075 164.9)",
+          "oklch(95.0% 0.0075 164.9)"
+        ]
+      },
+      "landing-paper": {
+        "role": "neutral",
+        "displayName": "Pale Paper",
+        "tonalRamp": [
+          "oklch(15.0% 0.0067 115.7)",
+          "oklch(26.4% 0.0067 115.7)",
+          "oklch(37.9% 0.0067 115.7)",
+          "oklch(49.3% 0.0067 115.7)",
+          "oklch(60.7% 0.0067 115.7)",
+          "oklch(72.1% 0.0067 115.7)",
+          "oklch(83.6% 0.0067 115.7)",
+          "oklch(95.0% 0.0067 115.7)"
+        ]
+      },
+      "landing-dark": {
+        "role": "primary",
+        "displayName": "Landing Forest",
+        "tonalRamp": [
+          "oklch(15.0% 0.0527 173.8)",
+          "oklch(26.4% 0.0527 173.8)",
+          "oklch(37.9% 0.0527 173.8)",
+          "oklch(49.3% 0.0527 173.8)",
+          "oklch(60.7% 0.0527 173.8)",
+          "oklch(72.1% 0.0527 173.8)",
+          "oklch(83.6% 0.0527 173.8)",
+          "oklch(95.0% 0.0527 173.8)"
+        ]
+      },
+      "landing-copy": {
+        "role": "neutral",
+        "displayName": "Landing Copy",
+        "tonalRamp": [
+          "oklch(15.0% 0.0329 154.5)",
+          "oklch(26.4% 0.0329 154.5)",
+          "oklch(37.9% 0.0329 154.5)",
+          "oklch(49.3% 0.0329 154.5)",
+          "oklch(60.7% 0.0329 154.5)",
+          "oklch(72.1% 0.0329 154.5)",
+          "oklch(83.6% 0.0329 154.5)",
+          "oklch(95.0% 0.0329 154.5)"
+        ]
+      },
+      "landing-line": {
+        "role": "neutral",
+        "displayName": "Landing Line",
+        "tonalRamp": [
+          "oklch(15.0% 0.0145 148.8)",
+          "oklch(26.4% 0.0145 148.8)",
+          "oklch(37.9% 0.0145 148.8)",
+          "oklch(49.3% 0.0145 148.8)",
+          "oklch(60.7% 0.0145 148.8)",
+          "oklch(72.1% 0.0145 148.8)",
+          "oklch(83.6% 0.0145 148.8)",
+          "oklch(95.0% 0.0145 148.8)"
+        ]
+      },
+      "landing-surface-line": {
+        "role": "neutral",
+        "displayName": "Landing Surface Line",
+        "tonalRamp": [
+          "oklch(15.0% 0.0181 148.1)",
+          "oklch(26.4% 0.0181 148.1)",
+          "oklch(37.9% 0.0181 148.1)",
+          "oklch(49.3% 0.0181 148.1)",
+          "oklch(60.7% 0.0181 148.1)",
+          "oklch(72.1% 0.0181 148.1)",
+          "oklch(83.6% 0.0181 148.1)",
+          "oklch(95.0% 0.0181 148.1)"
+        ]
+      },
+      "conflict-text": {
+        "role": "neutral",
+        "displayName": "Conflict Text",
+        "tonalRamp": [
+          "oklch(15.0% 0.0123 137.8)",
+          "oklch(26.4% 0.0123 137.8)",
+          "oklch(37.9% 0.0123 137.8)",
+          "oklch(49.3% 0.0123 137.8)",
+          "oklch(60.7% 0.0123 137.8)",
+          "oklch(72.1% 0.0123 137.8)",
+          "oklch(83.6% 0.0123 137.8)",
+          "oklch(95.0% 0.0123 137.8)"
+        ]
+      },
+      "conflict-copy": {
+        "role": "neutral",
+        "displayName": "Conflict Copy",
+        "tonalRamp": [
+          "oklch(15.0% 0.0271 155.9)",
+          "oklch(26.4% 0.0271 155.9)",
+          "oklch(37.9% 0.0271 155.9)",
+          "oklch(49.3% 0.0271 155.9)",
+          "oklch(60.7% 0.0271 155.9)",
+          "oklch(72.1% 0.0271 155.9)",
+          "oklch(83.6% 0.0271 155.9)",
+          "oklch(95.0% 0.0271 155.9)"
+        ]
+      },
+      "conflict-line": {
+        "role": "neutral",
+        "displayName": "Conflict Line",
+        "tonalRamp": [
+          "oklch(15.0% 0.0409 169.8)",
+          "oklch(26.4% 0.0409 169.8)",
+          "oklch(37.9% 0.0409 169.8)",
+          "oklch(49.3% 0.0409 169.8)",
+          "oklch(60.7% 0.0409 169.8)",
+          "oklch(72.1% 0.0409 169.8)",
+          "oklch(83.6% 0.0409 169.8)",
+          "oklch(95.0% 0.0409 169.8)"
+        ]
+      },
+      "closing-bg": {
+        "role": "neutral",
+        "displayName": "Closing Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0205 131.5)",
+          "oklch(26.4% 0.0205 131.5)",
+          "oklch(37.9% 0.0205 131.5)",
+          "oklch(49.3% 0.0205 131.5)",
+          "oklch(60.7% 0.0205 131.5)",
+          "oklch(72.1% 0.0205 131.5)",
+          "oklch(83.6% 0.0205 131.5)",
+          "oklch(95.0% 0.0205 131.5)"
+        ]
+      },
+      "recorded-bg": {
+        "role": "secondary",
+        "displayName": "Recorded Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0076 241.7)",
+          "oklch(26.4% 0.0076 241.7)",
+          "oklch(37.9% 0.0076 241.7)",
+          "oklch(49.3% 0.0076 241.7)",
+          "oklch(60.7% 0.0076 241.7)",
+          "oklch(72.1% 0.0076 241.7)",
+          "oklch(83.6% 0.0076 241.7)",
+          "oklch(95.0% 0.0076 241.7)"
+        ]
+      },
+      "changed-bg": {
+        "role": "secondary",
+        "displayName": "Changed Bg",
+        "tonalRamp": [
+          "oklch(15.0% 0.0243 94.1)",
+          "oklch(26.4% 0.0243 94.1)",
+          "oklch(37.9% 0.0243 94.1)",
+          "oklch(49.3% 0.0243 94.1)",
+          "oklch(60.7% 0.0243 94.1)",
+          "oklch(72.1% 0.0243 94.1)",
+          "oklch(83.6% 0.0243 94.1)",
+          "oklch(95.0% 0.0243 94.1)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Landing display",
+        "purpose": "Manrope headline; 42px in the final phone override."
+      },
+      "display-emphasis": {
+        "displayName": "Landing emphasis",
+        "purpose": "The italic Georgia word in the headline; it inherits display sizing."
+      },
+      "headline": {
+        "displayName": "Landing section heading",
+        "purpose": "Document and conflict section headings."
+      },
+      "page-title": {
+        "displayName": "Desk page title",
+        "purpose": "Review page heading; 26px in the final phone override."
+      },
+      "title": {
+        "displayName": "Pane title",
+        "purpose": "Compact headings over facts, findings, and sources."
+      },
+      "body": {
+        "displayName": "Desk body",
+        "purpose": "Primary interface reading voice."
+      },
+      "landing-body": {
+        "displayName": "Hero body",
+        "purpose": "Supporting hero copy limited to 34ch."
+      },
+      "answer": {
+        "displayName": "Live answer",
+        "purpose": "Preserved line breaks and an 85ch reading limit."
+      },
+      "label": {
+        "displayName": "Fact label",
+        "purpose": "Labels above desk input fields."
+      },
+      "finding-title": {
+        "displayName": "Finding title",
+        "purpose": "Result-row heading; 13px on phones."
+      },
+      "source-quote": {
+        "displayName": "Landing source quotation",
+        "purpose": "Georgia source excerpt in the landing document."
+      },
+      "knowledge-base-path": {
+        "displayName": "Knowledge Base path",
+        "purpose": "Explicit ui-monospace, SFMono-Regular, monospace stack in desk citation disclosures. SFMono-Regular is a system code fallback, not branding."
+      }
+    },
+    "shadows": [
+      {
+        "name": "primary-control",
+        "value": "0 3px 9px -4px #17564066",
+        "purpose": "Desk primary check action."
+      },
+      {
+        "name": "selected-filter",
+        "value": "0 1px 3px #28483d16",
+        "purpose": "Active findings filter."
+      },
+      {
+        "name": "selected-phone-pane",
+        "value": "0 2px 5px #24403313",
+        "purpose": "Active phone pane tab."
+      },
+      {
+        "name": "recorded-answer",
+        "value": "0 25px 65px -32px #24483955",
+        "purpose": "Ambient lift beneath the landing recorded answer."
+      },
+      {
+        "name": "selected-fact-choice",
+        "value": "0 2px 8px -3px #20493626",
+        "purpose": "Pressed choice in the landing fact switch."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-state",
+        "value": "0.17s ease",
+        "purpose": "Desk button background, color, and shadow changes."
+      },
+      {
+        "name": "landing-cta-state",
+        "value": "0.2s",
+        "purpose": "Landing CTA background transition."
+      },
+      {
+        "name": "disclosure-and-toggle",
+        "value": "transform 0.2s",
+        "purpose": "Fact-section arrow and comparison toggle."
+      },
+      {
+        "name": "recorded-question",
+        "value": "1s steps(36, end) both",
+        "purpose": "Clip reveal of the recorded question after entering view; replay restarts the sequence."
+      },
+      {
+        "name": "recorded-arrival",
+        "value": "0.7s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "purpose": "Recorded source reads start after 1s, individual paths after 1.2s plus 0.18s per path, and the answer after 2s."
+      },
+      {
+        "name": "landing-changed-row",
+        "value": "0.8s ease-out",
+        "purpose": "Amber wash on rows changed by the fact switch."
+      },
+      {
+        "name": "desk-changed-row",
+        "value": "1.1s cubic-bezier(0.16, 1, 0.3, 1) 1",
+        "purpose": "Highlights findings changed in comparison."
+      },
+      {
+        "name": "request-spinner",
+        "value": "1s linear infinite",
+        "purpose": "Visible only during an actual pending request."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Immediate page scroll; global animation and transition duration becomes 0.01ms with one iteration, while landing animation and transitions are disabled."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-desktop",
+        "value": "1500px"
+      },
+      {
+        "name": "compact-desk",
+        "value": "1190px"
+      },
+      {
+        "name": "stacked-sources",
+        "value": "1000px"
+      },
+      {
+        "name": "question-comparison",
+        "value": "850px"
+      },
+      {
+        "name": "phone",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary desk button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The full-width eligibility check action; request state controls its label and disabled state.",
+      "html": "<button class=\"ds-primary\">Check eligibility<svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5l7 7-7 7\"/></svg></button>",
+      "css": ".ds-primary {font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:12px 13px;border:0;border-radius:8px;background:var(--accent,#155d4b);color:var(--surface,#fff);font-size:11px;font-weight:650;line-height:1.6;box-shadow:0 3px 9px -4px #17564066;cursor:pointer;transition: background .17s ease, color .17s ease, box-shadow .17s ease;} .ds-primary>svg:last-child{margin-left:auto;} .ds-primary:hover{background:var(--accent-dark,#104838);} .ds-primary:focus-visible{outline: 3px solid #4c9981; outline-offset: 3px;} .ds-primary:disabled{background:var(--accent,#155d4b);opacity:.48;cursor:not-allowed;} @media(prefers-reduced-motion:reduce){.ds-primary{transition-duration:.01ms;}}"
+    },
+    {
+      "name": "Question field",
+      "kind": "input",
+      "refersTo": "question-input",
+      "description": "The larger question textarea above the desk; it begins empty and accepts explicit user wording.",
+      "html": "<label class=\"ds-question\"><span>Your project or rule question</span><textarea rows=\"3\" placeholder=\"I started my app before the event, but added Sanity this week. Can I enter?\"></textarea></label>",
+      "css": ".ds-question {font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);display:block;color:var(--ink,#233139);} .ds-question>span{display:block;font-size:12px;font-weight:650;margin-bottom:8px;line-height:1.6;} .ds-question textarea{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);display:block;width:100%;padding:15px 16px;resize:vertical;min-height:103px;max-height:300px;border:1px solid #b8c9c1;border-radius:8px;background:#fafcfb;color:var(--ink,#233139);font-size:15px;line-height:1.65;caret-color:var(--accent,#155d4b);} .ds-question textarea::placeholder{color:#64756c;} .ds-question textarea:focus-visible{outline: 3px solid #4c9981; outline-offset: 3px;} @media(max-width:700px){.ds-question textarea{font-size:16px;min-height:145px;}}"
+    },
+    {
+      "name": "Review status tags",
+      "kind": "chip",
+      "refersTo": "status-supported",
+      "description": "Noninteractive written statuses; color supplements the wording.",
+      "html": "<div class=\"ds-tags\"><span class=\"ds-status ds-supported\">Supported</span><span class=\"ds-status ds-blocked\">Blocked</span><span class=\"ds-status ds-missing\">Missing fact</span><span class=\"ds-status ds-unclear\">Rules unclear</span><span class=\"ds-status ds-not-applicable\">Not applicable</span></div>",
+      "css": ".ds-tags{display:flex;flex-wrap:wrap;gap:8px;} .ds-status{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);display:inline-flex;align-items:center;white-space:nowrap;font-size:9px;line-height:1.3;border-radius:4px;padding:4px 6px;font-weight:650;} .ds-supported{background:#edf5ef;color:#327146;} .ds-blocked{background:var(--red-bg,#fbefed);color:var(--red,#aa4336);} .ds-missing{background:var(--amber-bg,#fcf5e7);color:var(--amber,#845c17);} .ds-unclear{background:var(--blue-bg,#edf2fa);color:#466392;} .ds-not-applicable{background:#f0f2f3;color:#66787e;}"
+    },
+    {
+      "name": "Desk and pane navigation",
+      "kind": "nav",
+      "refersTo": "pane-navigation",
+      "description": "The app navigation uses an active underline; the phone pane selector uses a selected white inset.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><button class=\"ds-active\">Review desk</button><button>Sources</button><button>Saved</button><button>Evaluation</button></nav><div class=\"ds-panes\" role=\"tablist\" aria-label=\"Review panes\"><button role=\"tab\" aria-selected=\"false\">Project facts</button><button role=\"tab\" aria-selected=\"true\">Findings</button><button role=\"tab\" aria-selected=\"false\">Rule &amp; sources</button></div>",
+      "css": ".ds-nav{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);display:flex;align-items:stretch;gap:26px;height:78px;} .ds-nav button{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);position:relative;padding:0 2px;border:0;background:none;font-weight:650;font-size:12px;color:var(--muted,#617079);white-space:nowrap;cursor:pointer;transition: background .17s ease, color .17s ease, box-shadow .17s ease;} .ds-nav button:hover{color:var(--ink,#233139);} .ds-nav .ds-active{color:var(--accent,#155d4b);} .ds-nav .ds-active:after{position:absolute;content:\"\";height:2px;background:var(--accent,#155d4b);bottom:0;left:0;right:0;} .ds-panes{display:flex;border:1px solid var(--line-strong,#cbd6d7);border-radius:9px;padding:4px;background:#eaf0ed;margin-top:12px;} .ds-panes button{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);flex:1;padding:8px 5px;border:0;background:transparent;font-size:10px;font-weight:650;border-radius:5px;color:var(--muted,#617079);cursor:pointer;transition: background .17s ease, color .17s ease, box-shadow .17s ease;} .ds-panes button:hover{background:#eaf0ee;} .ds-panes button[aria-selected=\"true\"]{background:white;color:var(--accent,#155d4b);box-shadow:0 2px 5px #24403313;} .ds-nav button:focus-visible,.ds-panes button:focus-visible{outline: 3px solid #4c9981; outline-offset: 3px;} @media(max-width:700px){.ds-nav{height:45px;justify-content:space-between;gap:14px;}.ds-nav button{font-size:11px;}} @media(prefers-reduced-motion:reduce){.ds-nav button,.ds-panes button{transition-duration:.01ms;}}"
+    },
+    {
+      "name": "Recorded answer card",
+      "kind": "card",
+      "refersTo": "recorded-answer",
+      "description": "A static preview of the real recorded landing content, including its dated replay disclosure.",
+      "html": "<article class=\"ds-recorded\"><div class=\"ds-recorded-heading\">Ask FinePrint</div><div class=\"ds-recorded-content\"><span class=\"ds-example-label\">Example scenario</span><p class=\"ds-recorded-question\">I’m planning two entries in the same path.</p><div class=\"ds-recorded-reads\"><span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 12 2 2 4-4\"/><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg><code>entry limits and prizes</code></span><span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 12 2 2 4-4\"/><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg><code>source authority</code></span><span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 12 2 2 4-4\"/><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg><code>submissions/artifacts</code></span></div><div class=\"ds-recorded-result\"><strong>Rules unclear</strong><p>The status is unclear because the two official sources disagree on how many entries a participant may submit within one path. The FAQ states exactly one submission per path is allowed, while the contest rules state there is no limit on the number of entries during the entry period.</p><a href=\"#conflict\">See the two sources</a></div></div><p class=\"ds-recorded-caption\">Recorded source explanation · September 20, 2026<br>Replay is an illustration. No live request is made here.</p></article>",
+      "css": ".ds-recorded{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);border-radius:14px;background:white;box-shadow:0 25px 65px -32px #24483955;overflow:hidden;font-size:14px;color:var(--ink,#233139);line-height:1.6;} .ds-recorded-heading{padding:19px 25px;border-bottom:1px solid var(--line,#e2e8e9);font-weight:750;} .ds-recorded-content{padding:25px 25px 0;} .ds-example-label{font-size:11px;color:var(--muted,#617079);} .ds-recorded-question{font-size:20px;line-height:1.55;font-weight:550;letter-spacing:-.02em;margin:7px 0 0;max-width:30ch;} .ds-recorded-reads{display:grid;gap:9px;padding:23px 0;color:var(--accent,#155d4b);font-size:12px;} .ds-recorded-reads>span{display:flex;gap:9px;align-items:center;} .ds-recorded-reads svg{flex-shrink:0;} .ds-recorded-reads code{font-family: var(--font, 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);overflow-wrap:anywhere;} .ds-recorded-result{background:#eff4f8;padding:19px 20px;border-radius:9px;} .ds-recorded-result strong{color:#365981;font-size:13px;} .ds-recorded-result p{font-size:13px;line-height:1.8;margin:12px 0 0;color:#344d64;} .ds-recorded-result a{display:inline-flex;margin-top:14px;color:#365981;font-size:12px;font-weight:650;text-decoration:none;text-underline-offset:3px;} .ds-recorded-result a:hover{text-decoration:underline;} .ds-recorded-result a:focus-visible{outline: 3px solid #4c9981; outline-offset: 3px;} .ds-recorded-caption{padding:18px 25px 21px;font-size:10px;line-height:1.8;color:var(--muted,#617079);margin:0;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Review Desk",
+    "overview": "FinePrint puts a builder’s declared facts, findings, and supporting sources in a calm reading environment. Cool white work surfaces, forest actions, restrained borders, and compact controls make the relationship between those records visible. Written status labels carry meaning alongside color and icons.\n\nThe landing extends the desk with pale paper, larger type, readable document panels, and a dark forest source comparison. Its recorded answer, source disclosure, and fact switch use the same evidence vocabulary as the application. Page composition and visitor sequence remain in `.impeccable/surfaces/landing.md`; this record captures the implemented visual system.",
+    "keyCharacteristics": [
+      "Forest actions on cool white and pale paper surfaces.",
+      "Findings stay connected to declared facts and inspectable sources.",
+      "Self-hosted Manrope leads; serif quotations and monospace paths have specific reading roles.",
+      "Compact desk controls expand into a single-pane phone layout.",
+      "Recorded demonstrations and live request states remain visibly distinct."
+    ],
+    "rules": [
+      {
+        "name": "The Status Has Words Rule",
+        "body": "A review state keeps its written label; color and icon reinforce it.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do keep the written status beside the finding and preserve access to its supporting source.",
+      "Do use Manrope for interface copy, Georgia for the implemented landing emphasis and quotations, and the documented monospace stack for technical citation paths.",
+      "Do retain visible focus, wrapped source identifiers, labeled phone panes, and reduced-motion states.",
+      "Do keep the recorded example’s date and disclosure visible and label illustrative facts."
+    ],
+    "donts": [
+      "Don’t replace an unknown or conflicting finding with a success treatment.",
+      "Don’t style a source citation as proof that a project meets the requirement.",
+      "Don’t present the landing replay as a live request or show invented steps while the question agent is working.",
+      "Don’t carry a landing-specific layout or serif treatment into every desk component."
+    ]
+  }
+}

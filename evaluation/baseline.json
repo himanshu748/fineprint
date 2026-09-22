@@ -1,0 +1,403 @@
+{
+  "runAt": "2026-09-20T17:24:54.829Z",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "provider": "Modal",
+  "method": "Fixed-context model baseline: all nine Sanity Knowledge Base entries supplied to every batch; no typed conditions, expected labels, or descriptive scenario names supplied. Retrieval selection is held constant.",
+  "limitations": "Authored fixtures and Knowledge Base derived from the same curated pack. This measures agreement with the authored labels, not independent eligibility accuracy or a controlled RAG retrieval comparison.",
+  "packVersion": "2026-09-20.1",
+  "knowledgeBase": "kbyrY7h8fTnL",
+  "paths": [
+    "eligibility/development_timing",
+    "eligibility/participant_and_team",
+    "eligibility/prior_work_reuse",
+    "entry_limits_and_prizes",
+    "path_one",
+    "path_two/build_requirements",
+    "source_authority",
+    "submissions/artifacts",
+    "submissions/deadlines"
+  ],
+  "total": 42,
+  "completed": 42,
+  "passed": 39,
+  "results": [
+    {
+      "id": 0,
+      "status": "supported",
+      "reason": "Origin components with new app started during window; prior work credited and substantial new work declared.",
+      "name": "A new entry can reuse components",
+      "ruleId": "origin",
+      "expected": "supported",
+      "passed": true
+    },
+    {
+      "id": 1,
+      "status": "blocked",
+      "reason": "Origin existing means pre-existing application submitted as entry, which is not eligible.",
+      "name": "An old application remains an old entry",
+      "ruleId": "origin",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 2,
+      "status": "missing",
+      "reason": "Origin unknown; cannot determine whether new entry or pre-existing application.",
+      "name": "Missing project history stays unknown",
+      "ruleId": "origin",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 3,
+      "status": "blocked",
+      "reason": "Started 2026-09-17, before Entry Period opened 2026-09-18 16:00 UTC.",
+      "name": "A start before the event is blocked",
+      "ruleId": "start",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 4,
+      "status": "unclear",
+      "reason": "Date-only start on opening day; exact time unknown, treated as ambiguous per rules.",
+      "name": "Opening-day date needs an exact time",
+      "ruleId": "start",
+      "expected": "missing",
+      "passed": false
+    },
+    {
+      "id": 5,
+      "status": "blocked",
+      "reason": "Started 15:59:59Z, one second before Entry Period opened at 16:00 UTC.",
+      "name": "One second before opening is too early",
+      "ruleId": "start",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 6,
+      "status": "supported",
+      "reason": "Started exactly at Entry Period opening 2026-09-18 16:00 UTC.",
+      "name": "The exact opening timestamp is allowed",
+      "ruleId": "start",
+      "expected": "supported",
+      "passed": true
+    },
+    {
+      "id": 7,
+      "status": "blocked",
+      "reason": "Development started 2026-10-06, after the Entry Period closed 2026-10-05.",
+      "name": "Starting after the event is blocked",
+      "ruleId": "start",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 8,
+      "status": "missing",
+      "reason": "startedAt is null, so development start timing cannot be confirmed.",
+      "name": "A missing start date is not inferred",
+      "ruleId": "start",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 9,
+      "status": "supported",
+      "reason": "Team size 4 is within the maximum of 4 members.",
+      "name": "Four team members meet the limit",
+      "ruleId": "team",
+      "expected": "supported",
+      "passed": true
+    },
+    {
+      "id": 10,
+      "status": "blocked",
+      "reason": "Team size 5 exceeds the maximum of 4 members.",
+      "name": "Five team members exceed the limit",
+      "ruleId": "team",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 11,
+      "status": "missing",
+      "reason": "teamSize is null, so the team size limit cannot be verified.",
+      "name": "An unknown team size is not a solo team",
+      "ruleId": "team",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 12,
+      "status": "blocked",
+      "reason": "adultTeam false means not every member meets age/legal-majority requirements.",
+      "name": "One age-ineligible member blocks the team",
+      "ruleId": "age",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 13,
+      "status": "missing",
+      "reason": "adultTeam is null, so age and legal majority cannot be confirmed.",
+      "name": "Missing age confirmation stays unknown",
+      "ruleId": "age",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 14,
+      "status": "missing",
+      "reason": "eligibleResidency is null; residency status unknown for team member.",
+      "name": "Residency is never guessed from a name",
+      "ruleId": "residency",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 15,
+      "status": "blocked",
+      "reason": "excludedAffiliation true; organizer-affiliation exclusion disqualifies the entry.",
+      "name": "An excluded affiliation blocks entry",
+      "ruleId": "affiliation",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 16,
+      "status": "blocked",
+      "reason": "origin components with priorWorkCredited false; non-trivial reuse not credited.",
+      "name": "Reused material needs attribution",
+      "ruleId": "credit",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 17,
+      "status": "not-applicable",
+      "reason": "origin new; no reused material requiring credit.",
+      "name": "No reused material makes credit inapplicable",
+      "ruleId": "credit",
+      "expected": "not-applicable",
+      "passed": true
+    },
+    {
+      "id": 18,
+      "status": "unclear",
+      "reason": "origin null; cannot determine whether reuse-credit requirement applies.",
+      "name": "Unknown reuse makes applicability unknown",
+      "ruleId": "credit",
+      "expected": "missing",
+      "passed": false
+    },
+    {
+      "id": 19,
+      "status": "blocked",
+      "reason": "substantialNewWork false; reused work lacks significant competition-period changes.",
+      "name": "Insignificant changes fail the stated condition",
+      "ruleId": "new-work",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 20,
+      "status": "blocked",
+      "reason": "usesKnowledgeBase false; Path One requires real Knowledge Base retrieval.",
+      "name": "Path One needs a Knowledge Base",
+      "ruleId": "context",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 21,
+      "status": "missing",
+      "reason": "usesContext is null; Context MCP use unconfirmed for Path One.",
+      "name": "A missing Context connection stays unknown",
+      "ruleId": "context",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 22,
+      "status": "blocked",
+      "reason": "usesContext false violates mandatory Context MCP requirement for Path One.",
+      "name": "A known failure remains a failure with another unknown",
+      "ruleId": "context",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 23,
+      "status": "not-applicable",
+      "reason": "Path One Context MCP requirement does not apply to Path Two-only entry.",
+      "name": "Path Two does not inherit Path One requirements",
+      "ruleId": "context",
+      "expected": "not-applicable",
+      "passed": true
+    },
+    {
+      "id": 24,
+      "status": "supported",
+      "reason": "AI-built, supported frontend, and Sanity CMS all declared true for Path Two.",
+      "name": "Path Two checks its own technology requirements",
+      "ruleId": "path-two",
+      "expected": "supported",
+      "passed": true
+    },
+    {
+      "id": 25,
+      "status": "blocked",
+      "reason": "aiBuilt false violates Path Two AI coding tool requirement.",
+      "name": "Both paths activate both sets of requirements",
+      "ruleId": "path-two",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 26,
+      "status": "supported",
+      "reason": "One entry in path satisfies both FAQ and contest rules; no conflict.",
+      "name": "One entry satisfies both conflicting statements",
+      "ruleId": "entry-limit",
+      "expected": "supported",
+      "passed": true
+    },
+    {
+      "id": 27,
+      "status": "unclear",
+      "reason": "Two entries per path triggers unresolved FAQ-versus-rules contradiction needing organizer ruling.",
+      "name": "Two same-path entries activate the discrepancy",
+      "ruleId": "entry-limit",
+      "expected": "unclear",
+      "passed": true
+    },
+    {
+      "id": 28,
+      "status": "missing",
+      "reason": "entriesPerPath is null; one entry per path satisfies both sources, but count unknown",
+      "name": "An unknown entry count stays unknown",
+      "ruleId": "entry-limit",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 29,
+      "status": "blocked",
+      "reason": "Prize submissions must be in English; englishSubmission is false",
+      "name": "Non-English affects prize eligibility",
+      "ruleId": "english",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 30,
+      "status": "unclear",
+      "reason": "Prize eligibility in both paths is unresolved and needs organizer confirmation",
+      "name": "A tie-break rule does not authorize both prizes",
+      "ruleId": "combination",
+      "expected": "unclear",
+      "passed": true
+    },
+    {
+      "id": 31,
+      "status": "not-applicable",
+      "reason": "seeksMultiplePrizes is false; no dual-path prize combination sought",
+      "name": "One prize makes combination checking inapplicable",
+      "ruleId": "combination",
+      "expected": "not-applicable",
+      "passed": true
+    },
+    {
+      "id": 32,
+      "status": "missing",
+      "reason": "requiresLogin is false but judgeAccess is null; access requirement unclear",
+      "name": "A login-free app does not need credentials",
+      "ruleId": "access",
+      "expected": "not-applicable",
+      "passed": false
+    },
+    {
+      "id": 33,
+      "status": "missing",
+      "reason": "requiresLogin is null; cannot determine whether judge access is required",
+      "name": "Unknown login requirements remain unknown",
+      "ruleId": "access",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 34,
+      "status": "blocked",
+      "reason": "Login-required app lacks judge access credentials or testing instructions",
+      "name": "Login without judge access blocks readiness",
+      "ruleId": "access",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 35,
+      "status": "missing",
+      "reason": "No Sanity project ID or public dataset URL provided in dossier.",
+      "name": "An absent project identifier needs a fact",
+      "ruleId": "identifier",
+      "expected": "missing",
+      "passed": true
+    },
+    {
+      "id": 36,
+      "status": "blocked",
+      "reason": "Project identifier is empty string, not a valid ID or dataset URL.",
+      "name": "An explicitly empty identifier is missing an artifact",
+      "ruleId": "identifier",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 37,
+      "status": "blocked",
+      "reason": "Post is not published; draft does not count as submitted entry.",
+      "name": "A draft is not a published submission",
+      "ruleId": "post",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 38,
+      "status": "blocked",
+      "reason": "Both paths entered but separatePosts is false; one post per path required.",
+      "name": "Both paths require separate posts",
+      "ruleId": "separate-posts",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 39,
+      "status": "supported",
+      "reason": "At 06:59 UTC exactly, still within entry period closing moment.",
+      "name": "The exact deadline is included",
+      "ruleId": "deadline",
+      "expected": "supported",
+      "passed": true
+    },
+    {
+      "id": 40,
+      "status": "blocked",
+      "reason": "One second past 06:59 UTC close; submission outside window is ineligible.",
+      "name": "The window closes after the recorded deadline",
+      "ruleId": "deadline",
+      "expected": "blocked",
+      "passed": true
+    },
+    {
+      "id": 41,
+      "status": "blocked",
+      "reason": "Before 16:00 UTC opening on 2026-09-18; outside entry window.",
+      "name": "Checking before opening does not imply submissions are open",
+      "ruleId": "deadline",
+      "expected": "blocked",
+      "passed": true
+    }
+  ]
+}

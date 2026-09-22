@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.tsbuildinfo
+coverage/
+.vercel/
+.vercel
+.env*.local
+
+evidence/takeover-backup/
+.impeccable/review/
+
+evidence/
+docs/hosting.md
+docs/local-takeover.md

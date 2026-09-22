@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "sanity-2026"
+    },
+    "version": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "start": {
+      "type": "string"
+    },
+    "deadline": {
+      "type": "string"
+    },
+    "updatedAt": {
+      "type": "string"
+    },
+    "reviewNote": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "capturedAt": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "authority": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url",
+          "publisher",
+          "capturedAt",
+          "version",
+          "authority",
+          "quote",
+          "summary"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "entry",
+              "path",
+              "prize",
+              "combination",
+              "submission"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "participation",
+              "prior-work",
+              "sponsor",
+              "artifacts",
+              "prize-compatibility"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "sources": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "check": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "appliesWhen": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "question": {
+            "type": "string"
+          },
+          "correction": {
+            "type": "string"
+          },
+          "review": {
+            "type": "string",
+            "enum": [
+              "curated",
+              "needs-organizer"
+            ]
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "scope",
+          "category",
+          "summary",
+          "sources",
+          "check",
+          "question",
+          "correction",
+          "review",
+          "rationale"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "title",
+    "start",
+    "deadline",
+    "updatedAt",
+    "reviewNote",
+    "sources",
+    "requirements"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "eq",
+                "neq",
+                "lte",
+                "gte",
+                "present",
+                "date-after"
+              ]
+            },
+            "fact": {
+              "type": "string"
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          },
+          "required": [
+            "op",
+            "fact"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "all",
+                "any"
+              ]
+            },
+            "expressions": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              }
+            }
+          },
+          "required": [
+            "op",
+            "expressions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "unresolved"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

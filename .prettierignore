@@ -1,0 +1,7 @@
+node_modules
+.next
+.vercel
+.env*
+evidence
+evaluation
+package-lock.json

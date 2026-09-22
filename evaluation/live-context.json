@@ -1,0 +1,51 @@
+{
+  "verifiedAt": "2026-09-20T17:19:49.876Z",
+  "sourceMode": "sanity",
+  "packVersion": "2026-09-20.1",
+  "tools": [
+    "initial_context",
+    "knowledge_base_read"
+  ],
+  "results": [
+    {
+      "scenario": "Two entries",
+      "ruleId": "entry-limit",
+      "engineStatus": "unclear",
+      "mode": "live",
+      "text": "The status is unclear because the two official sources disagree on how many entries a participant may submit within one path. The FAQ states exactly one submission per path is allowed, while the contest rules state there is no limit on the number of entries during the entry period. With one entry per path, both statements are satisfied and no conflict is triggered. With two entries in the same path, the discrepancy is activated, and the outcome is neither automatically permitted nor automatically prohibited. Neither source is automatically authoritative; an organizer ruling is required. The curated interpretation reflects a reading of the sources and is not an organizer approval. The safe/restrictive reading should be the working assumption until the organizer clarifies. Note that separate posts per path and prize eligibility across paths are distinct questions, and whether one participant can receive prizes in both paths is also unresolved. A human must review the conflicting limits rather than silently resolving them.",
+      "paths": [
+        "entry_limits_and_prizes",
+        "source_authority",
+        "submissions/artifacts"
+      ],
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "provider": "Modal",
+      "retrievedAt": "2026-09-20T17:19:31.209Z",
+      "elapsedMs": 14479,
+      "knowledgeBases": [
+        "kbyrY7h8fTnL"
+      ],
+      "status": "unclear"
+    },
+    {
+      "scenario": "Existing app",
+      "ruleId": "origin",
+      "engineStatus": "blocked",
+      "mode": "live",
+      "text": "The status is blocked because the entry's origin is recorded as \"existing,\" and the development-window rule applies to the entry itself, not just to code added on top of an existing project. A pre-existing application submitted as an entry is not eligible; adding a sponsor integration to an already-existing application does not make it a new entry. By contrast, a new entry built from reused components can be permitted if the application itself is new and begins during the Entry Period (2026-09-18 16:00 UTC to 2026-10-05 06:59 UTC). Reuse also triggers two independent requirements: crediting non-trivial prior work in the submission, and significant changes made during the event, with no published numerical threshold — the organizer decides significance. The curated interpretation notes that permission to reuse material does not explicitly exempt a pre-existing entry from the development-window requirement, and that reusing components and resubmitting an application are different facts. Because the facts only record origin as \"existing\" and the organizer question remains unanswered, the ambiguity is unresolved; a human must review it rather than resolve it silently.",
+      "paths": [
+        "eligibility/development_timing",
+        "eligibility/prior_work_reuse",
+        "source_authority"
+      ],
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "provider": "Modal",
+      "retrievedAt": "2026-09-20T17:19:49.876Z",
+      "elapsedMs": 18666,
+      "knowledgeBases": [
+        "kbyrY7h8fTnL"
+      ],
+      "status": "blocked"
+    }
+  ]
+}

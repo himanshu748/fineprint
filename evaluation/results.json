@@ -1,0 +1,304 @@
+{
+  "total": 42,
+  "passed": 42,
+  "clock": "2026-09-20T12:00:00.000Z",
+  "rulePackVersion": "2026-09-20.1",
+  "labelReview": "Developer-authored; independent human review pending",
+  "baseline": "Not run",
+  "cases": [
+    {
+      "name": "A new entry can reuse components",
+      "rule": "origin",
+      "expected": "supported",
+      "actual": "supported",
+      "passed": true
+    },
+    {
+      "name": "An old application remains an old entry",
+      "rule": "origin",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Missing project history stays unknown",
+      "rule": "origin",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "A start before the event is blocked",
+      "rule": "start",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Opening-day date needs an exact time",
+      "rule": "start",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "One second before opening is too early",
+      "rule": "start",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "The exact opening timestamp is allowed",
+      "rule": "start",
+      "expected": "supported",
+      "actual": "supported",
+      "passed": true
+    },
+    {
+      "name": "Starting after the event is blocked",
+      "rule": "start",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "A missing start date is not inferred",
+      "rule": "start",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "Four team members meet the limit",
+      "rule": "team",
+      "expected": "supported",
+      "actual": "supported",
+      "passed": true
+    },
+    {
+      "name": "Five team members exceed the limit",
+      "rule": "team",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "An unknown team size is not a solo team",
+      "rule": "team",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "One age-ineligible member blocks the team",
+      "rule": "age",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Missing age confirmation stays unknown",
+      "rule": "age",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "Residency is never guessed from a name",
+      "rule": "residency",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "An excluded affiliation blocks entry",
+      "rule": "affiliation",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Reused material needs attribution",
+      "rule": "credit",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "No reused material makes credit inapplicable",
+      "rule": "credit",
+      "expected": "not-applicable",
+      "actual": "not-applicable",
+      "passed": true
+    },
+    {
+      "name": "Unknown reuse makes applicability unknown",
+      "rule": "credit",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "Insignificant changes fail the stated condition",
+      "rule": "new-work",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Path One needs a Knowledge Base",
+      "rule": "context",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "A missing Context connection stays unknown",
+      "rule": "context",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "A known failure remains a failure with another unknown",
+      "rule": "context",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Path Two does not inherit Path One requirements",
+      "rule": "context",
+      "expected": "not-applicable",
+      "actual": "not-applicable",
+      "passed": true
+    },
+    {
+      "name": "Path Two checks its own technology requirements",
+      "rule": "path-two",
+      "expected": "supported",
+      "actual": "supported",
+      "passed": true
+    },
+    {
+      "name": "Both paths activate both sets of requirements",
+      "rule": "path-two",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "One entry satisfies both conflicting statements",
+      "rule": "entry-limit",
+      "expected": "supported",
+      "actual": "supported",
+      "passed": true
+    },
+    {
+      "name": "Two same-path entries activate the discrepancy",
+      "rule": "entry-limit",
+      "expected": "unclear",
+      "actual": "unclear",
+      "passed": true
+    },
+    {
+      "name": "An unknown entry count stays unknown",
+      "rule": "entry-limit",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "Non-English affects prize eligibility",
+      "rule": "english",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "A tie-break rule does not authorize both prizes",
+      "rule": "combination",
+      "expected": "unclear",
+      "actual": "unclear",
+      "passed": true
+    },
+    {
+      "name": "One prize makes combination checking inapplicable",
+      "rule": "combination",
+      "expected": "not-applicable",
+      "actual": "not-applicable",
+      "passed": true
+    },
+    {
+      "name": "A login-free app does not need credentials",
+      "rule": "access",
+      "expected": "not-applicable",
+      "actual": "not-applicable",
+      "passed": true
+    },
+    {
+      "name": "Unknown login requirements remain unknown",
+      "rule": "access",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "Login without judge access blocks readiness",
+      "rule": "access",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "An absent project identifier needs a fact",
+      "rule": "identifier",
+      "expected": "missing",
+      "actual": "missing",
+      "passed": true
+    },
+    {
+      "name": "An explicitly empty identifier is missing an artifact",
+      "rule": "identifier",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "A draft is not a published submission",
+      "rule": "post",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Both paths require separate posts",
+      "rule": "separate-posts",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "The exact deadline is included",
+      "rule": "deadline",
+      "expected": "supported",
+      "actual": "supported",
+      "passed": true
+    },
+    {
+      "name": "The window closes after the recorded deadline",
+      "rule": "deadline",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    },
+    {
+      "name": "Checking before opening does not imply submissions are open",
+      "rule": "deadline",
+      "expected": "blocked",
+      "actual": "blocked",
+      "passed": true
+    }
+  ]
+}
