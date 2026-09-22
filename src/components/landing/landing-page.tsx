@@ -113,7 +113,7 @@ export function LandingPage() {
                   <strong>2026-08-23</strong>
                 </div>
                 <blockquote>“{rulePack.sources[2].quote}”</blockquote>
-                <a href={rulePack.sources[2].url} target="_blank" rel="noreferrer">
+                <a href={rulePack.sources[2].url} rel="noreferrer">
                   {rulePack.sources[2].title}
                   <ArrowUpRight size={15} />
                 </a>
@@ -145,7 +145,7 @@ export function LandingPage() {
               <article key={source.id}>
                 <div className="conflict-source">
                   <BookOpen size={18} />
-                  <a href={source.url} target="_blank" rel="noreferrer">
+                  <a href={source.url} rel="noreferrer">
                     {source.title}
                     <ArrowUpRight size={16} />
                   </a>
@@ -216,7 +216,7 @@ export function LandingPage() {
           Free rule checks. Optional AI help. Built with Sanity Context and Modal.
           <br />A review is not an eligibility certificate or organizer approval.
         </p>
-        <a href="https://dev.to/challenges/sanity-2026-09-16" target="_blank" rel="noreferrer">
+        <a href="https://dev.to/challenges/sanity-2026-09-16" rel="noreferrer">
           The Sanity Challenge
           <ArrowUpRight size={15} />
         </a>

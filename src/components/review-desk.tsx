@@ -615,7 +615,6 @@ export function ReviewDesk() {
               <a
                 className="event-selector"
                 href="https://dev.to/challenges/sanity-2026-09-16"
-                target="_blank"
                 rel="noreferrer"
               >
                 <span className="event-mark">S</span>
@@ -1190,7 +1189,7 @@ export function ReviewDesk() {
                         if (!source) return null;
                         return (
                           <article className="source-citation" key={id}>
-                            <a href={source.url} target="_blank" rel="noreferrer">
+                            <a href={source.url} rel="noreferrer">
                               <span className="source-letter">
                                 {id === 'general' ? 'G' : id === 'faq' ? 'F' : 'C'}
                               </span>
@@ -1322,11 +1321,7 @@ export function ReviewDesk() {
                 Source pack {report?.packVersion ?? rulePack.version}
               </span>
               <span>Saved on this device · download a backup to keep your work</span>
-              <a
-                href="https://dev.to/challenges/sanity-2026-09-16"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href="https://dev.to/challenges/sanity-2026-09-16" rel="noreferrer">
                 Official challenge
                 <ExternalLink size={12} />
               </a>
@@ -1350,12 +1345,7 @@ export function ReviewDesk() {
                       <h2>{source.title}</h2>
                       <span>{source.publisher}</span>
                     </div>
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Open ${source.title}`}
-                    >
+                    <a href={source.url} rel="noreferrer" aria-label={`Open ${source.title}`}>
                       <ExternalLink size={19} />
                     </a>
                   </div>
