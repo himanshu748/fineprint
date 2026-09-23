@@ -216,6 +216,29 @@ export function LandingPage() {
           </div>
           <RecordedComparison results={multiEvent.results} />
         </section>
+        <section className="product-section">
+          <div className="section-copy">
+            <h2>
+              Bring the code.
+              <br />
+              Find the evidence.
+            </h2>
+            <p>
+              Review a public GitHub repository against Sanity or GIBC judging criteria. Each
+              finding points to inspected lines at a fixed commit, with gaps and a concrete next
+              step.
+            </p>
+            <Link className="product-text-link" href="/repository">
+              Review your GitHub repository <ArrowUpRight size={16} />
+            </Link>
+          </div>
+          <div className="section-copy">
+            <p>
+              Implementation evidence, documentation claims and unverified runtime behavior stay
+              separate. A repository review is a way to prepare, not a prediction of your score.
+            </p>
+          </div>
+        </section>
         <section className="product-close">
           <div>
             <h2>

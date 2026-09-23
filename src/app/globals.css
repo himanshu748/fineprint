@@ -3381,3 +3381,227 @@ button:disabled:hover {
 .run-trace li[data-failed='true'] > svg {
   color: var(--red);
 }
+
+.repo-page {
+  min-height: 100vh;
+  background: var(--page);
+}
+.repo-main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 56px 28px 80px;
+}
+.repo-back {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--accent);
+  font-size: 13px;
+}
+.repo-intro {
+  max-width: 660px;
+  margin-bottom: 32px;
+}
+.repo-intro h1 {
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+}
+.repo-intro p,
+.repo-main p {
+  line-height: 1.7;
+}
+.repo-form {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.repo-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.repo-form input,
+.repo-form select {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--control-radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.repo-form button {
+  justify-self: start;
+  min-height: 44px;
+}
+.repo-privacy {
+  color: var(--muted);
+  font-size: 12px;
+  grid-column: 1/-1;
+  margin: 0;
+}
+.repo-rubric,
+.repo-results {
+  margin-top: 40px;
+}
+.repo-rubric ol {
+  padding-left: 22px;
+}
+.repo-rubric li {
+  padding: 12px 0;
+}
+.repo-rubric h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.repo-rubric p {
+  font-size: 14px;
+  max-width: 75ch;
+}
+.repo-result-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+.repo-result-heading h2 {
+  margin: 0;
+}
+.repo-result-heading button {
+  min-height: 44px;
+}
+.repo-results > p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.repo-main a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+.repo-finding {
+  padding: 28px 0;
+  border-top: 1px solid var(--line-strong);
+}
+.repo-finding header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.repo-finding h3 {
+  font-size: 19px;
+  max-width: 600px;
+  margin: 0;
+}
+.repo-finding p {
+  font-size: 14px;
+  max-width: 75ch;
+}
+.repo-evidence {
+  margin: 18px 0;
+  font-size: 13px;
+}
+.repo-evidence > span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 5px;
+}
+.repo-evidence pre {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.repo-next {
+  padding-top: 8px;
+}
+.repo-next strong {
+  font-size: 13px;
+  color: var(--accent);
+}
+.repo-next p {
+  margin-top: 4px;
+}
+.repo-coverage {
+  border-block: 1px solid var(--line-strong);
+  padding: 16px 0;
+  margin-bottom: 24px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.repo-coverage summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.repo-coverage li {
+  margin: 8px 0;
+}
+.repo-error {
+  color: var(--red);
+  background: var(--red-bg);
+  padding: 16px;
+  border-radius: 8px;
+}
+.repo-notice {
+  background: var(--amber-bg);
+  padding: 12px;
+}
+@media (max-width: 650px) {
+  .repo-main {
+    padding: 32px 18px 56px;
+  }
+  .repo-form {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+  .repo-result-heading,
+  .repo-finding header {
+    flex-direction: column;
+    align-items: start;
+  }
+  .repo-main .status-tag {
+    white-space: normal;
+  }
+  .repo-form button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+.main-nav > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+.main-nav > a:hover {
+  color: var(--accent);
+  background: var(--sage);
+}
+.repo-form > .primary-button {
+  width: auto;
+  justify-content: center;
+  gap: 8px;
+  padding-inline: 20px;
+}
+@media (max-width: 650px) {
+  .repo-form > .primary-button {
+    width: 100%;
+  }
+}

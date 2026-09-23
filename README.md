@@ -87,3 +87,11 @@ npm run format:check
 - `evaluation/`: authored scenarios and recorded provider results.
 
 Sanity project: `cxbqxkq6`. Dataset: `production` (public, curated rules only).
+
+### GitHub rubric review
+
+`/repository` reviews public GitHub repositories against Sanity Path One, Sanity Path Two or GIBC Open Invention. It resolves the default branch to a fixed commit, selects up to ten readable text files (60,000 characters total, 300 lines and 10,000 characters per file), reads event-specific Sanity Context entries, and checks model citations against the inspected lines. Official rubric names and editorial evidence guidance are separate fields in three `reviewRubric` Content Lake records. Repository contents are sent to Modal, never written to the public Sanity dataset or executed.
+
+The report records coverage, skipped files, truncation, immutable links, source reads and criterion-level next steps. README evidence is classified as documentation even if the model labels it implementation. Unverifiable citations are discarded. The report is a bounded static assessment, not a score, proof of runtime behavior, global originality check or eligibility decision. Only the latest repository report is saved locally and can be downloaded as JSON. Private repositories and arbitrary event imports are outside this release.
+
+Publish new versioned public rubric records with `node --env-file=.env.local --import tsx scripts/publish-rubrics.ts --use-cli-auth`, then refresh and rebuild the existing Knowledge Base. Never upload repository content in that publishing step. `scripts/verify-repository.ts` makes a real provider call using FinePrint's public repository; its receipt stays in ignored `evidence/`.

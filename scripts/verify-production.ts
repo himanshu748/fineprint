@@ -128,6 +128,22 @@ try {
   checks.push('Oversized manual check returns 413');
   assert.equal((await fetch(`${base}/api/explain`, { method: 'POST', headers, body })).status, 401);
   checks.push('Unauthenticated explanation returns 401');
+  assert.equal((await fetch(`${base}/repository`)).status, 200);
+  assert.equal(
+    (await fetch(`${base}/api/repository-review`, { method: 'POST', headers, body: '{}' })).status,
+    401,
+  );
+  assert.equal(
+    (
+      await fetch(`${base}/api/repository-review`, {
+        method: 'POST',
+        headers: { ...headers, Origin: 'https://other.example' },
+        body: '{}',
+      })
+    ).status,
+    403,
+  );
+  checks.push('Repository page loads; review API enforces access and origin');
   const unlock = await fetch(`${base}/api/access`, {
     method: 'POST',
     headers,

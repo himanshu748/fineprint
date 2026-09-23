@@ -33,3 +33,7 @@ Exclude arbitrary URL ingestion, a large event directory, accounts, auto-submiss
 **Privacy boundary:** only public curated source records go to the Sanity dataset. Snapshot storage stays in this browser. Asking a question shares it and any explicitly included form facts with Modal; requesting an explanation shares the selected finding's relevant declared facts. Credentials stay server-side. Public live requests retain the existing shared regional limit.
 
 **Outside this delivery:** arbitrary-event crawling, repository inference, organizer outreach, automatic submissions, accounts and cloud synchronization, legal guarantees and hackathon judging outcomes.
+
+## Approved GitHub rubric review · September 23
+
+The user approved GitHub review for the two curated events first. Public GitHub URL → resolve a fixed default-branch commit → read a bounded selection of text files → retrieve event-specific rubric records from Sanity and relevant Context entries → return criterion-level evidence, gaps and next actions. Findings cite exact inspected line ranges and distinguish documentation claims from implementation evidence. No judging score, execution claim, overall eligibility verdict or originality guarantee. Record selection and unread-file limitations. No repository code execution, private repository access, arbitrary URL ingestion or uploads of repository content to the public Sanity dataset. Existing shared AI request limits apply. Demo against FinePrint's own public repository, then deploy and verify on Vercel.

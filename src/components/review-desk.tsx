@@ -547,6 +547,7 @@ export function ReviewDesk() {
           FinePrint<span className="brand-period">.</span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
+          <a href="/repository">GitHub review</a>
           <button
             className={view === 'reviews' ? 'active' : ''}
             onClick={() => {

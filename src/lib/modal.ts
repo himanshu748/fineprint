@@ -113,13 +113,18 @@ async function localCliRequest(url: string, body: string): Promise<unknown> {
   });
 }
 
-export async function modalChat(messages: ChatMessage[], tools?: ModelTool[], requireTool = false) {
+export async function modalChat(
+  messages: ChatMessage[],
+  tools?: ModelTool[],
+  requireTool = false,
+  maxTokens = 1200,
+) {
   if (!modalConfigured()) throw new Error('Modal is not configured.');
   const body = JSON.stringify({
     model: process.env.MODAL_MODEL,
     messages,
     temperature: 0.1,
-    max_tokens: 1200,
+    max_tokens: Math.min(4000, Math.max(256, maxTokens)),
     reasoning_effort: 'none',
     ...(tools?.length ? { tools, tool_choice: requireTool ? 'required' : 'auto' } : {}),
   });
