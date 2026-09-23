@@ -2,6 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
+    "eventId": {
+      "default": "sanity-2026",
+      "type": "string",
+      "enum": [
+        "sanity-2026",
+        "gibc-v2-2026"
+      ]
+    },
     "name": {
       "type": "string",
       "minLength": 1,
@@ -12,7 +20,8 @@
       "enum": [
         "path-one",
         "path-two",
-        "both"
+        "both",
+        "open-invention"
       ]
     },
     "origin": {
@@ -187,9 +196,126 @@
     "evidenceNote": {
       "type": "string",
       "maxLength": 2000
+    },
+    "allStudents": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "minimumAge": {
+      "default": null,
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "guardianConsent": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "oneTeam": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "workingPrototype": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "technicalNovelty": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "priorHackathonEntry": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "publicRepository": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "setupInstructions": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "videoMinutes": {
+      "default": null,
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 120
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "videoAccessible": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "screenshotsCount": {
+      "default": null,
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "devpostComplete": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "aiUseDisclosed": {
+      "default": null,
+      "type": [
+        "boolean",
+        "null"
+      ]
     }
   },
   "required": [
+    "eventId",
     "name",
     "track",
     "origin",
@@ -215,7 +341,21 @@
     "publishedPost",
     "hasChallengeTag",
     "seeksMultiplePrizes",
-    "evidenceNote"
+    "evidenceNote",
+    "allStudents",
+    "minimumAge",
+    "guardianConsent",
+    "oneTeam",
+    "workingPrototype",
+    "technicalNovelty",
+    "priorHackathonEntry",
+    "publicRepository",
+    "setupInstructions",
+    "videoMinutes",
+    "videoAccessible",
+    "screenshotsCount",
+    "devpostComplete",
+    "aiUseDisclosed"
   ],
   "additionalProperties": false
 }

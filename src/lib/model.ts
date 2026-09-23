@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
 export const triState = z.boolean().nullable();
+export const eventIdSchema = z.enum(['sanity-2026', 'gibc-v2-2026']);
+export type EventId = z.infer<typeof eventIdSchema>;
 export const monthInput = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
 const dateInput = z.union([monthInput, z.iso.date(), z.iso.datetime({ offset: true })]);
 export const dossierSchema = z
   .object({
+    eventId: eventIdSchema.default('sanity-2026'),
     name: z.string().trim().min(1).max(100),
-    track: z.enum(['path-one', 'path-two', 'both']),
+    track: z.enum(['path-one', 'path-two', 'both', 'open-invention']),
     origin: z.enum(['new', 'components', 'existing']).nullable(),
     startedAt: z
       .string()
@@ -38,6 +41,20 @@ export const dossierSchema = z
     hasChallengeTag: triState,
     seeksMultiplePrizes: triState,
     evidenceNote: z.string().max(2000),
+    allStudents: triState.default(null),
+    minimumAge: z.number().int().min(1).max(120).nullable().default(null),
+    guardianConsent: triState.default(null),
+    oneTeam: triState.default(null),
+    workingPrototype: triState.default(null),
+    technicalNovelty: triState.default(null),
+    priorHackathonEntry: triState.default(null),
+    publicRepository: triState.default(null),
+    setupInstructions: triState.default(null),
+    videoMinutes: z.number().min(0).max(120).nullable().default(null),
+    videoAccessible: triState.default(null),
+    screenshotsCount: z.number().int().min(0).max(100).nullable().default(null),
+    devpostComplete: triState.default(null),
+    aiUseDisclosed: triState.default(null),
   })
   .strict();
 
@@ -96,7 +113,7 @@ export const requirementSchema = z.object({
 });
 export type Requirement = z.infer<typeof requirementSchema>;
 export const rulePackSchema = z.object({
-  id: z.literal('sanity-2026'),
+  id: eventIdSchema,
   version: z.string(),
   title: z.string(),
   start: z.string(),
@@ -122,6 +139,7 @@ export type Report = {
   dossier: Dossier;
   packVersion: string;
   packId: string;
+  packSchedule?: { start: string; deadline: string };
   sourceMode: 'snapshot' | 'sanity';
   sources: Source[];
   findings: Finding[];
@@ -145,6 +163,7 @@ export const reportSchema = z.object({
   dossier: dossierSchema,
   packVersion: z.string(),
   packId: z.string(),
+  packSchedule: z.object({ start: z.string(), deadline: z.string() }).optional(),
   sourceMode: z.enum(['snapshot', 'sanity']),
   sources: z.array(sourceSchema).max(20),
   findings: z
@@ -173,6 +192,7 @@ export const savedCaseSchema = z.object({
 });
 
 export const factLabels: Record<FactKey, string> = {
+  eventId: 'Event',
   name: 'Project name',
   track: 'Target path',
   origin: 'What existed before the event',
@@ -199,4 +219,18 @@ export const factLabels: Record<FactKey, string> = {
   hasChallengeTag: 'Required challenge tag included',
   seeksMultiplePrizes: 'Seeking prizes in both paths',
   evidenceNote: 'Evidence and context',
+  allStudents: 'Every member is a student',
+  minimumAge: 'Youngest team member’s age',
+  guardianConsent: 'Under-18 members have guardian permission',
+  oneTeam: 'Every member is on only one submitting team',
+  workingPrototype: 'Working prototype available',
+  technicalNovelty: 'Technical novelty demonstrated',
+  priorHackathonEntry: 'Substantially the same as a previous hackathon entry',
+  publicRepository: 'Public, unrestricted source repository',
+  setupInstructions: 'README includes setup and usage instructions',
+  videoMinutes: 'Demo video length in minutes',
+  videoAccessible: 'Demo is accessible and shows the project running',
+  screenshotsCount: 'Number of submitted screenshots',
+  devpostComplete: 'Devpost description, Built With and full team details complete',
+  aiUseDisclosed: 'AI coding tools disclosed in Built With and README',
 };

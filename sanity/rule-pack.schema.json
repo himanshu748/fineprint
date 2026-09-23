@@ -4,7 +4,10 @@
   "properties": {
     "id": {
       "type": "string",
-      "const": "sanity-2026"
+      "enum": [
+        "sanity-2026",
+        "gibc-v2-2026"
+      ]
     },
     "version": {
       "type": "string"

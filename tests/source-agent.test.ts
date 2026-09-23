@@ -46,7 +46,7 @@ describe('source-agent evidence boundary', () => {
           text:
             name === 'initial_context'
               ? 'Knowledge base id: kbtest\nOutline:\nrules/entries'
-              : 'The FAQ allows one entry, but the contest rules state unlimited entries. The conflict remains unresolved.',
+              : 'The FAQ allows one entry, but the contest rules state unlimited entries. The conflict remains unresolved.\n## Sources\n1. Sanity contest rules',
         },
       ],
     }));
@@ -104,5 +104,26 @@ describe('source-agent evidence boundary', () => {
       content: [{ type: 'text', text: 'Dataset schema: documents can be queried with GROQ.' }],
     });
     await expect(explainWithSources(report, finding)).rejects.toThrow('Knowledge Base');
+  });
+  it('rejects a retrieved citation belonging only to the other event', async () => {
+    mocks.call.mockImplementation(async ({ name }) => ({
+      content: [
+        {
+          type: 'text',
+          text:
+            name === 'initial_context'
+              ? 'Knowledge base id: kbtest\nOutline:\nrules/entries'
+              : 'GIBC permits one project in one track.\n## Sources\n1. GIBC V2 official rules',
+        },
+      ],
+    }));
+    mocks.chat.mockResolvedValueOnce(tool()).mockResolvedValueOnce({
+      role: 'assistant',
+      content: JSON.stringify({
+        explanation: 'You may submit one project in one track according to the retrieved rules.',
+        citations: ['rules/entries'],
+      }),
+    });
+    await expect(explainWithSources(report, finding)).rejects.toThrow('do not identify this event');
   });
 });

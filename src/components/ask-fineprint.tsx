@@ -1,4 +1,5 @@
 'use client';
+import { StatusTag } from './status-tag';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowRight, CircleAlert, LoaderCircle, MessageSquareText } from 'lucide-react';
@@ -8,18 +9,12 @@ import {
   type AskResponse,
   type AgentError,
 } from '@/lib/agent-schema';
-import type { Dossier, Status } from '@/lib/model';
+import { eventDetails } from '@/lib/events';
+import type { Dossier } from '@/lib/model';
 import { formatFact } from '@/lib/engine';
 import { AgentTrace } from './agent-trace';
 import { AgentAccessForm } from './agent-access-form';
 
-const labels: Record<Status, string> = {
-  supported: 'Supported',
-  blocked: 'Blocked',
-  missing: 'Missing fact',
-  unclear: 'Rules unclear',
-  'not-applicable': 'Not applicable',
-};
 const prompts = [
   {
     label: 'An earlier project',
@@ -48,6 +43,20 @@ export function AskFinePrint({
   onManualReview: () => void;
   onSources: () => void;
 }) {
+  const event = eventDetails(dossier.eventId);
+  const eventPrompts =
+    dossier.eventId === 'sanity-2026'
+      ? prompts
+      : [
+          {
+            label: 'A five-person team',
+            text: 'We are a team of five students. Can we enter Open Invention?',
+          },
+          {
+            label: 'An August start',
+            text: 'We began development on August 23, 2026. Does that fit the Open Invention build window?',
+          },
+        ];
   const [question, setQuestion] = useState(initialQuestion);
   const [track, setTrack] = useState<Dossier['track']>(dossier.track);
   const [includeFacts, setIncludeFacts] = useState(false);
@@ -76,7 +85,12 @@ export function AskFinePrint({
       const response = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, track, ...(includeFacts ? { dossier } : {}) }),
+        body: JSON.stringify({
+          question,
+          track,
+          eventId: dossier.eventId,
+          ...(includeFacts ? { dossier } : {}),
+        }),
         signal: AbortSignal.timeout(290_000),
       });
       const raw: unknown = await response.json();
@@ -130,12 +144,12 @@ export function AskFinePrint({
             required
             rows={3}
             disabled={busy}
-            placeholder="I started my app before the event, but added Sanity this week. Can I enter?"
+            placeholder="Describe your project and the rule you’re unsure about."
           />
         </label>
         <div className="ask-examples">
           <span>Try asking about</span>
-          {prompts.map((prompt) => (
+          {eventPrompts.map((prompt) => (
             <button
               type="button"
               key={prompt.label}
@@ -155,9 +169,11 @@ export function AskFinePrint({
               disabled={busy}
               onChange={(event) => setTrack(event.target.value as Dossier['track'])}
             >
-              <option value="path-one">Path One · agent</option>
-              <option value="path-two">Path Two · app</option>
-              <option value="both">Both paths</option>
+              {event.tracks.map((track) => (
+                <option key={track.id} value={track.id}>
+                  {track.title}
+                </option>
+              ))}
             </select>
           </label>
           <label className="ask-include">
@@ -243,10 +259,10 @@ export function AskFinePrint({
               <div className="ask-comparison" key={item.ruleId}>
                 <strong>{item.title}</strong>
                 <span>
-                  Source reading <b className={`status-tag ${item.agent}`}>{labels[item.agent]}</b>
+                  Source reading <StatusTag status={item.agent} />
                 </span>
                 <span>
-                  Rule check <b className={`status-tag ${item.engine}`}>{labels[item.engine]}</b>
+                  Rule check <StatusTag status={item.engine} />
                 </span>
                 {!item.agrees && (
                   <em>

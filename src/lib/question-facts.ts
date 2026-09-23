@@ -27,6 +27,20 @@ export const extractableFacts = [
   'publishedPost',
   'hasChallengeTag',
   'seeksMultiplePrizes',
+  'allStudents',
+  'minimumAge',
+  'guardianConsent',
+  'oneTeam',
+  'workingPrototype',
+  'technicalNovelty',
+  'priorHackathonEntry',
+  'publicRepository',
+  'setupInstructions',
+  'videoMinutes',
+  'videoAccessible',
+  'screenshotsCount',
+  'devpostComplete',
+  'aiUseDisclosed',
 ] as const satisfies readonly FactKey[];
 
 export type ExtractableFact = (typeof extractableFacts)[number];
@@ -34,12 +48,15 @@ export type RejectedFact = { key: string; reason: string };
 type Normalized = { value: string | number | boolean; note?: string } | { reject: string };
 
 const valueGuide: Partial<Record<ExtractableFact, string>> = {
-  track: '"path-one", "path-two" or "both"',
+  track: '"path-one", "path-two", "both" for Sanity; "open-invention" for GIBC',
   origin:
     '"new" (a new application), "components" (a new application reusing earlier components) or "existing" (the application itself existed before the event)',
   startedAt:
     '{"year":null,"month":8,"day":null,"time":null,"utcOffset":null} with null for every part not stated; time is "HH:MM", utcOffset is "Z" or "+05:30"',
   teamSize: 'an integer',
+  minimumAge: 'an integer',
+  videoMinutes: 'a number of minutes',
+  screenshotsCount: 'an integer',
   entriesPerPath: 'an integer: separate entries planned in the same path',
   projectIdentifier: 'the Sanity project ID or public dataset URL exactly as written',
 };
@@ -115,6 +132,7 @@ const trackWords: Record<Dossier['track'], RegExp> = {
   'path-one': /\bpath\s*(one|1)\b/,
   'path-two': /\bpath\s*(two|2)\b/,
   both: /\b(both|each)\b|\b(two|all) paths\b/,
+  'open-invention': /\b(open invention|open track|track (03|3)|general invention)\b/,
 };
 const originWords: Record<NonNullable<Dossier['origin']>, RegExp> = {
   new: /\bnew\b|from scratch|\bfresh\b/,
@@ -124,6 +142,17 @@ const originWords: Record<NonNullable<Dossier['origin']>, RegExp> = {
     /\bexisting\b|\balready\b|\bexisted\b|\bold(er)?\b|\bprevious(ly)?\b|\bbefore the (event|challenge|contest|competition|hackathon)\b/,
 };
 const factWords: Partial<Record<ExtractableFact, RegExp>> = {
+  allStudents: /\bstudents?\b/,
+  guardianConsent: /\b(guardian|parent|permission|consent)\b/,
+  oneTeam: /\b(team|teams)\b/,
+  workingPrototype: /\b(working|running|prototype|demo)\b/,
+  technicalNovelty: /\b(novel|novelty|original|innovation)\b/,
+  priorHackathonEntry: /\b(previous|prior|submitted|hackathon)\b/,
+  publicRepository: /\b(public|repository|repo|github)\b/,
+  setupInstructions: /\b(readme|setup|instructions)\b/,
+  videoAccessible: /\b(video|demo|youtube|vimeo|youku)\b/,
+  devpostComplete: /\b(devpost|submission)\b/,
+  aiUseDisclosed: /\b(disclos|credited|listed)\w*\b/,
   adultTeam: /\b(adults?|age|aged|years? old|18|minors?|legal)\b/,
   eligibleResidency: /\b(resid\w*|live|lives|living|based|countr(y|ies)|citizens?|sanction\w*)\b/,
   devMembership: /\b(dev|accounts?|members?|membership)\b/,
@@ -236,7 +265,12 @@ function normalizeStart(value: unknown, quote: string, pack: RulePack): Normaliz
 
 function coerce(key: ExtractableFact, value: unknown) {
   if (typeof value !== 'string') return value;
-  if ((key === 'teamSize' || key === 'entriesPerPath') && /^\d+$/.test(value.trim()))
+  if (
+    ['teamSize', 'entriesPerPath', 'minimumAge', 'videoMinutes', 'screenshotsCount'].includes(
+      key,
+    ) &&
+    /^\d+$/.test(value.trim())
+  )
     return Number(value.trim());
   if (/^(true|false)$/i.test(value.trim()) && key !== 'projectIdentifier')
     return value.trim().toLowerCase() === 'true';
@@ -267,8 +301,15 @@ function normalize(key: ExtractableFact, raw: unknown, quote: string, pack: Rule
     if (result && /\b(plan|planning|intend|will|going to|hope)\b/.test(text))
       return { reject: 'A planned action does not establish completed work' };
   }
-  if ((key === 'teamSize' || key === 'entriesPerPath') && !mentionsNumber(text, result as number))
+  if (
+    ['teamSize', 'entriesPerPath', 'minimumAge', 'videoMinutes', 'screenshotsCount'].includes(
+      key,
+    ) &&
+    !mentionsNumber(text, result as number)
+  )
     return { reject: 'The quoted words do not state this number' };
+  if (key === 'track' && (pack.id === 'gibc-v2-2026') !== (result === 'open-invention'))
+    return { reject: 'This track belongs to another event' };
   if (key === 'track' && !trackWords[result as Dossier['track']].test(text))
     return { reject: 'The quoted words do not name this path' };
   if (key === 'projectIdentifier' && !text.includes(simplify(String(result))))

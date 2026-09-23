@@ -8,6 +8,7 @@ import {
   type RulePack,
   type Status,
 } from './model';
+import { trackMatchesEvent } from './events';
 
 type Evaluation = { value: boolean | null | 'unresolved'; missing: string[]; facts: Set<string> };
 const unique = (values: string[]) => [...new Set(values)];
@@ -105,6 +106,8 @@ export function checkDossier(
   now = new Date().toISOString(),
   sourceMode: Report['sourceMode'] = 'snapshot',
 ): Report {
+  if (dossier.eventId !== pack.id || !trackMatchesEvent(dossier))
+    throw new Error('The event, track and rule pack must match.');
   const findings = pack.requirements.map((rule): Finding => {
     const applicability = rule.appliesWhen
       ? evaluateExpression(rule.appliesWhen, dossier, now, pack.deadline)
@@ -168,6 +171,7 @@ export function checkDossier(
     dossier: { ...dossier },
     packVersion: pack.version,
     packId: pack.id,
+    packSchedule: { start: pack.start, deadline: pack.deadline },
     sourceMode,
     sources: pack.sources,
     findings,
@@ -184,6 +188,7 @@ export function checkDossier(
 }
 
 export function changedFindings(before: Report, after: Report): string[] {
+  if (before.packId !== after.packId) return [];
   return after.findings
     .filter((finding) => {
       const old = before.findings.find((item) => item.rule.id === finding.rule.id);
@@ -191,8 +196,7 @@ export function changedFindings(before: Report, after: Report): string[] {
         !old ||
         old.status !== finding.status ||
         JSON.stringify(old.facts) !== JSON.stringify(finding.facts) ||
-        old.rule.summary !== finding.rule.summary ||
-        before.packVersion !== after.packVersion
+        JSON.stringify(old.rule) !== JSON.stringify(finding.rule)
       );
     })
     .map((f) => f.rule.id);
@@ -208,6 +212,7 @@ export function formatFact(value: unknown): string {
     'path-one': 'Path One',
     'path-two': 'Path Two',
     both: 'Both paths',
+    'open-invention': 'Open Invention',
   };
   return labels[String(value)] ?? String(value);
 }

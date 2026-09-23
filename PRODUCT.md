@@ -18,7 +18,7 @@ Explain which requirements apply to a particular project, show what supports eac
 Project-specific applicability and before/after comparison. Distinguish entering an event, qualifying for a prize, and permission to receive multiple prizes. No originality, accuracy, or competition-outcome claims are established.
 
 ## Operating Context
-Begin with the Sanity Challenge, Path One. The user's attached brief proposes facts on the left, results in the center, sources on the right. The approved revision prioritizes one carefully curated competition and an existing-work example over a directory of events.
+Begin with the Sanity Challenge, Path One. On September 22 the user approved a small multi-event comparison and rule-change impact workflow. Add GIBC V2's Open Invention track with freshly checked official sources. Keep facts, findings and sources together; prioritize a few curated events over a directory.
 
 ## Capabilities and Constraints
 Typed conditions, explicit unknown values, versioned sources, scenario comparison, source inspection, saved local dossiers, downloadable reports, and optional live Sanity retrieval. Project facts remain declarations unless independently verified. Review status is explicit. No autonomous submission or messages to organizers. No repository-wide inference. A live Knowledge Base connection is required before claiming a qualifying Sanity Path One integration. Unsupported events must not receive a guessed assessment.

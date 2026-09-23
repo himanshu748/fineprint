@@ -1,0 +1,668 @@
+{
+  "runAt": "2026-09-22T07:56:36.746Z",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "provider": "Modal",
+  "method": "Four authored paired questions, using the live event packs, the same model and the same agent. Expected labels are withheld from the agent. Actual Context reads and the typed check are recorded.",
+  "limitations": "A small integration regression, not independent accuracy, a competitor comparison or a keyword-search ablation. Failed runs and disagreements must not be discarded.",
+  "results": [
+    {
+      "eventId": "sanity-2026",
+      "packVersion": "2026-09-20.1",
+      "question": "We have five people on our team. Does the team-size rule allow us to enter Path One?",
+      "ruleId": "team",
+      "expected": "blocked",
+      "actual": "blocked",
+      "engineMatchesAuthoredLabel": true,
+      "agentInterpretation": "blocked",
+      "citedRelevantRule": true,
+      "elapsedMs": 12072,
+      "answer": "No. The team-size rule (rule ID `team`) caps Sanity Challenge teams at four members, and this limit applies regardless of path, so a five-person team does not satisfy it, Path One is not exempt. The only stated fact is \"We have five people on our team\"; the question itself is not a statement that any other requirement is met. My reading agrees with the typed check: `team` is blocked, and the Path One technical rule `context` (Sanity Context MCP plus a real Knowledge Base) is still missing because `usesContext` and `usesKnowledgeBase` were not supplied. Age, residency, DEV membership and affiliation declarations are also unstated. Next step: reduce the team to four or fewer members, then confirm the Context MCP retrieval facts and the remaining eligibility declarations before entering Path One. This is a source-based assessment, not organizer approval.",
+      "citations": [
+        "sanity_challenge/eligibility",
+        "sanity_challenge/entry_limits_and_prizes"
+      ],
+      "acceptedFacts": [
+        {
+          "key": "track",
+          "label": "Target path",
+          "status": "stated",
+          "value": "path-one",
+          "quote": "Does the team-size rule allow us to enter Path One?"
+        },
+        {
+          "key": "teamSize",
+          "label": "Team size",
+          "status": "stated",
+          "value": 5,
+          "quote": "We have five people on our team."
+        }
+      ],
+      "sourceRecords": [
+        {
+          "path": "sanity_challenge/entry_limits_and_prizes",
+          "records": [
+            {
+              "kind": "source",
+              "id": "faq",
+              "title": "Challenge brief & FAQ"
+            },
+            {
+              "kind": "requirement",
+              "id": "combination",
+              "title": "Receiving prizes in both paths"
+            },
+            {
+              "kind": "requirement",
+              "id": "english",
+              "title": "Language for prize judging"
+            },
+            {
+              "kind": "requirement",
+              "id": "context",
+              "title": "Sanity Context + Knowledge Base"
+            },
+            {
+              "kind": "requirement",
+              "id": "path-two",
+              "title": "Path Two build requirements"
+            },
+            {
+              "kind": "requirement",
+              "id": "entry-limit",
+              "title": "Entries in the same path"
+            }
+          ]
+        },
+        {
+          "path": "sanity_challenge/eligibility",
+          "records": [
+            {
+              "kind": "requirement",
+              "id": "residency",
+              "title": "Residency restrictions"
+            },
+            {
+              "kind": "requirement",
+              "id": "affiliation",
+              "title": "Organizer affiliations"
+            },
+            {
+              "kind": "requirement",
+              "id": "age",
+              "title": "Age of every team member"
+            },
+            {
+              "kind": "requirement",
+              "id": "membership",
+              "title": "DEV membership"
+            },
+            {
+              "kind": "requirement",
+              "id": "team",
+              "title": "Team size"
+            }
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "kind": "mcp",
+          "tool": "initial_context",
+          "arguments": {},
+          "startedMs": 2055,
+          "durationMs": 576,
+          "ok": true,
+          "detail": "7 entries in the outline"
+        },
+        {
+          "kind": "model",
+          "round": 1,
+          "startedMs": 2632,
+          "durationMs": 3773,
+          "ok": true,
+          "detail": "Selected Knowledge Base entries"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "sanity_challenge/entry_limits_and_prizes"
+            ]
+          },
+          "startedMs": 6406,
+          "durationMs": 568,
+          "ok": true,
+          "detail": "3,876 characters"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "sanity_challenge/eligibility"
+            ]
+          },
+          "startedMs": 6405,
+          "durationMs": 584,
+          "ok": true,
+          "detail": "2,554 characters"
+        },
+        {
+          "kind": "model",
+          "round": 2,
+          "startedMs": 6990,
+          "durationMs": 2490,
+          "ok": true,
+          "detail": "Requested a facts and rules check"
+        },
+        {
+          "kind": "check",
+          "tool": "check_requirements",
+          "startedMs": 9480,
+          "durationMs": 2,
+          "ok": true,
+          "detail": "19 requirements checked; 2 quoted facts accepted"
+        },
+        {
+          "kind": "model",
+          "round": 3,
+          "startedMs": 9482,
+          "durationMs": 2589,
+          "ok": true,
+          "detail": "Wrote the cited answer"
+        }
+      ]
+    },
+    {
+      "eventId": "gibc-v2-2026",
+      "packVersion": "2026-09-22.1",
+      "question": "We have five people on our team. Does the team-size rule allow us to enter Open Invention?",
+      "ruleId": "gibc-team",
+      "expected": "supported",
+      "actual": "supported",
+      "engineMatchesAuthoredLabel": true,
+      "agentInterpretation": "supported",
+      "citedRelevantRule": true,
+      "elapsedMs": 9230,
+      "answer": "On team size alone, yes: the GIBC V2 eligibility entry states \"Teams must have 1 to 6 members,\" and the question states \"We have five people on our team,\" so five is within the stated range. That is the only fact the question supplies, and the typed check agrees (gibc-team: supported). It is not an eligibility certificate for Open Invention. Still unknown: whether every member is a student, the youngest member's age (≥13) and any under-18 guardian permission, residency/location restrictions, organizer/judge affiliation, and the one-team-per-member rule. Development timing, origin, prototype/novelty, repository, video, screenshots, Devpost content, English materials and AI disclosure are also unstated. Next step: supply those facts in the form, then confirm against the official rules at https://gibc-v2.devpost.com/rules before submitting by Oct 1, 2026, 15:45 UTC.",
+      "citations": [
+        "gibc_v2/eligibility",
+        "gibc_v2/submission"
+      ],
+      "acceptedFacts": [
+        {
+          "key": "track",
+          "label": "Target path",
+          "status": "stated",
+          "value": "open-invention",
+          "quote": "Does the team-size rule allow us to enter Open Invention?"
+        },
+        {
+          "key": "teamSize",
+          "label": "Team size",
+          "status": "stated",
+          "value": 5,
+          "quote": "We have five people on our team."
+        }
+      ],
+      "sourceRecords": [
+        {
+          "path": "gibc_v2/eligibility",
+          "records": [
+            {
+              "kind": "requirement",
+              "id": "gibc-guardian",
+              "title": "GIBC: Guardian permission"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-students",
+              "title": "GIBC: Student participation"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-residency",
+              "title": "GIBC: Residency restrictions"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-team",
+              "title": "GIBC: Team size"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-affiliation",
+              "title": "GIBC: Organizer affiliations"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-age",
+              "title": "GIBC: Minimum age"
+            }
+          ]
+        },
+        {
+          "path": "gibc_v2/submission",
+          "records": [
+            {
+              "kind": "requirement",
+              "id": "gibc-deadline",
+              "title": "GIBC: Submission deadline"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-devpost",
+              "title": "GIBC: Devpost materials"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-screenshots",
+              "title": "GIBC: Screenshots"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-video",
+              "title": "GIBC: Demo video"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-repository",
+              "title": "GIBC: Source and setup"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-english",
+              "title": "GIBC: English materials"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-ai-disclosure",
+              "title": "GIBC: AI coding disclosure"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-prototype",
+              "title": "GIBC: Open Invention prototype"
+            },
+            {
+              "kind": "source",
+              "id": "gibc-overview",
+              "title": "GIBC V2 overview"
+            },
+            {
+              "kind": "competition",
+              "id": "gibc-v2-2026",
+              "title": "GIBC V2 · Open Invention"
+            },
+            {
+              "kind": "source",
+              "id": "gibc-rules",
+              "title": "GIBC V2 official rules"
+            }
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "kind": "mcp",
+          "tool": "initial_context",
+          "arguments": {},
+          "startedMs": 1005,
+          "durationMs": 578,
+          "ok": true,
+          "detail": "7 entries in the outline"
+        },
+        {
+          "kind": "model",
+          "round": 1,
+          "startedMs": 1583,
+          "durationMs": 1874,
+          "ok": true,
+          "detail": "Selected Knowledge Base entries"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "gibc_v2/eligibility"
+            ]
+          },
+          "startedMs": 3457,
+          "durationMs": 382,
+          "ok": true,
+          "detail": "1,091 characters"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "gibc_v2/submission"
+            ]
+          },
+          "startedMs": 3457,
+          "durationMs": 638,
+          "ok": true,
+          "detail": "3,668 characters"
+        },
+        {
+          "kind": "model",
+          "round": 2,
+          "startedMs": 4096,
+          "durationMs": 2569,
+          "ok": true,
+          "detail": "Requested a facts and rules check"
+        },
+        {
+          "kind": "check",
+          "tool": "check_requirements",
+          "startedMs": 6665,
+          "durationMs": 1,
+          "ok": true,
+          "detail": "18 requirements checked; 2 quoted facts accepted"
+        },
+        {
+          "kind": "model",
+          "round": 3,
+          "startedMs": 6666,
+          "durationMs": 2563,
+          "ok": true,
+          "detail": "Wrote the cited answer"
+        }
+      ]
+    },
+    {
+      "eventId": "sanity-2026",
+      "packVersion": "2026-09-20.1",
+      "question": "We began development on August 23, 2026. Does that meet the development-start requirement for Path One?",
+      "ruleId": "start",
+      "expected": "blocked",
+      "actual": "blocked",
+      "engineMatchesAuthoredLabel": true,
+      "agentInterpretation": "blocked",
+      "citedRelevantRule": true,
+      "elapsedMs": 14265,
+      "answer": "No. The Sanity Challenge requires development to start on or after 2026-09-18T16:00:00Z, the official entry-period opening, with no grace period; a start before that timestamp does not satisfy the development-window requirement. Your stated start of August 23, 2026 is roughly four weeks earlier, so it falls outside the window. The typed check agrees: rule `start` is blocked, and my independent reading of sanity_challenge/development_timing reaches the same conclusion. Note the question only supplies a date, not a time or timezone, and it says nothing about origin (new entry vs. reused components) or about Path One's Context MCP/Knowledge Base retrieval, which remains unverified. Next step: confirm with the organizer whether any earlier work can be excluded or restarted within the window, and document the actual development start with evidence. This is a source-based assessment, not organizer approval.",
+      "citations": [
+        "sanity_challenge/development_timing",
+        "sanity_challenge/entry_limits_and_prizes"
+      ],
+      "acceptedFacts": [
+        {
+          "key": "track",
+          "label": "Target path",
+          "status": "stated",
+          "value": "path-one",
+          "quote": "for Path One"
+        },
+        {
+          "key": "startedAt",
+          "label": "Entry development began",
+          "status": "stated",
+          "value": "2026-08-23",
+          "quote": "We began development on August 23, 2026."
+        }
+      ],
+      "sourceRecords": [
+        {
+          "path": "sanity_challenge/development_timing",
+          "records": [
+            {
+              "kind": "competition",
+              "id": "sanity-2026",
+              "title": "Sanity Challenge"
+            },
+            {
+              "kind": "requirement",
+              "id": "origin",
+              "title": "Existing project or new entry?"
+            },
+            {
+              "kind": "requirement",
+              "id": "credit",
+              "title": "Credit for reused material"
+            },
+            {
+              "kind": "source",
+              "id": "general",
+              "title": "General contest rules"
+            },
+            {
+              "kind": "requirement",
+              "id": "new-work",
+              "title": "Substantial new work"
+            },
+            {
+              "kind": "requirement",
+              "id": "start",
+              "title": "Development start"
+            }
+          ]
+        },
+        {
+          "path": "sanity_challenge/entry_limits_and_prizes",
+          "records": [
+            {
+              "kind": "source",
+              "id": "faq",
+              "title": "Challenge brief & FAQ"
+            },
+            {
+              "kind": "requirement",
+              "id": "combination",
+              "title": "Receiving prizes in both paths"
+            },
+            {
+              "kind": "requirement",
+              "id": "english",
+              "title": "Language for prize judging"
+            },
+            {
+              "kind": "requirement",
+              "id": "context",
+              "title": "Sanity Context + Knowledge Base"
+            },
+            {
+              "kind": "requirement",
+              "id": "path-two",
+              "title": "Path Two build requirements"
+            },
+            {
+              "kind": "requirement",
+              "id": "entry-limit",
+              "title": "Entries in the same path"
+            }
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "kind": "mcp",
+          "tool": "initial_context",
+          "arguments": {},
+          "startedMs": 5358,
+          "durationMs": 558,
+          "ok": true,
+          "detail": "7 entries in the outline"
+        },
+        {
+          "kind": "model",
+          "round": 1,
+          "startedMs": 5916,
+          "durationMs": 2379,
+          "ok": true,
+          "detail": "Selected Knowledge Base entries"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "sanity_challenge/development_timing"
+            ]
+          },
+          "startedMs": 8295,
+          "durationMs": 398,
+          "ok": true,
+          "detail": "2,965 characters"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "sanity_challenge/entry_limits_and_prizes"
+            ]
+          },
+          "startedMs": 8295,
+          "durationMs": 527,
+          "ok": true,
+          "detail": "3,876 characters"
+        },
+        {
+          "kind": "model",
+          "round": 2,
+          "startedMs": 8822,
+          "durationMs": 2214,
+          "ok": true,
+          "detail": "Requested a facts and rules check"
+        },
+        {
+          "kind": "check",
+          "tool": "check_requirements",
+          "startedMs": 11036,
+          "durationMs": 1,
+          "ok": true,
+          "detail": "19 requirements checked; 2 quoted facts accepted"
+        },
+        {
+          "kind": "model",
+          "round": 3,
+          "startedMs": 11037,
+          "durationMs": 3228,
+          "ok": true,
+          "detail": "Wrote the cited answer"
+        }
+      ]
+    },
+    {
+      "eventId": "gibc-v2-2026",
+      "packVersion": "2026-09-22.1",
+      "question": "We began development on August 23, 2026. Does that meet the development-start requirement for Open Invention?",
+      "ruleId": "gibc-start",
+      "expected": "supported",
+      "actual": "supported",
+      "engineMatchesAuthoredLabel": true,
+      "agentInterpretation": "unclear",
+      "citedRelevantRule": true,
+      "elapsedMs": 14906,
+      "answer": "The stated fact is only \"We began development on August 23, 2026\", a date with no time or timezone. GIBC V2 Open Invention (rule gibc-start) requires development to begin after July 11, 2026 at 04:00 UTC and before the October 1, 2026 15:45 UTC deadline. August 23, 2026 falls inside that window, so the date alone does not conflict with the window; however, the rule's curated question asks for a timezone on the opening day, and no time or UTC offset was supplied, so the exact timestamp remains unknown and cannot be invented. My independent reading was \"unclear\" on gibc-start; the typed check returned \"supported\" for the supplied date. That disagreement is preserved here, and the typed result is authoritative for the report but is not organizer approval. Origin (gibc-origin) and prior-entry (gibc-previous-entry) facts are still missing. Next step: supply the start time with UTC offset, plus what existed before July 11 and whether this duplicates a prior hackathon entry.",
+      "citations": [
+        "gibc_v2/development_timing"
+      ],
+      "acceptedFacts": [
+        {
+          "key": "track",
+          "label": "Target path",
+          "status": "stated",
+          "value": "open-invention",
+          "quote": "Open Invention"
+        },
+        {
+          "key": "startedAt",
+          "label": "Entry development began",
+          "status": "stated",
+          "value": "2026-08-23",
+          "quote": "We began development on August 23, 2026."
+        }
+      ],
+      "sourceRecords": [
+        {
+          "path": "gibc_v2/development_timing",
+          "records": [
+            {
+              "kind": "requirement",
+              "id": "gibc-start",
+              "title": "GIBC: Development start"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-previous-entry",
+              "title": "GIBC: Previous hackathon entry"
+            },
+            {
+              "kind": "requirement",
+              "id": "gibc-origin",
+              "title": "GIBC: New entry"
+            }
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "kind": "mcp",
+          "tool": "initial_context",
+          "arguments": {},
+          "startedMs": 1365,
+          "durationMs": 3794,
+          "ok": true,
+          "detail": "7 entries in the outline"
+        },
+        {
+          "kind": "model",
+          "round": 1,
+          "startedMs": 5160,
+          "durationMs": 2761,
+          "ok": true,
+          "detail": "Selected Knowledge Base entries"
+        },
+        {
+          "kind": "mcp",
+          "tool": "knowledge_base_read",
+          "arguments": {
+            "knowledgeBase": "kbyrY7h8fTnL",
+            "paths": [
+              "gibc_v2/development_timing"
+            ]
+          },
+          "startedMs": 7921,
+          "durationMs": 928,
+          "ok": true,
+          "detail": "2,503 characters"
+        },
+        {
+          "kind": "model",
+          "round": 2,
+          "startedMs": 8849,
+          "durationMs": 3327,
+          "ok": true,
+          "detail": "Requested a facts and rules check"
+        },
+        {
+          "kind": "check",
+          "tool": "check_requirements",
+          "startedMs": 12176,
+          "durationMs": 0,
+          "ok": true,
+          "detail": "18 requirements checked; 2 quoted facts accepted"
+        },
+        {
+          "kind": "model",
+          "round": 3,
+          "startedMs": 12176,
+          "durationMs": 2730,
+          "ok": true,
+          "detail": "Wrote the cited answer"
+        }
+      ]
+    }
+  ]
+}

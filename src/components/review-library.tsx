@@ -12,7 +12,9 @@ import {
   RotateCcw,
   Upload,
 } from 'lucide-react';
-import type { Dossier } from '@/lib/model';
+import type { Dossier, EventId, RulePack } from '@/lib/model';
+import { eventCatalog, eventDetails, savedPacks, eventPhase } from '@/lib/events';
+import { ruleImpact } from '@/lib/rule-impact';
 import {
   exportWorkspace,
   maxBackupBytes,
@@ -34,10 +36,12 @@ const pathNames = {
   'path-one': 'Path One · agent',
   'path-two': 'Path Two · app',
   both: 'Both paths',
+  'open-invention': 'Open Invention',
 };
-type Creation = Pick<Dossier, 'name' | 'track' | 'origin' | 'startedAt'>;
+type Creation = Pick<Dossier, 'eventId' | 'name' | 'track' | 'origin' | 'startedAt'>;
 
 export function ReviewLibrary({
+  packs,
   workspace,
   ready,
   startCreating,
@@ -51,6 +55,7 @@ export function ReviewLibrary({
   onSnapshots,
   onSources,
 }: {
+  packs: Partial<Record<EventId, RulePack>>;
   workspace: ReviewWorkspace;
   ready: boolean;
   startCreating: boolean;
@@ -68,6 +73,8 @@ export function ReviewLibrary({
     startCreating || !workspace.reviews.some((r) => !r.archived),
   );
   const [showArchived, setShowArchived] = useState(false);
+  const [eventId, setEventId] = useState<EventId>('sanity-2026');
+  const event = eventDetails(eventId);
   const [name, setName] = useState('');
   const [track, setTrack] = useState<Dossier['track']>('path-one');
   const [origin, setOrigin] = useState<Dossier['origin']>(null);
@@ -101,8 +108,8 @@ export function ReviewLibrary({
       <div className="supported-event">
         <BookOpen size={22} />
         <div>
-          <strong>DEV × Sanity Challenge</strong>
-          <p>The currently supported event · closes October 4, 2026</p>
+          <strong>Two events. Different requirements.</strong>
+          <p>DEV × Sanity Challenge and GIBC V2 Open Invention · curated official sources</p>
         </div>
         <button className="text-button" onClick={onSources}>
           View covered rules <ArrowRight size={15} />
@@ -125,7 +132,7 @@ export function ReviewLibrary({
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              onCreate({ name, track, origin, startedAt: startedAt || null });
+              onCreate({ eventId, name, track, origin, startedAt: startedAt || null });
             }}
           >
             <label className="field">
@@ -140,11 +147,32 @@ export function ReviewLibrary({
               />
             </label>
             <label className="field">
+              <span>Event</span>
+              <select
+                value={eventId}
+                onChange={(e) => {
+                  const id = e.target.value as EventId;
+                  setEventId(id);
+                  setTrack(eventDetails(id).tracks[0].id);
+                  setOrigin(null);
+                }}
+              >
+                {eventCatalog.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.shortTitle} · {eventPhase(packs[event.id] ?? savedPacks[event.id])}
+                  </option>
+                ))}
+              </select>
+              <small>{event.coverage}</small>
+            </label>
+            <label className="field">
               <span>Submission path</span>
               <select value={track} onChange={(e) => setTrack(e.target.value as Dossier['track'])}>
-                <option value="path-one">Path One · an agent using Sanity Context</option>
-                <option value="path-two">Path Two · an app built with AI and Sanity</option>
-                <option value="both">Both paths · separate submissions</option>
+                {event.tracks.map((track) => (
+                  <option key={track.id} value={track.id}>
+                    {track.title}
+                  </option>
+                ))}
               </select>
             </label>
             <div className="create-optional">
@@ -212,7 +240,18 @@ export function ReviewLibrary({
                         ? 'Facts updated · recheck to refresh the report'
                         : (review.report?.summary ?? 'Draft · ready for a first check')}
                     </p>
+                    {review.report &&
+                      packs[review.dossier.eventId] &&
+                      (() => {
+                        const impact = ruleImpact(review.report, packs[review.dossier.eventId]!);
+                        return impact?.needsRecheck ? (
+                          <p className="rule-update-badge">
+                            Rules updated · {impact.changes.length} affected checks
+                          </p>
+                        ) : null;
+                      })()}
                     <small>
+                      {eventDetails(review.dossier.eventId).shortTitle} ·{' '}
                       {pathNames[review.dossier.track]} · edited{' '}
                       {new Date(review.updatedAt).toLocaleDateString()}
                     </small>

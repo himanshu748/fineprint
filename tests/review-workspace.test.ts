@@ -30,7 +30,8 @@ describe('personal drafts', () => {
     const { dossier, report } = newReview('My project', 'path-one');
     expect(report).toBeNull();
     for (const [key, value] of Object.entries(dossier)) {
-      if (!['name', 'track', 'evidenceNote'].includes(key)) expect(value, key).toBeNull();
+      if (!['eventId', 'name', 'track', 'evidenceNote'].includes(key))
+        expect(value, key).toBeNull();
     }
   });
   it('saves unfinished input without claiming it passed validation', () => {

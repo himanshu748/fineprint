@@ -14,6 +14,9 @@ export const draftSchema = dossierSchema.extend({
   startedAt: z.string().max(40).nullable(),
   teamSize: z.number().nullable(),
   entriesPerPath: z.number().nullable(),
+  minimumAge: z.number().nullable().default(null),
+  videoMinutes: z.number().nullable().default(null),
+  screenshotsCount: z.number().nullable().default(null),
 });
 export const reviewSchema = z.object({
   id: z.uuid(),
@@ -46,7 +49,10 @@ export const emptyWorkspace = (): ReviewWorkspace => ({ version: 1, activeId: nu
 export function newReview(
   name: string,
   track: Dossier['track'],
-  details: Pick<Dossier, 'origin' | 'startedAt'> = { origin: null, startedAt: null },
+  details: Pick<Dossier, 'origin' | 'startedAt'> & Partial<Dossier> = {
+    origin: null,
+    startedAt: null,
+  },
 ): PersonalReview {
   const now = new Date().toISOString();
   return {
@@ -57,6 +63,7 @@ export function newReview(
     dossier: dossierSchema.parse({
       ...blankDossier,
       ...details,
+      eventId: details.eventId ?? (track === 'open-invention' ? 'gibc-v2-2026' : 'sanity-2026'),
       name,
       track,
       entriesPerPath: null,
@@ -111,8 +118,8 @@ const portableReviewSchema = z
 const backupSchema = z
   .object({
     format: z.literal('fineprint-review-backup'),
-    version: z.literal(1),
-    event: z.literal('sanity-2026'),
+    version: z.union([z.literal(1), z.literal(2)]),
+    event: z.enum(['sanity-2026', 'multiple']),
     exportedAt: z.iso.datetime(),
     reviews: z.array(portableReviewSchema).min(1).max(maxReviews),
   })
@@ -122,8 +129,8 @@ export function exportWorkspace(workspace: ReviewWorkspace) {
   return JSON.stringify(
     {
       format: 'fineprint-review-backup',
-      version: 1,
-      event: 'sanity-2026',
+      version: 2,
+      event: 'multiple',
       exportedAt: new Date().toISOString(),
       reviews: workspace.reviews.map(({ id, createdAt, updatedAt, archived, dossier }) => ({
         id,
@@ -145,9 +152,7 @@ export function importWorkspace(raw: string, current: ReviewWorkspace) {
   try {
     parsed = backupSchema.parse(JSON.parse(raw));
   } catch {
-    throw new Error(
-      'Choose a FinePrint review backup for the Sanity Challenge. Your existing reviews have not changed.',
-    );
+    throw new Error('Choose a FinePrint review backup. Your existing reviews have not changed.');
   }
   const next = [...current.reviews];
   let imported = 0;
@@ -182,6 +187,7 @@ export function importWorkspace(raw: string, current: ReviewWorkspace) {
 
 /** Only valid, explicitly stated facts may replace a user's existing answers. */
 export function mergeAnswerFacts(current: Dossier, answer: AskResponse): Dossier {
+  if (current.eventId !== answer.report.packId) return current;
   const stated: Record<string, unknown> = {};
   for (const fact of answer.facts) {
     if (

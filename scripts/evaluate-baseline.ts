@@ -1,22 +1,19 @@
 import { writeFile } from 'node:fs/promises';
 import { z } from 'zod';
-import { withContext } from '../src/lib/source-agent';
+import { readOutline, withContext } from '../src/lib/source-agent';
+import { createTrace } from '../src/lib/agent-trace';
 import { modalChat } from '../src/lib/modal';
 import { scenarios, evaluationClock } from '../src/lib/scenarios';
 import { examples, rulePack } from '../src/lib/rules';
 import { statusSchema } from '../src/lib/model';
-const paths = [
-  'eligibility/development_timing',
-  'eligibility/participant_and_team',
-  'eligibility/prior_work_reuse',
-  'entry_limits_and_prizes',
-  'path_one',
-  'path_two/build_requirements',
-  'source_authority',
-  'submissions/artifacts',
-  'submissions/deadlines',
-];
-const context = await withContext(async (client) => {
+const { context, paths } = await withContext(async (client) => {
+  const { outlines } = await readOutline(client, createTrace());
+  const outline = outlines.find((item) => item.id === 'kbyrY7h8fTnL');
+  if (!outline) throw new Error('The expected FinePrint Knowledge Base is unavailable.');
+  const paths = outline.entries
+    .filter((entry) => entry.path.startsWith('sanity_challenge/'))
+    .map((entry) => entry.path);
+  if (!paths.length) throw new Error('The Knowledge Base contains no Sanity event entries.');
   const entries = [];
   for (const path of paths) {
     const data = await client.callTool(
@@ -33,7 +30,7 @@ const context = await withContext(async (client) => {
         .join('\n'),
     });
   }
-  return entries;
+  return { context: entries, paths };
 });
 console.log(`Retrieved ${context.length} entries for the fixed-context model baseline.`);
 const schema = z.object({
@@ -83,8 +80,7 @@ for (let offset = 0; offset < scenarios.length; offset += 7) {
     runAt: new Date().toISOString(),
     model: process.env.MODAL_MODEL,
     provider: 'Modal',
-    method:
-      'Fixed-context model baseline: all nine Sanity Knowledge Base entries supplied to every batch; no typed conditions, expected labels, or descriptive scenario names supplied. Retrieval selection is held constant.',
+    method: `Fixed-context model baseline: all ${paths.length} Sanity event entries from the current Knowledge Base outline supplied to every batch; no typed conditions, expected labels, or descriptive scenario names supplied. Retrieval selection is held constant.`,
     limitations:
       'Authored fixtures and Knowledge Base derived from the same curated pack. This measures agreement with the authored labels, not independent eligibility accuracy or a controlled RAG retrieval comparison.',
     packVersion: rulePack.version,

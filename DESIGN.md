@@ -328,7 +328,7 @@ The question path selector stays visible; the adjacent checkbox explicitly inclu
 
 ### Navigation
 
-Primary app navigation is My reviews, Current review when one is open, and Sources. Help & privacy contains product guidance and a collapsed technical section. Example scenarios and evaluation diagnostics are learning paths rather than the first visitor experience. The landing header links to My reviews.
+Primary app navigation is My reviews, Current review and Compare events when a review is open, and Sources. Help & privacy contains product guidance and a collapsed technical section. Example scenarios and evaluation diagnostics are learning paths rather than the first visitor experience. The landing header links to My reviews.
 
 Desk navigation uses muted, weight-650 text, a forest active label, and a 2px bottom rule. Hover darkens the label without a fill. Phone pane tabs use a pale rail with a white selected inset and retain all three pane names. The landing’s sticky header pairs the wordmark with an in-page link and a bordered desk link; ordinary links underline on hover. Focus remains visible on links, controls, and disclosure summaries.
 
@@ -344,6 +344,12 @@ Reduced-motion preference makes page scrolling immediate, reduces global animati
 
 ## Do's and Don'ts
 
+### Event comparison and rule updates
+
+Two event panels receive equal space, with the event name, curated version and status counts visible before individual findings. Shared project facts appear above them; a note explains which declarations need separate answers. The panels stack below 850px, and source paths wrap on phones. Existing status colors keep the same meaning across both events.
+
+Rule updates list the requirements and source references that changed. A version refresh with no changed conditions gets a neutral message. The optional team-limit rehearsal is labeled hypothetical and shows one affected check beside its previous result. It never changes a saved report or an official rule pack.
+
 ### Do:
 
 - Do keep the written status beside the finding and preserve access to its supporting source.
@@ -357,3 +363,11 @@ Reduced-motion preference makes page scrolling immediate, reduces global animati
 - Don’t style a source citation as proof that a project meets the requirement.
 - Don’t present the landing replay as a live request or show invented steps while the question agent is working.
 - Don’t carry a landing-specific layout or serif treatment into every desk component.
+
+## Evidence interactions (September 23)
+
+The shared `StatusTag` owns the five outcome labels across findings, event comparison, source disagreements and landing demonstrations. Status text remains explicit; color never carries the outcome alone. Supported colors and focus rings use semantic CSS variables. Comparison controls have a 44px minimum target and a visible pressed state.
+
+The recorded comparison uses real September 22 receipts. Team-size and development-date examples retain the independent model reading, typed check, source pack version and disagreement. Expandable source records and trace steps disclose evidence without simulating a live run.
+
+Interaction references: [21st.dev ToolCallsSection](https://21st.dev/@heygaia/components/tool-calls-section) for progressive disclosure of tool activity and [AuditLog](https://21st.dev/@corr/components/audit-log) for readable event metadata. FinePrint uses its own implementation and existing forest/paper palette. No reference component source or unlicensed package was copied.

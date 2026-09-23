@@ -10,6 +10,7 @@ import { checkAgentLimit } from '@/lib/agent-rate-limit';
 import { readRequestJson, RequestBodyError } from '@/lib/request-body';
 import { reserveAgentRun } from '@/lib/agent-budget';
 import { AgentRunError } from '@/lib/agent-trace';
+import { trackMatchesEvent } from '@/lib/events';
 export const runtime = 'nodejs';
 export const maxDuration = 300;
 
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
   let release: (() => void) | null = null;
   try {
     const input = requestSchema.safeParse(await readRequestJson(request, 16_000));
-    if (!input.success)
+    if (!input.success || !trackMatchesEvent(input.data.dossier))
       return Response.json({ error: 'Supply a valid dossier and finding.' }, { status: 400 });
     const limit = await checkAgentLimit(request, 'explain');
     if (!limit.allowed)
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
         { error: limit.error },
         { status: limit.status, headers: { 'Cache-Control': 'no-store' } },
       );
-    const { pack, mode } = await loadRulePack();
+    const { pack, mode } = await loadRulePack(input.data.dossier.eventId);
     const report = checkDossier(input.data.dossier, pack, undefined, mode);
     const finding = report.findings.find((f) => f.rule.id === input.data.ruleId);
     if (!finding)

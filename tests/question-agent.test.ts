@@ -127,6 +127,23 @@ it('refuses answers before retrieval and checking', async () => {
   ).rejects.toMatchObject({ stage: 'validation' });
 });
 
+it('refuses a retrieved source when it only identifies another event', async () => {
+  mocks.callTool.mockImplementation(async ({ name }: { name: string }) => ({
+    content: [
+      {
+        type: 'text',
+        text:
+          name === 'initial_context'
+            ? `Knowledge base id: kbtest\n# FinePrint\n${path} [core]\n  Development timing.`
+            : '# Development timing\nDevelopment begins in July.\n## Sources\n1. GIBC: Development start – Requirement',
+      },
+    ],
+  }));
+  await expect(
+    askWithSources(question, questionDossier('path-one'), rulePack, 'sanity'),
+  ).rejects.toMatchObject({ stage: 'validation' });
+});
+
 it('keeps provider failure visible with a failed trace and no synthetic success', async () => {
   mocks.model.mockReset().mockRejectedValue(new Error('provider-secret-sensitive-detail'));
   try {

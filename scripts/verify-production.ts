@@ -68,6 +68,42 @@ try {
   assert.equal(manualReport.sourceMode, 'snapshot');
   assert.equal(manualReport.findings.length, 19);
   checks.push('Anonymous manual checks work with dated rules and providers disabled');
+  const events = await (await fetch(`${base}/api/events`)).json();
+  assert.equal(events.events.length, 2);
+  const comparison = await fetch(`${base}/api/compare`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ ...examples[0].dossier, teamSize: 5, startedAt: '2026-08-23' }),
+  });
+  assert.equal(comparison.status, 200);
+  const compared = await comparison.json();
+  assert.deepEqual(
+    compared.reports.map((report: { packId: string }) => report.packId),
+    ['sanity-2026', 'gibc-v2-2026'],
+  );
+  assert.equal(
+    compared.reports[0].findings.find((f: { rule: { id: string } }) => f.rule.id === 'team').status,
+    'blocked',
+  );
+  assert.equal(
+    compared.reports[1].findings.find((f: { rule: { id: string } }) => f.rule.id === 'gibc-team')
+      .status,
+    'supported',
+  );
+  assert.equal(compared.reports[1].dossier.eligibleResidency, null);
+  checks.push('Public event catalog and comparison keep both events and their facts separate');
+  assert.equal(
+    (
+      await fetch(`${base}/api/compare`, {
+        method: 'POST',
+        headers: { ...headers, Origin: 'https://other.example' },
+        body: manualBody,
+      })
+    ).status,
+    403,
+  );
+  checks.push('Cross-origin comparison returns 403');
+
   assert.equal(
     (
       await fetch(`${base}/api/check`, {

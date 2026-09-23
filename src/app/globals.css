@@ -16,6 +16,10 @@
   --amber-bg: #fcf5e7;
   --blue: #466aa1;
   --blue-bg: #edf2fa;
+  --supported: #327146;
+  --supported-bg: #edf5ef;
+  --focus: #4c9981;
+  --control-radius: 8px;
   --radius: 14px;
   --shadow: 0 6px 22px -10px #253f4630;
   --font: 'Manrope Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -82,7 +86,7 @@ summary:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #4c9981;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 ::selection {
@@ -738,7 +742,7 @@ button:disabled:hover {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.3;
   border-radius: 4px;
   padding: 4px 6px;
@@ -748,8 +752,8 @@ button:disabled:hover {
   margin-top: 1px;
 }
 .status-tag.supported {
-  background: #edf5ef;
-  color: #327146;
+  background: var(--supported-bg);
+  color: var(--supported);
 }
 .status-tag.blocked {
   background: var(--red-bg);
@@ -3100,4 +3104,280 @@ button:disabled:hover {
   .product-help p {
     font-size: 15px;
   }
+}
+
+/* Event comparisons and version impact use the existing review-desk palette. */
+.comparison-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.comparison-heading h1 {
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.035em;
+  margin: 9px 0 12px;
+  max-width: 750px;
+}
+.comparison-heading p,
+.comparison-facts p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.comparison-heading .secondary-button {
+  flex-shrink: 0;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  font-weight: 750;
+  color: var(--accent);
+}
+.comparison-facts {
+  display: flex;
+  gap: 18px;
+  background: var(--sage);
+  padding: 22px 24px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.comparison-facts > svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.comparison-facts p {
+  margin: 7px 0;
+}
+.comparison-facts small,
+.comparison-footnote {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.event-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.comparison-event {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  padding: 24px;
+  min-width: 0;
+}
+.comparison-event header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.comparison-event h2 {
+  font-size: 19px;
+  margin: 0 0 5px;
+}
+.comparison-event header p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.comparison-event h3 {
+  font-size: 20px;
+  margin: 26px 0 8px;
+  letter-spacing: -0.025em;
+}
+.event-phase {
+  margin-left: auto;
+  background: var(--sage);
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.comparison-deadline {
+  color: var(--muted);
+  font-size: 11px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+.comparison-key-findings {
+  margin: 22px 0;
+  border-top: 1px solid var(--line);
+}
+.comparison-key-findings > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.comparison-key-findings small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin-top: 5px;
+}
+.comparison-details summary,
+.rule-rehearsal summary {
+  cursor: pointer;
+  font-weight: 650;
+  color: var(--accent);
+  padding: 13px 0;
+}
+.comparison-finding {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+.comparison-finding > strong {
+  display: block;
+  margin: 0 0 8px;
+}
+.comparison-finding p {
+  line-height: 1.8;
+  color: var(--muted);
+}
+.comparison-finding a {
+  display: block;
+  color: var(--accent);
+  font-size: 11px;
+  padding: 3px 0;
+}
+.comparison-event-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 20px;
+}
+.comparison-event-footer small {
+  font-size: 10px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.comparison-footnote {
+  margin: 24px 0;
+  font-size: 12px;
+}
+.rule-rehearsal {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 24px;
+  margin-top: 30px;
+}
+.rule-rehearsal summary span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  margin-left: 14px;
+}
+.rule-rehearsal > div {
+  padding: 14px 0;
+  max-width: 760px;
+}
+.rule-rehearsal h2 {
+  font-size: 20px;
+}
+.rule-rehearsal p,
+.rule-rehearsal small {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.rule-rehearsal .field {
+  max-width: 220px;
+  margin: 22px 0;
+}
+.rule-version-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.rule-version-status > div {
+  flex: 1;
+  min-width: 240px;
+}
+.rule-version-status p {
+  margin: 6px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.rule-version-status small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.rule-version-status li {
+  margin: 8px 0;
+  line-height: 1.7;
+  font-size: 12px;
+}
+.rule-update-badge {
+  color: #845c17 !important;
+}
+@media (max-width: 850px) {
+  .comparison-heading {
+    flex-direction: column;
+  }
+  .event-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+  .comparison-event {
+    padding: 20px;
+  }
+}
+@media (max-width: 500px) {
+  .comparison-facts {
+    padding: 18px;
+  }
+  .comparison-event h2 {
+    font-size: 17px;
+  }
+  .rule-rehearsal {
+    padding: 12px 18px;
+  }
+  .rule-rehearsal summary span {
+    display: block;
+    margin: 8px 0 0;
+  }
+  .rule-version-status > div {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+  .rule-rehearsal select {
+    font-size: 16px;
+  }
+}
+
+.run-trace li {
+  position: relative;
+  border-top: 0;
+  padding: 12px 0;
+  font-size: 12px;
+}
+.run-trace li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  bottom: -8px;
+  left: 7px;
+  border-left: 1px solid var(--line-strong);
+}
+.run-trace li > svg {
+  flex-shrink: 0;
+}
+.run-trace code,
+.run-trace li span {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.run-trace li[data-failed='true'] > svg {
+  color: var(--red);
 }

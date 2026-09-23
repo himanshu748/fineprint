@@ -1,4 +1,5 @@
 'use client';
+import { StatusTag, statusLabels } from './status-tag';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -40,6 +41,11 @@ import {
 } from '@/lib/model';
 import { blankDossier, examples, rulePack } from '@/lib/rules';
 import { checkDossier, changedFindings, formatFact, reportMarkdown } from '@/lib/engine';
+import { eventCatalog, eventDetails, savedPacks, eventPhase } from '@/lib/events';
+import { ruleImpact } from '@/lib/rule-impact';
+import { EventComparison } from './event-comparison';
+import { GibcFacts } from './gibc-facts';
+import { useRulePacks } from './use-rule-packs';
 import { ReviewLibrary, downloadText } from './review-library';
 import { useReviews } from './use-reviews';
 import {
@@ -58,15 +64,8 @@ import { AgentTrace } from './agent-trace';
 import type { TraceStep } from '@/lib/agent-trace';
 
 type SavedCase = { id: string; name: string; savedAt: string; dossier: Dossier; report: Report };
-type View = 'reviews' | 'review' | 'sources' | 'saved' | 'evaluation' | 'connection';
+type View = 'compare' | 'reviews' | 'review' | 'sources' | 'saved' | 'evaluation' | 'connection';
 type Pane = 'facts' | 'findings' | 'sources';
-const statusLabels: Record<Status, string> = {
-  supported: 'Supported',
-  blocked: 'Blocked',
-  missing: 'Missing fact',
-  unclear: 'Rules unclear',
-  'not-applicable': 'Not applicable',
-};
 const scopeLabels: Record<Scope, string> = {
   entry: 'Entry eligibility',
   path: 'Path requirements',
@@ -88,9 +87,6 @@ function StatusIcon({ status, size = 17 }: { status: Status; size?: number }) {
             ? Check
             : CircleHelp;
   return <Icon size={size} aria-hidden="true" className={`status-icon ${status}`} />;
-}
-function StatusTag({ status }: { status: Status }) {
-  return <span className={`status-tag ${status}`}>{statusLabels[status]}</span>;
 }
 function TriSelect({
   field,
@@ -134,6 +130,7 @@ function downloadReport(report: Report) {
 
 export function ReviewDesk() {
   const reviews = useReviews();
+  const catalog = useRulePacks();
   const [hydrated, setHydrated] = useState(false);
   const [creating, setCreating] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -175,6 +172,19 @@ export function ReviewDesk() {
       passed: number;
       mismatches: { name: string; status: string; expected: string }[];
     };
+    multiEvent?: {
+      runAt: string;
+      limitations: string;
+      results: {
+        eventId: string;
+        ruleId: string;
+        expected: string;
+        actual: string;
+        agentInterpretation: string | null;
+        citedRelevantRule: boolean;
+        elapsedMs: number;
+      }[];
+    };
   } | null>(null);
   const [explanation, setExplanation] = useState<{
     text: string;
@@ -215,7 +225,12 @@ export function ReviewDesk() {
     try {
       let data: Report;
       if (useSnapshot) {
-        data = checkDossier(validated.data, rulePack, undefined, 'snapshot');
+        data = checkDossier(
+          validated.data,
+          savedPacks[validated.data.eventId],
+          undefined,
+          'snapshot',
+        );
       } else {
         const response = await fetch('/api/check', {
           method: 'POST',
@@ -231,6 +246,12 @@ export function ReviewDesk() {
       if (remember && report) setBaseline(report);
       setDossier(validated.data);
       setReport(data);
+      setSelected((current) =>
+        data.findings.some((finding) => finding.rule.id === current)
+          ? current
+          : data.findings[0].rule.id,
+      );
+      if (!useSnapshot) void catalog.refresh();
       if (remember && report) setComparing(true);
       setPane('findings');
     } catch (error) {
@@ -275,6 +296,7 @@ export function ReviewDesk() {
     if (activeReview && !activeReview.archived) {
       setDossier(activeReview.dossier);
       setReport(activeReview.report as Report | null);
+      setSelected(activeReview.report?.findings[0]?.rule.id ?? 'origin');
       setBaseline(activeReview.previousReport as Report | null);
       setAssistantOpen(Boolean(activeReview.question || activeReview.answer));
       setView('review');
@@ -312,10 +334,14 @@ export function ReviewDesk() {
     setAssistantOpen(Boolean(item.question || item.answer));
     setSelected(
       item.report?.findings.find((f) => f.status === 'blocked' || f.status === 'unclear')?.rule
-        .id ?? 'origin',
+        .id ??
+        item.report?.findings[0]?.rule.id ??
+        'origin',
     );
   }
-  function createReview(details: Pick<Dossier, 'name' | 'track' | 'origin' | 'startedAt'>) {
+  function createReview(
+    details: Pick<Dossier, 'name' | 'track' | 'origin' | 'startedAt'> & Partial<Dossier>,
+  ) {
     if (reviews.workspace.reviews.length >= maxReviews) {
       setNotice(
         'This device has reached its 30-review limit. Back up reviews you want to keep, then delete an archived review to make space.',
@@ -372,6 +398,11 @@ export function ReviewDesk() {
     setNotice('Quoted facts added. Your other answers and notes have been kept.');
     void runCheck(facts, Boolean(activeReview && !isExample));
   }
+  const event = eventDetails(dossier.eventId);
+  const currentPack = catalog.packs[dossier.eventId];
+  const sourcePack = currentPack ?? savedPacks[dossier.eventId];
+  const impact = report && currentPack ? ruleImpact(report, currentPack) : null;
+  const rulesChanged = Boolean(impact && (impact.needsRecheck || impact.versionChanged));
   const next = nextFact(report);
 
   const dirty = report ? JSON.stringify(dossier) !== JSON.stringify(report.dossier) : false;
@@ -530,6 +561,14 @@ export function ReviewDesk() {
               Current review
             </button>
           )}
+          {(activeReview || isExample) && (
+            <button
+              className={view === 'compare' ? 'active' : ''}
+              onClick={() => setView('compare')}
+            >
+              Compare events
+            </button>
+          )}
           <button className={view === 'sources' ? 'active' : ''} onClick={() => setView('sources')}>
             Sources
           </button>
@@ -579,6 +618,7 @@ export function ReviewDesk() {
         )}
         {view === 'reviews' && hydrated && (
           <ReviewLibrary
+            packs={catalog.packs}
             workspace={reviews.workspace}
             ready={reviews.ready}
             startCreating={creating}
@@ -601,6 +641,9 @@ export function ReviewDesk() {
             onSources={() => setView('sources')}
           />
         )}
+        {view === 'compare' && hydrated && (
+          <EventComparison dossier={dossier} packs={catalog.packs} onSave={createReview} />
+        )}
         {view === 'review' && hydrated && (
           <>
             <div className="page-heading">
@@ -612,15 +655,14 @@ export function ReviewDesk() {
                     : 'Your facts, the applicable rules, and what to do next.'}
                 </p>
               </div>
-              <a
-                className="event-selector"
-                href="https://dev.to/challenges/sanity-2026-09-16"
-                rel="noreferrer"
-              >
-                <span className="event-mark">S</span>
+              <a className="event-selector" href={event.url} rel="noreferrer">
+                <span className="event-mark">{event.mark}</span>
                 <span>
-                  <strong>Sanity Challenge</strong>
-                  <small>Closes Oct 4, 2026 · 11:59 PM PDT</small>
+                  <strong>{event.shortTitle}</strong>
+                  <small>
+                    {eventPhase(sourcePack)} · closes{' '}
+                    {new Date(sourcePack.deadline).toLocaleString()}
+                  </small>
                 </span>
                 <ExternalLink size={15} />
               </a>
@@ -658,6 +700,63 @@ export function ReviewDesk() {
                 </button>
               </div>
             )}
+            <div className="rule-version-status">
+              <div>
+                <strong>
+                  {catalog.busy
+                    ? 'Checking rule versions…'
+                    : rulesChanged
+                      ? 'A newer rule pack needs your attention.'
+                      : 'Curated source versions'}
+                </strong>
+                <p>
+                  {catalog.error ||
+                    (catalog.checkedAt
+                      ? `Versions checked ${new Date(catalog.checkedAt).toLocaleString()}. ${catalog.mode === 'sanity' ? 'Read from Sanity.' : 'Local snapshots.'}`
+                      : 'Current versions have not been checked.')}
+                </p>
+                <small>
+                  Refresh checks FinePrint’s published packs, not organizer websites. Sources were
+                  captured{' '}
+                  {sourcePack.sources
+                    .map((source) => source.capturedAt)
+                    .sort()
+                    .at(-1)}
+                  .
+                </small>
+                {impact && rulesChanged && (
+                  <>
+                    <p>
+                      Saved {impact.from} → current {impact.to}. {impact.changes.length} affected
+                      checks.
+                    </p>
+                    <ul>
+                      {impact.changes.map((change) => (
+                        <li key={change.id}>
+                          <strong>{change.title}</strong> · {change.kind}. {change.detail}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+              <button
+                className="text-button"
+                disabled={catalog.busy}
+                onClick={() => void catalog.refresh()}
+              >
+                Refresh rule versions
+              </button>
+              {rulesChanged && (
+                <button
+                  className="secondary-button"
+                  disabled={busy}
+                  onClick={() => void runCheck(dossier)}
+                >
+                  Recheck updated rules <ArrowRight size={15} />
+                </button>
+              )}
+            </div>
             <details
               className="assistant-drawer"
               open={assistantOpen}
@@ -709,16 +808,16 @@ export function ReviewDesk() {
               <div className="toolbar-actions">
                 <button
                   onClick={() => report && downloadReport(report)}
-                  disabled={!report || busy || dirty}
+                  disabled={!report || busy || dirty || rulesChanged}
                 >
                   <ArrowDownToLine size={15} /> Download report
                 </button>
               </div>
             </div>
-            {report && !dirty && next && (
+            {report && !dirty && !rulesChanged && next && (
               <div className="next-fact" aria-label="Next step">
                 <div>
-                  <strong>Next: {next.title.toLowerCase()}</strong>
+                  <strong>Next: {next.title.replace(/^GIBC: /, '').toLowerCase()}</strong>
                   <p>{next.question}</p>
                 </div>
                 <button className="secondary-button" onClick={() => jumpToFact(next.field)}>
@@ -726,7 +825,7 @@ export function ReviewDesk() {
                 </button>
               </div>
             )}
-            {report && !dirty && !next && (
+            {report && !dirty && !rulesChanged && !next && (
               <div className="next-fact">
                 <div>
                   <strong>
@@ -749,7 +848,7 @@ export function ReviewDesk() {
                   <>
                     <button onClick={() => void runCheck(dossier)}>Retry</button>
                     <button onClick={() => void runCheck(dossier, true, true)}>
-                      Use saved rules · Sep 20
+                      Use saved rules · {savedPacks[dossier.eventId].updatedAt.slice(0, 10)}
                     </button>
                   </>
                 )}
@@ -758,7 +857,7 @@ export function ReviewDesk() {
             {report?.sourceMode === 'snapshot' && (
               <div className="warning-banner">
                 <Clock3 size={17} />
-                Using saved rules captured September 20, 2026. Recheck when connected to refresh the
+                Using saved rule pack {report.packVersion}. Recheck when connected to refresh the
                 source connection.
               </div>
             )}
@@ -817,136 +916,171 @@ export function ReviewDesk() {
                   <label className="field" data-field="track">
                     <span>Target path</span>
                     <select value={dossier.track} onChange={(e) => update('track', e.target.value)}>
-                      <option value="path-one">Path One · AI agent</option>
-                      <option value="path-two">Path Two · AI-built app</option>
-                      <option value="both">Both paths</option>
+                      {event.tracks.map((track) => (
+                        <option key={track.id} value={track.id}>
+                          {track.title}
+                        </option>
+                      ))}
                     </select>
                   </label>
-                  <details className="fact-section" open>
-                    <summary>
-                      Project history
-                      <ChevronDown size={15} />
-                    </summary>
-                    <label className="field" data-field="origin">
-                      <span>What existed before the event?</span>
-                      <select
-                        value={dossier.origin ?? 'unknown'}
-                        onChange={(e) =>
-                          update('origin', e.target.value === 'unknown' ? null : e.target.value)
-                        }
-                      >
-                        <option value="unknown">Not sure yet</option>
-                        <option value="new">Nothing · a new entry</option>
-                        <option value="components">Components I’m reusing</option>
-                        <option value="existing">The application itself</option>
-                      </select>
-                    </label>
-                    <label className="field" data-field="startedAt">
-                      <span>Entry development began</span>
-                      <input
-                        type="text"
-                        placeholder="YYYY-MM-DD"
-                        value={dossier.startedAt ?? ''}
-                        onChange={(e) => update('startedAt', e.target.value || null)}
-                      />
-                      <small>Use an ISO date. On the opening day, add the time and zone.</small>
-                    </label>
-                    {dossier.origin && dossier.origin !== 'new' && (
-                      <>
-                        <TriSelect field="priorWorkCredited" dossier={dossier} onChange={update} />
-                        <TriSelect field="substantialNewWork" dossier={dossier} onChange={update} />
-                      </>
-                    )}
-                  </details>
-                  <details className="fact-section">
-                    <summary>
-                      Team & participation
-                      <ChevronDown size={15} />
-                    </summary>
-                    <label className="field" data-field="teamSize">
-                      <span>Team size</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={dossier.teamSize ?? ''}
-                        onChange={(e) =>
-                          update('teamSize', e.target.value ? Number(e.target.value) : null)
-                        }
-                      />
-                    </label>
-                    <TriSelect field="adultTeam" dossier={dossier} onChange={update} />
-                    <TriSelect
-                      field="eligibleResidency"
-                      dossier={dossier}
-                      onChange={update}
-                      help="Read the general rules for the listed jurisdictions and other restrictions."
-                    />
-                    <TriSelect field="devMembership" dossier={dossier} onChange={update} />
-                    <TriSelect field="excludedAffiliation" dossier={dossier} onChange={update} />
-                  </details>
-                  <details className="fact-section">
-                    <summary>
-                      Sanity & build
-                      <ChevronDown size={15} />
-                    </summary>
-                    {dossier.track !== 'path-two' && (
-                      <>
-                        <TriSelect field="usesContext" dossier={dossier} onChange={update} />
-                        <TriSelect field="usesKnowledgeBase" dossier={dossier} onChange={update} />
-                      </>
-                    )}
-                    {dossier.track !== 'path-one' && (
-                      <>
-                        <TriSelect field="usesSanity" dossier={dossier} onChange={update} />
-                        <TriSelect field="aiBuilt" dossier={dossier} onChange={update} />
-                        <TriSelect field="supportedFrontend" dossier={dossier} onChange={update} />
-                      </>
-                    )}
-                  </details>
-                  <details className="fact-section">
-                    <summary>
-                      Entries & prizes
-                      <ChevronDown size={15} />
-                    </summary>
-                    <label className="field" data-field="entriesPerPath">
-                      <span>Entries in the same path</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={dossier.entriesPerPath ?? ''}
-                        onChange={(e) =>
-                          update('entriesPerPath', e.target.value ? Number(e.target.value) : null)
-                        }
-                      />
-                    </label>
-                    <TriSelect field="englishSubmission" dossier={dossier} onChange={update} />
-                    <TriSelect field="seeksMultiplePrizes" dossier={dossier} onChange={update} />
-                    {dossier.track === 'both' && (
-                      <TriSelect field="separatePosts" dossier={dossier} onChange={update} />
-                    )}
-                  </details>
-                  <details className="fact-section">
-                    <summary>
-                      Submission artifacts
-                      <ChevronDown size={15} />
-                    </summary>
-                    <TriSelect field="requiresLogin" dossier={dossier} onChange={update} />
-                    {dossier.requiresLogin !== false && (
-                      <TriSelect field="judgeAccess" dossier={dossier} onChange={update} />
-                    )}
-                    <label className="field" data-field="projectIdentifier">
-                      <span>Sanity project ID or dataset URL</span>
-                      <input
-                        placeholder="Project ID or public URL"
-                        value={dossier.projectIdentifier ?? ''}
-                        onChange={(e) => update('projectIdentifier', e.target.value)}
-                      />
-                    </label>
-                    <TriSelect field="publishedPost" dossier={dossier} onChange={update} />
-                    <TriSelect field="hasChallengeTag" dossier={dossier} onChange={update} />
-                  </details>
+                  {dossier.eventId === 'sanity-2026' ? (
+                    <>
+                      <details className="fact-section" open>
+                        <summary>
+                          Project history
+                          <ChevronDown size={15} />
+                        </summary>
+                        <label className="field" data-field="origin">
+                          <span>What existed before the event?</span>
+                          <select
+                            value={dossier.origin ?? 'unknown'}
+                            onChange={(e) =>
+                              update('origin', e.target.value === 'unknown' ? null : e.target.value)
+                            }
+                          >
+                            <option value="unknown">Not sure yet</option>
+                            <option value="new">Nothing · a new entry</option>
+                            <option value="components">Components I’m reusing</option>
+                            <option value="existing">The application itself</option>
+                          </select>
+                        </label>
+                        <label className="field" data-field="startedAt">
+                          <span>Entry development began</span>
+                          <input
+                            type="text"
+                            placeholder="YYYY-MM-DD"
+                            value={dossier.startedAt ?? ''}
+                            onChange={(e) => update('startedAt', e.target.value || null)}
+                          />
+                          <small>Use an ISO date. On the opening day, add the time and zone.</small>
+                        </label>
+                        {dossier.origin && dossier.origin !== 'new' && (
+                          <>
+                            <TriSelect
+                              field="priorWorkCredited"
+                              dossier={dossier}
+                              onChange={update}
+                            />
+                            <TriSelect
+                              field="substantialNewWork"
+                              dossier={dossier}
+                              onChange={update}
+                            />
+                          </>
+                        )}
+                      </details>
+                      <details className="fact-section">
+                        <summary>
+                          Team & participation
+                          <ChevronDown size={15} />
+                        </summary>
+                        <label className="field" data-field="teamSize">
+                          <span>Team size</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="100"
+                            value={dossier.teamSize ?? ''}
+                            onChange={(e) =>
+                              update('teamSize', e.target.value ? Number(e.target.value) : null)
+                            }
+                          />
+                        </label>
+                        <TriSelect field="adultTeam" dossier={dossier} onChange={update} />
+                        <TriSelect
+                          field="eligibleResidency"
+                          dossier={dossier}
+                          onChange={update}
+                          help="Read the general rules for the listed jurisdictions and other restrictions."
+                        />
+                        <TriSelect field="devMembership" dossier={dossier} onChange={update} />
+                        <TriSelect
+                          field="excludedAffiliation"
+                          dossier={dossier}
+                          onChange={update}
+                        />
+                      </details>
+                      <details className="fact-section">
+                        <summary>
+                          Sanity & build
+                          <ChevronDown size={15} />
+                        </summary>
+                        {dossier.track !== 'path-two' && (
+                          <>
+                            <TriSelect field="usesContext" dossier={dossier} onChange={update} />
+                            <TriSelect
+                              field="usesKnowledgeBase"
+                              dossier={dossier}
+                              onChange={update}
+                            />
+                          </>
+                        )}
+                        {dossier.track !== 'path-one' && (
+                          <>
+                            <TriSelect field="usesSanity" dossier={dossier} onChange={update} />
+                            <TriSelect field="aiBuilt" dossier={dossier} onChange={update} />
+                            <TriSelect
+                              field="supportedFrontend"
+                              dossier={dossier}
+                              onChange={update}
+                            />
+                          </>
+                        )}
+                      </details>
+                      <details className="fact-section">
+                        <summary>
+                          Entries & prizes
+                          <ChevronDown size={15} />
+                        </summary>
+                        <label className="field" data-field="entriesPerPath">
+                          <span>Entries in the same path</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="100"
+                            value={dossier.entriesPerPath ?? ''}
+                            onChange={(e) =>
+                              update(
+                                'entriesPerPath',
+                                e.target.value ? Number(e.target.value) : null,
+                              )
+                            }
+                          />
+                        </label>
+                        <TriSelect field="englishSubmission" dossier={dossier} onChange={update} />
+                        <TriSelect
+                          field="seeksMultiplePrizes"
+                          dossier={dossier}
+                          onChange={update}
+                        />
+                        {dossier.track === 'both' && (
+                          <TriSelect field="separatePosts" dossier={dossier} onChange={update} />
+                        )}
+                      </details>
+                      <details className="fact-section">
+                        <summary>
+                          Submission artifacts
+                          <ChevronDown size={15} />
+                        </summary>
+                        <TriSelect field="requiresLogin" dossier={dossier} onChange={update} />
+                        {dossier.requiresLogin !== false && (
+                          <TriSelect field="judgeAccess" dossier={dossier} onChange={update} />
+                        )}
+                        <label className="field" data-field="projectIdentifier">
+                          <span>Sanity project ID or dataset URL</span>
+                          <input
+                            placeholder="Project ID or public URL"
+                            value={dossier.projectIdentifier ?? ''}
+                            onChange={(e) => update('projectIdentifier', e.target.value)}
+                          />
+                        </label>
+                        <TriSelect field="publishedPost" dossier={dossier} onChange={update} />
+                        <TriSelect field="hasChallengeTag" dossier={dossier} onChange={update} />
+                      </details>
+                    </>
+                  ) : (
+                    <GibcFacts dossier={dossier} update={update} />
+                  )}
                   <details className="fact-section">
                     <summary>
                       Evidence & context
@@ -1016,13 +1150,7 @@ export function ReviewDesk() {
                         <h3>{report.summary}</h3>
                         <p>
                           Based on the facts you supplied ·{' '}
-                          <strong>
-                            {report.dossier.track === 'both'
-                              ? 'Both paths'
-                              : report.dossier.track === 'path-one'
-                                ? 'Path One'
-                                : 'Path Two'}
-                          </strong>
+                          <strong>{formatFact(report.dossier.track)}</strong>
                         </p>
                       </div>
                     </div>
@@ -1191,7 +1319,13 @@ export function ReviewDesk() {
                           <article className="source-citation" key={id}>
                             <a href={source.url} rel="noreferrer">
                               <span className="source-letter">
-                                {id === 'general' ? 'G' : id === 'faq' ? 'F' : 'C'}
+                                {id.startsWith('gibc-')
+                                  ? 'G'
+                                  : id === 'general'
+                                    ? 'G'
+                                    : id === 'faq'
+                                      ? 'F'
+                                      : 'C'}
                               </span>
                               {source.title}
                               <ExternalLink size={13} />
@@ -1318,10 +1452,10 @@ export function ReviewDesk() {
             <footer className="desk-footer">
               <span>
                 <span className="small-dot" />
-                Source pack {report?.packVersion ?? rulePack.version}
+                Source pack {report?.packVersion ?? sourcePack.version}
               </span>
               <span>Saved on this device · download a backup to keep your work</span>
-              <a href="https://dev.to/challenges/sanity-2026-09-16" rel="noreferrer">
+              <a href={event.url} rel="noreferrer">
                 Official challenge
                 <ExternalLink size={12} />
               </a>
@@ -1333,47 +1467,56 @@ export function ReviewDesk() {
           <div className="secondary-view">
             <PageIntro
               title="Every finding has a source."
-              description="Three official pages, kept distinct. Contradictions and source authority remain visible."
+              description="Official sources for each curated event. Capture dates describe when the pages were reviewed; they are not live monitoring."
               onBack={() => setView(activeReview || isExample ? 'review' : 'reviews')}
             />
             <div className="source-library">
-              {(report?.sources ?? rulePack.sources).map((source) => (
-                <article key={source.id}>
-                  <div className="library-source-title">
-                    <BookOpen size={21} />
-                    <div>
-                      <h2>{source.title}</h2>
-                      <span>{source.publisher}</span>
+              {eventCatalog
+                .flatMap((event) =>
+                  (catalog.packs[event.id] ?? savedPacks[event.id]).sources.map((source) => ({
+                    ...source,
+                    eventTitle: event.shortTitle,
+                  })),
+                )
+                .map((source) => (
+                  <article key={source.id}>
+                    <div className="library-source-title">
+                      <BookOpen size={21} />
+                      <div>
+                        <h2>{source.title}</h2>
+                        <span>
+                          {source.eventTitle} · {source.publisher}
+                        </span>
+                      </div>
+                      <a href={source.url} rel="noreferrer" aria-label={`Open ${source.title}`}>
+                        <ExternalLink size={19} />
+                      </a>
                     </div>
-                    <a href={source.url} rel="noreferrer" aria-label={`Open ${source.title}`}>
-                      <ExternalLink size={19} />
-                    </a>
-                  </div>
-                  <blockquote>“{source.quote}”</blockquote>
-                  <p>{source.summary}</p>
-                  <dl>
-                    <div>
-                      <dt>Authority</dt>
-                      <dd>{source.authority}</dd>
-                    </div>
-                    <div>
-                      <dt>Version</dt>
-                      <dd>{source.version}</dd>
-                    </div>
-                    <div>
-                      <dt>Captured</dt>
-                      <dd>{source.capturedAt}</dd>
-                    </div>
-                  </dl>
-                </article>
-              ))}
+                    <blockquote>“{source.quote}”</blockquote>
+                    <p>{source.summary}</p>
+                    <dl>
+                      <div>
+                        <dt>Authority</dt>
+                        <dd>{source.authority}</dd>
+                      </div>
+                      <div>
+                        <dt>Version</dt>
+                        <dd>{source.version}</dd>
+                      </div>
+                      <div>
+                        <dt>Captured</dt>
+                        <dd>{source.capturedAt}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
             </div>
             <div className="info-note">
               <ShieldQuestion size={22} />
               <div>
                 <h3>Source agreement matters.</h3>
                 <p>
-                  The FAQ and contest rules disagree about the number of entries. FinePrint
+                  Sanity’s FAQ and contest rules disagree about the number of entries. FinePrint
                   preserves both claims. General rules also state an explicit precedence
                   relationship; the app does not invent one for every other source.
                 </p>
@@ -1500,6 +1643,35 @@ export function ReviewDesk() {
                     </div>
                   </div>
                 )}
+                {evaluation.multiEvent && (
+                  <div className="info-note">
+                    <GitCompareArrows size={22} />
+                    <div>
+                      <h3>Recorded comparison across two events</h3>
+                      <p>
+                        Four questions ran against Sanity Context and Modal on{' '}
+                        {new Date(evaluation.multiEvent.runAt).toLocaleDateString()}. The typed
+                        checks matched all four authored labels. The model agreed on three; its date
+                        interpretation disagreed on one.
+                      </p>
+                      <ul>
+                        {evaluation.multiEvent.results.map((item) => (
+                          <li key={`${item.eventId}-${item.ruleId}`}>
+                            {item.eventId === 'sanity-2026' ? 'Sanity' : 'GIBC'} ·{' '}
+                            {item.ruleId.endsWith('team') ? 'Five-person team' : 'August 23 start'}:
+                            check {item.actual}, model {item.agentInterpretation ?? 'unavailable'}.{' '}
+                            {item.citedRelevantRule ? 'Relevant source cited' : 'Source missing'} ·{' '}
+                            {(item.elapsedMs / 1000).toFixed(1)}s.
+                          </li>
+                        ))}
+                      </ul>
+                      <p>{evaluation.multiEvent.limitations}</p>
+                      <a href="https://github.com/himanshu748/fineprint/blob/main/evaluation/multi-event-context.json">
+                        Read the questions and actual tool traces ↗
+                      </a>
+                    </div>
+                  </div>
+                )}
                 <div className="info-note">
                   <CircleHelp size={22} />
                   <div>
@@ -1531,8 +1703,10 @@ export function ReviewDesk() {
             <section>
               <h2>Which events can I check?</h2>
               <p>
-                FinePrint currently covers 19 selected requirements of the DEV × Sanity Challenge.
-                Choose Path One, Path Two, or both. Other events are not supported yet.
+                FinePrint covers 19 selected requirements of the DEV × Sanity Challenge and 18 for
+                GIBC V2’s Open Invention track. GIBC’s LLM and Med/Finance tracks are outside
+                coverage. Open a review, then Compare events to see the same project against both
+                packs.
               </p>
               <button className="text-button" onClick={() => setView('sources')}>
                 Read the official sources <ArrowRight size={15} />
@@ -1572,10 +1746,11 @@ export function ReviewDesk() {
             <section>
               <h2>How current are the rules?</h2>
               <p>
-                The current source capture is September 20, 2026. Each finding links to its official
-                source. Check that page for changes before submitting. A saved report shows when
-                your facts were checked. If a connection fails, you can explicitly choose the dated
-                saved rules.
+                Each source has its own capture date. Refresh rule versions reads FinePrint’s
+                curated packs from Sanity and flags saved findings affected by changed requirements
+                or linked sources. It does not crawl organizer websites. Check the official page
+                before submitting. A saved report shows when your facts were checked. If a
+                connection fails, you can explicitly choose the dated saved rules.
               </p>
             </section>
             <details className="product-transparency">

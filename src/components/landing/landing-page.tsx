@@ -1,3 +1,5 @@
+import { RecordedComparison } from './recorded-comparison';
+import multiEvent from '../../../evaluation/multi-event-context.json';
 import Link from 'next/link';
 import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, FileSearch } from 'lucide-react';
 import { checkDossier } from '@/lib/engine';
@@ -61,7 +63,7 @@ export function LandingPage() {
               </a>
             </div>
             <p className="hero-scope">
-              Currently checking the DEV × Sanity Challenge.
+              Now covering Sanity Challenge and GIBC V2 Open Invention.
               <br />
               No account needed. Your work saves on this device.
             </p>
@@ -192,6 +194,27 @@ export function LandingPage() {
             </p>
           </div>
           <FactChange rows={comparison} />
+        </section>
+        <section className="product-section" aria-labelledby="events-title">
+          <div className="section-copy">
+            <h2 id="events-title">
+              Same project.
+              <br />
+              Different rulebooks.
+            </h2>
+            <p>
+              A five-person team fits GIBC’s team-size check and exceeds Sanity’s limit. Compare
+              your project across both, with a source behind each result.
+            </p>
+            <p className="section-aside">
+              When a curated rule changes, see which saved findings need another check. Your
+              previous report stays available for comparison.
+            </p>
+            <Link className="product-text-link" href="/review">
+              Start a review, then compare events <ArrowUpRight size={16} />
+            </Link>
+          </div>
+          <RecordedComparison results={multiEvent.results} />
         </section>
         <section className="product-close">
           <div>

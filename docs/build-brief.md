@@ -1,5 +1,21 @@
 # Approved build brief
 
+## Approved expansion · September 22
+
+The user selected multi-event comparison and rule-change impact. For builders deciding where to submit, FinePrint will compare one project's declared facts against curated event requirements, then identify the exact saved findings affected by a newly published rule pack. Start with the DEV × Sanity Challenge and GIBC V2's Open Invention track, whose official rules were checked September 22. GIBC's other tracks remain outside coverage.
+
+Keep event-specific declarations separate. A development date and team size can travel; an answer about an event's residency rules, organizer relationship, submission artifacts or what existed before its opening cannot. Unknown answers stay unknown. Each report records its event and source version. Older local reviews and backups must still open.
+
+Sanity stores the public event → version → requirement → source relationships. Modal and Context explain the selected event's retrieved records. The comparison and version-impact checks work without consuming AI requests. Curated source refresh is explicit; FinePrint does not promise to monitor every organizer website.
+
+Demo: a five-person project started in August has different team and timing findings across the two events; event-specific questions remain unanswered. A clearly labeled, isolated change rehearsal shows the affected checks while leaving official records untouched. Actual published versions are compared with saved reports, with added, removed and changed rules visible before rechecking.
+
+First risky assumption: the new records must reach the existing Knowledge Base without mixing equal rule IDs across events. Validate event isolation, old-storage migration, precise change impact and real Context citations. Add reproducible comparison/impact cases; distinguish these authored cases from independent accuracy or a verified win advantage.
+
+Exclude arbitrary URL ingestion, a large event directory, accounts, auto-submission, source monitoring promises and fabricated official rule changes. Preserve the established visual system and public request limits.
+
+## Original scope and completed foundation
+
 **User problem:** uncertain eligibility before a hackathon submission.
 
 **Scope:** one carefully curated competition, the DEV Sanity Challenge. Help a builder distinguish new work with reused components from an already-existing application, expose the real submission-limit disagreement, and see how changed project facts affect selected findings. Show source authority and unknown facts rather than an eligibility score.

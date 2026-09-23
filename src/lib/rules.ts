@@ -348,6 +348,21 @@ export const rulePack: RulePack = {
 };
 
 export const blankDossier: Dossier = {
+  eventId: 'sanity-2026',
+  allStudents: null,
+  minimumAge: null,
+  guardianConsent: null,
+  oneTeam: null,
+  workingPrototype: null,
+  technicalNovelty: null,
+  priorHackathonEntry: null,
+  publicRepository: null,
+  setupInstructions: null,
+  videoMinutes: null,
+  videoAccessible: null,
+  screenshotsCount: null,
+  devpostComplete: null,
+  aiUseDisclosed: null,
   name: 'My project',
   track: 'path-one',
   origin: null,

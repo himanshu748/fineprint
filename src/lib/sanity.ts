@@ -1,6 +1,12 @@
 import { createClient } from '@sanity/client';
-import { dossierSchema, rulePackSchema, type RulePack, type Expression } from './model';
-import { rulePack } from './rules';
+import {
+  dossierSchema,
+  rulePackSchema,
+  type RulePack,
+  type Expression,
+  type EventId,
+} from './model';
+import { savedPacks } from './events';
 import { modalConfigured } from './modal';
 
 export function sanityClient(write = false) {
@@ -31,7 +37,8 @@ export function validateRulePack(raw: unknown): RulePack {
     throw new Error('Duplicate rule or source identifiers.');
   for (const source of pack.sources) {
     const url = new URL(source.url);
-    if (url.protocol !== 'https:' || url.hostname !== 'dev.to')
+    const host = pack.id === 'sanity-2026' ? 'dev.to' : 'gibc-v2.devpost.com';
+    if (url.protocol !== 'https:' || url.hostname !== host || url.username || url.password)
       throw new Error('The curated pack references an unapproved source.');
   }
   const facts = new Set([
@@ -57,23 +64,27 @@ export function validateRulePack(raw: unknown): RulePack {
   return pack;
 }
 
-export async function loadRulePack(): Promise<{ pack: RulePack; mode: 'snapshot' | 'sanity' }> {
+export async function loadRulePack(
+  eventId: EventId = 'sanity-2026',
+): Promise<{ pack: RulePack; mode: 'snapshot' | 'sanity' }> {
   if (!process.env.SANITY_PROJECT_ID || !process.env.SANITY_DATASET)
-    return { pack: rulePack, mode: 'snapshot' };
+    return { pack: savedPacks[eventId], mode: 'snapshot' };
   const record = await sanityClient().fetch(
-    `*[_type == "competition" && _id == "fineprint-sanity-2026"][0]{
+    `*[_type == "competition" && _id == $documentId && eventId == $eventId][0]{
     "id": eventId, version, title, start, deadline, updatedAt, reviewNote,
     "sources": sourceVersions[]->{"id":sourceId,title,url,publisher,capturedAt,version,authority,quote,summary},
     "requirements": requirements[]->{"id":ruleId,title,scope,category,summary,"sources":sources[]->sourceId,check,appliesWhen,question,correction,review,rationale}
   }`,
-    {},
+    { documentId: `fineprint-${eventId}`, eventId },
     { timeout: 15_000 },
   );
   if (!record) throw new Error('FinePrint’s curated Sanity rule pack has not been seeded.');
   // Sanity represents missing optional fields as null; the typed pack represents them as absent.
   for (const requirement of record.requirements ?? [])
     if (requirement.appliesWhen === null) delete requirement.appliesWhen;
-  return { pack: validateRulePack(record), mode: 'sanity' };
+  const pack = validateRulePack(record);
+  if (pack.id !== eventId) throw new Error('The returned event does not match the request.');
+  return { pack, mode: 'sanity' };
 }
 
 export function connectionState() {

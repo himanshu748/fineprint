@@ -1,4 +1,6 @@
 'use client';
+import { StatusTag } from '../status-tag';
+
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Check, RotateCcw, ShieldQuestion } from 'lucide-react';
 import type { Status } from '@/lib/model';
@@ -70,13 +72,6 @@ export function RecordedAnswer({ answer, paths }: { answer: string; paths: strin
   );
 }
 
-const labels: Record<Status, string> = {
-  supported: 'Supported',
-  blocked: 'Blocked',
-  missing: 'Missing fact',
-  unclear: 'Rules unclear',
-  'not-applicable': 'Not applicable',
-};
 export function FactChange({
   rows,
 }: {
@@ -108,9 +103,7 @@ export function FactChange({
               {row.title}
               {changed && row.before !== row.after && <small>Changed</small>}
             </span>
-            <span className={`status-tag ${changed ? row.after : row.before}`}>
-              {labels[changed ? row.after : row.before]}
-            </span>
+            <StatusTag status={changed ? row.after : row.before} />
           </li>
         ))}
       </ul>
