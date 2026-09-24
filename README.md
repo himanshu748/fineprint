@@ -9,7 +9,7 @@ Compare selected event rules against your project, save your progress, and retur
 1. Open **My reviews**, enter your project name, and choose an event and track. Leave unknown facts unanswered.
 2. Create your review and follow **Add this fact** to the next missing answer. **Check rules** refreshes the findings without using AI.
 3. Open a finding to inspect its declared facts and official sources. Changes stay separate from the last checked report until you check again.
-4. For help with a rule, expand **Ask a question about the rules**. Review the cited answer and quoted facts before choosing **Add these facts to my review**; your other answers and notes are preserved.
+4. For help with a rule, use **Ask FinePrint** at the top of the review. Review the cited answer and quoted facts before choosing **Add these facts to my review**; your other answers and notes are preserved.
 5. Return through **My reviews**. Drafts, reports, questions and answers autosave in this browser. Download a facts backup to move browsers, or a Markdown report to keep the findings.
 6. Choose **Compare events** to check shared facts against both packs. Create a separate review for the other event to answer its remaining questions. **Refresh rule versions** checks for curated pack updates and shows which saved findings need another check.
 

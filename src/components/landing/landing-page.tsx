@@ -259,7 +259,7 @@ export function LandingPage() {
           FinePrint.
         </a>
         <p>
-          Free rule checks. Optional AI help. Built with Sanity Context and Modal.
+          Free rule checks. An agent on Sanity Context. Built with Sanity and Modal.
           <br />A review is not an eligibility certificate or organizer approval.
         </p>
         <a href="https://dev.to/challenges/sanity-2026-09-16" rel="noreferrer">

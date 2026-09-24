@@ -2923,6 +2923,18 @@ button:disabled:hover {
   margin-bottom: 0;
   border-radius: 0 0 14px 14px;
 }
+.assistant-drawer .ask-intro > svg {
+  display: none;
+}
+/* The drawer summary already shows the title; keep the heading for the section's accessible name. */
+.assistant-drawer .ask-intro h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .review-checked-at {
   color: var(--muted);
   font-size: 12px;

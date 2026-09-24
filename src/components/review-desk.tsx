@@ -133,7 +133,7 @@ export function ReviewDesk() {
   const catalog = useRulePacks();
   const [hydrated, setHydrated] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(true);
   const [focusField, setFocusField] = useState<FactKey | null>(null);
   const factsRef = useRef<HTMLElement>(null);
   const [view, setView] = useState<View>('reviews');
@@ -298,7 +298,7 @@ export function ReviewDesk() {
       setReport(activeReview.report as Report | null);
       setSelected(activeReview.report?.findings[0]?.rule.id ?? 'origin');
       setBaseline(activeReview.previousReport as Report | null);
-      setAssistantOpen(Boolean(activeReview.question || activeReview.answer));
+      setAssistantOpen(true);
       setView('review');
     }
     setHydrated(true);
@@ -331,7 +331,7 @@ export function ReviewDesk() {
     setIsExample(false);
     setView('review');
     setPane(item.report ? 'findings' : 'facts');
-    setAssistantOpen(Boolean(item.question || item.answer));
+    setAssistantOpen(true);
     setSelected(
       item.report?.findings.find((f) => f.status === 'blocked' || f.status === 'unclear')?.rule
         .id ??
@@ -361,7 +361,7 @@ export function ReviewDesk() {
       setView('review');
       setPane('findings');
       setSelected('origin');
-      setAssistantOpen(false);
+      setAssistantOpen(true);
       setError('');
       setNotice('');
       void runCheck(item.dossier, false);
@@ -453,7 +453,7 @@ export function ReviewDesk() {
     setBaseline(null);
     setComparing(false);
     setReport(null);
-    setAssistantOpen(false);
+    setAssistantOpen(true);
     setIsExample(true);
     setView('review');
     setSelected(index === 2 ? 'entry-limit' : 'origin');
@@ -766,8 +766,11 @@ export function ReviewDesk() {
               <summary>
                 <MessageSquareText size={19} />
                 <span>
-                  Ask a question about the rules
-                  <small>Optional AI help with source citations</small>
+                  Ask FinePrint
+                  <small>
+                    The agent reads the Sanity Knowledge Base, checks your facts against the rules
+                    and cites what it read
+                  </small>
                 </span>
                 <ChevronDown size={18} />
               </summary>
