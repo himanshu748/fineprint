@@ -1,6 +1,7 @@
 import { blankDossier, rulePack } from './rules';
 import { gibcRulePack } from './gibc-rules';
-import type { Dossier, EventId, FactKey, RulePack } from './model';
+import { isImportedId, type Dossier, type EventId, type FactKey, type RulePack } from './model';
+import { importedLabel, importSummary, type ImportedEvent } from './imported-event';
 
 export const eventCatalog = [
   {
@@ -32,7 +33,38 @@ export const savedPacks: Record<EventId, RulePack> = {
   'gibc-v2-2026': gibcRulePack,
 };
 export const trackMatchesEvent = (dossier: Dossier) =>
-  eventDetails(dossier.eventId).tracks.some((track) => track.id === dossier.track);
+  isImportedId(dossier.eventId)
+    ? dossier.track === 'imported'
+    : eventDetails(dossier.eventId).tracks.some((track) => track.id === dossier.track);
+
+export type EventView = {
+  id: string;
+  title: string;
+  shortTitle: string;
+  url: string;
+  mark: string;
+  coverage: string;
+  tracks: readonly { id: Dossier['track']; title: string }[];
+  imported: ImportedEvent | null;
+};
+/** Display details for a curated or an imported event. Imported events are never curated. */
+export function describeEvent(id: Dossier['eventId'], imports: ImportedEvent[]): EventView {
+  if (!isImportedId(id)) return { ...eventDetails(id), imported: null };
+  const event = imports.find((item) => item.id === id) ?? null;
+  const counts = event ? importSummary(event) : null;
+  return {
+    id,
+    title: event?.title ?? 'Imported event',
+    shortTitle: event?.title ?? 'Imported rules missing',
+    url: event?.pages[0].url ?? 'https://example.invalid/',
+    mark: '↗',
+    coverage: event
+      ? `${importedLabel(event)} · ${counts!.mapped} checks, ${counts!.checkYourself} to check yourself`
+      : 'The imported rules for this review are not on this device. Import the page again.',
+    tracks: [{ id: 'imported', title: 'Whole event' }],
+    imported: event,
+  };
+}
 export function eventPhase(pack: RulePack, now = Date.now()) {
   return now < Date.parse(pack.start)
     ? 'Upcoming'

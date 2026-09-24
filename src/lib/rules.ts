@@ -363,6 +363,8 @@ export const blankDossier: Dossier = {
   screenshotsCount: null,
   devpostComplete: null,
   aiUseDisclosed: null,
+  importedTrack: null,
+  demoLink: null,
   name: 'My project',
   track: 'path-one',
   origin: null,

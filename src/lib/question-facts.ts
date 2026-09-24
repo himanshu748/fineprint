@@ -41,6 +41,7 @@ export const extractableFacts = [
   'screenshotsCount',
   'devpostComplete',
   'aiUseDisclosed',
+  'demoLink',
 ] as const satisfies readonly FactKey[];
 
 export type ExtractableFact = (typeof extractableFacts)[number];
@@ -133,6 +134,7 @@ const trackWords: Record<Dossier['track'], RegExp> = {
   'path-two': /\bpath\s*(two|2)\b/,
   both: /\b(both|each)\b|\b(two|all) paths\b/,
   'open-invention': /\b(open invention|open track|track (03|3)|general invention)\b/,
+  imported: /$^/,
 };
 const originWords: Record<NonNullable<Dossier['origin']>, RegExp> = {
   new: /\bnew\b|from scratch|\bfresh\b/,
@@ -153,6 +155,7 @@ const factWords: Partial<Record<ExtractableFact, RegExp>> = {
   videoAccessible: /\b(video|demo|youtube|vimeo|youku)\b/,
   devpostComplete: /\b(devpost|submission)\b/,
   aiUseDisclosed: /\b(disclos|credited|listed)\w*\b/,
+  demoLink: /\b(demo|live|link|url|deployed|hosted)\b/,
   adultTeam: /\b(adults?|age|aged|years? old|18|minors?|legal)\b/,
   eligibleResidency: /\b(resid\w*|live|lives|living|based|countr(y|ies)|citizens?|sanction\w*)\b/,
   devMembership: /\b(dev|accounts?|members?|membership)\b/,
@@ -308,6 +311,8 @@ function normalize(key: ExtractableFact, raw: unknown, quote: string, pack: Rule
     !mentionsNumber(text, result as number)
   )
     return { reject: 'The quoted words do not state this number' };
+  if (key === 'track' && (pack.id.startsWith('imported-') || result === 'imported'))
+    return { reject: 'Imported events keep the track chosen in the review' };
   if (key === 'track' && (pack.id === 'gibc-v2-2026') !== (result === 'open-invention'))
     return { reject: 'This track belongs to another event' };
   if (key === 'track' && !trackWords[result as Dossier['track']].test(text))

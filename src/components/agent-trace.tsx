@@ -19,17 +19,20 @@ export function AgentTrace({ steps }: { steps: TraceStep[] }) {
                 <strong>
                   {step.kind === 'model'
                     ? `Model round ${step.round}`
-                    : step.kind === 'check'
-                      ? 'Check structured requirements'
-                      : step.tool === 'initial_context'
-                        ? 'Read Sanity Context outline'
-                        : step.tool === 'knowledge_base_read'
-                          ? 'Read Knowledge Base entry'
-                          : step.tool}
+                    : step.kind === 'imported'
+                      ? `Read imported rules from ${step.host}`
+                      : step.kind === 'check'
+                        ? 'Check structured requirements'
+                        : step.tool === 'initial_context'
+                          ? 'Read Sanity Context outline'
+                          : step.tool === 'knowledge_base_read'
+                            ? 'Read Knowledge Base entry'
+                            : step.tool}
                 </strong>
                 {step.kind === 'mcp' && Array.isArray(step.arguments.paths) && (
                   <code>{step.arguments.paths.join(', ')}</code>
                 )}
+                {step.kind === 'imported' && <code>{step.ids.join(', ')}</code>}
                 {step.detail && <span>{step.detail}</span>}
               </div>
               <time>{(step.durationMs / 1000).toFixed(1)}s</time>

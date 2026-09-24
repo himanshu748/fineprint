@@ -1,4 +1,4 @@
-import { dossierSchema } from '@/lib/model';
+import { dossierSchema, isImportedId } from '@/lib/model';
 import { checkDossier } from '@/lib/engine';
 import { loadRulePack } from '@/lib/sanity';
 import { readRequestJson, RequestBodyError } from '@/lib/request-body';
@@ -18,7 +18,13 @@ export async function POST(request: Request) {
         { error: 'Some project facts are invalid. Check the date, team size, and project name.' },
         { status: 400 },
       );
-    const { pack, mode } = await loadRulePack(parsed.data.eventId);
+    const eventId = parsed.data.eventId;
+    if (isImportedId(eventId))
+      return Response.json(
+        { error: 'Imported rules are checked in your browser. Reload the review and try again.' },
+        { status: 400 },
+      );
+    const { pack, mode } = await loadRulePack(eventId);
     return Response.json(checkDossier(parsed.data, pack, undefined, mode), {
       headers: { 'Cache-Control': 'no-store' },
     });

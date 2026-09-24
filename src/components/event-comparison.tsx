@@ -140,7 +140,7 @@ export function EventComparison({
       {busy && <p role="status">Reading the current curated packs…</p>}
       <div className="event-comparison-grid">
         {reports.map((report) => {
-          const event = eventDetails(report.dossier.eventId);
+          const event = eventDetails(report.dossier.eventId as EventId);
           const pack = packs[event.id] ?? savedPacks[event.id];
           return (
             <article className="comparison-event" key={event.id}>

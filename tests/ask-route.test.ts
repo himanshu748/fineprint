@@ -64,3 +64,23 @@ it('does not turn provider failure into a successful local answer', async () => 
   expect(await response.text()).not.toContain('sensitive');
   expect(mocks.reserve.mock.results[0].value).toHaveBeenCalledOnce();
 });
+it('rebuilds an imported pack on the server and refuses a mismatched import', async () => {
+  const { assembleImport } = await import('../src/lib/rule-import');
+  const { htmlToText } = await import('../src/lib/page-fetch');
+  const fixtures = await import('./import-fixtures');
+  const imported = assembleImport(
+    fixtures.prepared(htmlToText(fixtures.rulesHtml).text),
+    fixtures.modelOutput(),
+    { model: 'test-model', elapsedMs: 1, importedAt: '2026-09-24T10:00:00.000Z' },
+  );
+  const body = { ...input, track: 'imported', eventId: imported.id, imported };
+  expect((await POST(request(body))).status).toBe(200);
+  const [, base, pack, mode, event] = mocks.ask.mock.calls[0];
+  expect(base).toMatchObject({ eventId: imported.id, track: 'imported' });
+  expect(pack.requirements[0].check).toEqual({ op: 'lte', fact: 'teamSize', value: 4 });
+  expect(mode).toBe('imported');
+  expect(event.id).toBe(imported.id);
+  expect(mocks.load).not.toHaveBeenCalled();
+  expect((await POST(request({ ...body, imported: undefined }))).status).toBe(400);
+  expect((await POST(request({ ...input, imported }))).status).toBe(400);
+});

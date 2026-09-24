@@ -179,7 +179,9 @@ export function checkDossier(
     summary,
     nextQuestion: next?.rule.question ?? null,
     coverage:
-      'Selected requirements only. Facts are declared, not independently verified. A supported check is not an organizer decision or complete eligibility certification.',
+      sourceMode === 'imported'
+        ? 'Imported rules, not reviewed. A model extracted these requirements from the organizer page and each quote was matched to the fetched text. Facts are declared, not independently verified. A supported check is not an organizer decision or complete eligibility certification.'
+        : 'Selected requirements only. Facts are declared, not independently verified. A supported check is not an organizer decision or complete eligibility certification.',
     sourceHealth:
       Date.parse(now) - Date.parse(pack.updatedAt) > 7 * 86_400_000
         ? 'aging-snapshot'
@@ -213,6 +215,7 @@ export function formatFact(value: unknown): string {
     'path-two': 'Path Two',
     both: 'Both paths',
     'open-invention': 'Open Invention',
+    imported: 'Whole event, imported rules',
   };
   return labels[String(value)] ?? String(value);
 }

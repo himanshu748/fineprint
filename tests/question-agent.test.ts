@@ -7,6 +7,10 @@ import { rulePack } from '../src/lib/rules';
 import { checkDossier } from '../src/lib/engine';
 import { readEntries } from '../src/lib/source-agent';
 import { createTrace } from '../src/lib/agent-trace';
+import { buildImportedPack } from '../src/lib/imported-event';
+import { htmlToText } from '../src/lib/page-fetch';
+import { assembleImport } from '../src/lib/rule-import';
+import { modelOutput, prepared as importPrepared, rulesHtml } from './import-fixtures';
 
 const mocks = vi.hoisted(() => ({ model: vi.fn(), callTool: vi.fn() }));
 vi.mock('@/lib/modal', () => ({ modalChat: mocks.model }));
@@ -211,5 +215,126 @@ describe('conservative facts', () => {
         (row) => row.rule.id === 'start',
       )?.status,
     ).toBe('missing');
+  });
+});
+
+describe('imported events', () => {
+  const imported = assembleImport(importPrepared(htmlToText(rulesHtml).text), modelOutput(), {
+    model: 'test-model',
+    elapsedMs: 10,
+    importedAt: '2026-09-24T10:00:00.000Z',
+  });
+  const pack = buildImportedPack(imported);
+  const kbPath = 'method/source_authority';
+  const importedQuestion = 'We are a team of six. Can we enter?';
+  beforeEach(() => {
+    mocks.callTool.mockReset().mockImplementation(async ({ name }: { name: string }) => ({
+      content: [
+        {
+          type: 'text',
+          text:
+            name === 'initial_context'
+              ? `Knowledge base id: kbtest\n# FinePrint\n${kbPath} [core]\n  How FinePrint weighs sources.`
+              : '# Source authority\nThe organizer page governs. Unreviewed rules stay provisional.',
+        },
+      ],
+    }));
+  });
+  const run = (citations: string[], assessmentCitations = ['imported:r1']) => {
+    mocks.model
+      .mockReset()
+      .mockResolvedValueOnce({
+        role: 'assistant',
+        content: null,
+        tool_calls: [
+          {
+            id: 'kb',
+            type: 'function',
+            function: {
+              name: 'knowledge_base_read',
+              arguments: JSON.stringify({ knowledgeBase: 'kbtest', paths: [kbPath] }),
+            },
+          },
+          {
+            id: 'imp',
+            type: 'function',
+            function: { name: 'imported_rules_read', arguments: JSON.stringify({ ids: ['r1'] }) },
+          },
+        ],
+      })
+      .mockResolvedValueOnce(
+        tool('check_requirements', {
+          facts: [{ key: 'teamSize', value: 6, quote: 'We are a team of six' }],
+          assessments: [{ ruleId: 'r1', status: 'blocked', citations: assessmentCitations }],
+        }),
+      )
+      .mockResolvedValueOnce({
+        role: 'assistant',
+        content: JSON.stringify({
+          answer:
+            'The imported team rule allows up to four members, so a team of six is blocked. These rules are unreviewed.',
+          citations,
+        }),
+      });
+    return askWithSources(
+      importedQuestion,
+      questionDossier('imported', imported.id),
+      pack,
+      'imported',
+      imported,
+    );
+  };
+
+  it('reads the Knowledge Base and the imported rules, and traces both honestly', async () => {
+    const result = await run([kbPath, 'imported:r1']);
+    expect(askResponseSchema.safeParse(result).success).toBe(true);
+    expect(result.citations).toEqual([kbPath, 'imported:r1']);
+    expect(result.report.findings.find((f) => f.rule.id === 'r1')?.status).toBe('blocked');
+    expect(result.imported?.read).toEqual([
+      { id: 'r1', title: 'Team size', quote: 'Teams may have up to four members.' },
+    ]);
+    const step = result.trace.find((s) => s.kind === 'imported');
+    expect(step).toMatchObject({
+      tool: 'imported_rules_read',
+      host: 'example.devpost.com',
+      ids: ['r1'],
+      detail: 'Read 1 imported rule from example.devpost.com, not in the Knowledge Base',
+    });
+    expect(result.trace.filter((s) => s.kind === 'mcp').map((s) => s.tool)).toEqual([
+      'initial_context',
+      'knowledge_base_read',
+    ]);
+  });
+
+  it('filters citations to entries and imported rules actually read in the run', async () => {
+    const result = await run([kbPath, 'imported:r1', 'imported:r2', 'rules/general', 'r1']);
+    expect(result.citations).toEqual([kbPath, 'imported:r1']);
+    expect(result.citationsRemoved).toEqual(['imported:r2', 'rules/general', 'r1']);
+  });
+
+  it('refuses an assessment grounded only in an imported rule it did not read', async () => {
+    await expect(run([kbPath], ['imported:r2'])).rejects.toMatchObject({ stage: 'validation' });
+  });
+
+  it('refuses an imported rule ID that does not exist', async () => {
+    mocks.model.mockReset().mockResolvedValueOnce(tool('imported_rules_read', { ids: ['r99'] }));
+    await expect(
+      askWithSources(
+        importedQuestion,
+        questionDossier('imported', imported.id),
+        pack,
+        'imported',
+        imported,
+      ),
+    ).rejects.toMatchObject({ stage: 'validation' });
+  });
+
+  it('never lets the question change an imported review to a curated track', () => {
+    const result = readQuestionFacts(
+      'We are entering Path One.',
+      [{ key: 'track', value: 'path-one', quote: 'We are entering Path One' }],
+      pack,
+    );
+    expect(result.patch).not.toHaveProperty('track');
   });
 });

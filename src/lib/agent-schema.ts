@@ -53,7 +53,7 @@ export const askResponseSchema = z.object({
     checked: z.number().int().nonnegative(),
     counts: z.record(statusSchema, z.number().int().nonnegative()),
     packVersion: z.string(),
-    sourceMode: z.enum(['snapshot', 'sanity']),
+    sourceMode: z.enum(['snapshot', 'sanity', 'imported']),
     changes: z.array(
       z.object({
         ruleId: z.string(),
@@ -69,6 +69,13 @@ export const askResponseSchema = z.object({
     entries: z.number().int().nonnegative(),
     read: z.array(z.object({ path: z.string(), records: z.array(recordSchema) })),
   }),
+  imported: z
+    .object({
+      host: z.string(),
+      importedAt: z.string(),
+      read: z.array(z.object({ id: z.string(), title: z.string(), quote: z.string() })),
+    })
+    .optional(),
   trace: z.array(traceStepSchema),
   model: z.string(),
   provider: z.literal('Modal'),

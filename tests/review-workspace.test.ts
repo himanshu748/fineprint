@@ -19,10 +19,15 @@ import { dossierSchema } from '../src/lib/model';
 import { checkDossier } from '../src/lib/engine';
 import { rulePack } from '../src/lib/rules';
 import type { AskResponse } from '../src/lib/agent-schema';
+import { addImport } from '../src/lib/review-workspace';
+import { buildImportedPack } from '../src/lib/imported-event';
+import { htmlToText } from '../src/lib/page-fetch';
+import { assembleImport } from '../src/lib/rule-import';
+import { modelOutput, prepared as importPrepared, rulesHtml } from './import-fixtures';
 
 const setup = (): ReviewWorkspace => {
   const review = newReview('Kitchen notebook', 'path-two');
-  return { version: 1, activeId: review.id, reviews: [review] };
+  return { version: 1, activeId: review.id, reviews: [review], imports: [] };
 };
 
 describe('personal drafts', () => {
@@ -177,5 +182,54 @@ it('merges only valid stated agent facts, preserving names, notes, and unanswere
     ...current,
     track: 'path-two',
     usesSanity: true,
+  });
+});
+
+describe('imported events in backups', () => {
+  const event = () =>
+    assembleImport(importPrepared(htmlToText(rulesHtml).text), modelOutput(), {
+      model: 'test-model',
+      elapsedMs: 10,
+      importedAt: '2026-09-24T10:00:00.000Z',
+    });
+  it('round-trips an imported pack and its review through export and import', () => {
+    const imported = event();
+    const review = newReview('Climate app', 'imported', {
+      origin: null,
+      startedAt: null,
+      eventId: imported.id,
+      importedTrack: 't1',
+    });
+    const current = addImport({ ...emptyWorkspace(), reviews: [review] }, imported);
+    const raw = exportWorkspace(current);
+    const result = importWorkspace(raw, emptyWorkspace());
+    expect(result.imported).toBe(1);
+    expect(result.workspace.imports).toEqual([imported]);
+    expect(result.workspace.reviews[0].dossier).toMatchObject({
+      eventId: imported.id,
+      track: 'imported',
+      importedTrack: 't1',
+    });
+    expect(workspaceSchema.safeParse(result.workspace).success).toBe(true);
+    const pack = buildImportedPack(result.workspace.imports[0]);
+    expect(pack.requirements).toHaveLength(imported.requirements.length);
+  });
+  it('refuses a backup whose imported review lacks its rules', () => {
+    const imported = event();
+    const review = newReview('Orphan', 'imported', {
+      origin: null,
+      startedAt: null,
+      eventId: imported.id,
+    });
+    const raw = JSON.parse(exportWorkspace({ ...emptyWorkspace(), reviews: [review] }));
+    expect(() => importWorkspace(JSON.stringify(raw), emptyWorkspace())).toThrow(
+      'without its rules',
+    );
+  });
+  it('still reads version 2 backups without imports', () => {
+    const raw = JSON.parse(exportWorkspace(setup()));
+    delete raw.imports;
+    raw.version = 2;
+    expect(importWorkspace(JSON.stringify(raw), emptyWorkspace()).imported).toBe(1);
   });
 });

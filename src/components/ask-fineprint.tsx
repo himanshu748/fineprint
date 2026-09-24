@@ -9,7 +9,8 @@ import {
   type AskResponse,
   type AgentError,
 } from '@/lib/agent-schema';
-import { eventDetails } from '@/lib/events';
+import { describeEvent } from '@/lib/events';
+import type { ImportedEvent } from '@/lib/imported-event';
 import type { Dossier } from '@/lib/model';
 import { formatFact } from '@/lib/engine';
 import { AgentTrace } from './agent-trace';
@@ -28,6 +29,7 @@ const prompts = [
 
 export function AskFinePrint({
   dossier,
+  imported = null,
   onApply,
   initialQuestion = '',
   initialResult = null,
@@ -36,6 +38,7 @@ export function AskFinePrint({
   onSources,
 }: {
   dossier: Dossier;
+  imported?: ImportedEvent | null;
   onApply: (answer: AskResponse) => void;
   initialQuestion?: string;
   initialResult?: AskResponse | null;
@@ -43,9 +46,19 @@ export function AskFinePrint({
   onManualReview: () => void;
   onSources: () => void;
 }) {
-  const event = eventDetails(dossier.eventId);
-  const eventPrompts =
-    dossier.eventId === 'sanity-2026'
+  const event = describeEvent(dossier.eventId, imported ? [imported] : []);
+  const eventPrompts = imported
+    ? [
+        {
+          label: 'Team and timing',
+          text: 'We are a team of three and started building last month. Which of these rules could stop us?',
+        },
+        {
+          label: 'What to submit',
+          text: 'What do we need to submit, and which rules should we check ourselves?',
+        },
+      ]
+    : dossier.eventId === 'sanity-2026'
       ? prompts
       : [
           {
@@ -90,6 +103,7 @@ export function AskFinePrint({
           track,
           eventId: dossier.eventId,
           ...(includeFacts ? { dossier } : {}),
+          ...(imported ? { imported } : {}),
         }),
         signal: AbortSignal.timeout(290_000),
       });
@@ -130,7 +144,11 @@ export function AskFinePrint({
         <MessageSquareText size={23} strokeWidth={1.6} />
         <div>
           <h2 id="ask-title">Ask FinePrint</h2>
-          <p>Describe the part you’re unsure about. Follow the answer back to its sources.</p>
+          <p>
+            {imported
+              ? `The agent reads FinePrint’s Knowledge Base for how to weigh rules, and the rules imported from ${imported.host}. Those rules are not reviewed and not in the Knowledge Base.`
+              : 'Describe the part you’re unsure about. Follow the answer back to its sources.'}
+          </p>
         </div>
       </div>
       <form onSubmit={(event) => void ask(event)}>
@@ -311,6 +329,26 @@ export function AskFinePrint({
               Unretrieved citations were removed from the model’s citation list. Review the answer
               against the listed entries.
             </p>
+          )}
+          {result.imported && (
+            <details className="ask-facts">
+              <summary>
+                {result.imported.read.length} imported rules read from {result.imported.host}, not
+                in the Knowledge Base
+              </summary>
+              <dl>
+                {result.imported.read.map((row) => (
+                  <div key={row.id}>
+                    <dt>
+                      {row.title} <code>imported:{row.id}</code>
+                    </dt>
+                    <dd>
+                      <q>{row.quote}</q>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
           )}
           <AgentTrace steps={result.trace} />
           <div className="ask-apply">

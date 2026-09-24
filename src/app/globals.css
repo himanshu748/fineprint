@@ -3617,3 +3617,90 @@ button:disabled:hover {
     width: 100%;
   }
 }
+.import-rules {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+  padding: 18px;
+  margin-bottom: 19px;
+}
+.import-extra-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+}
+.import-actions .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.import-progress {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: var(--sage);
+}
+.import-summary {
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--amber);
+  border-radius: 7px;
+  background: var(--amber-bg);
+  padding: 14px 16px;
+  margin-bottom: 19px;
+}
+.import-summary strong {
+  display: block;
+  font-size: 15px;
+  margin: 2px 0 8px;
+}
+.import-summary > ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+.import-summary b {
+  font-weight: 750;
+}
+.import-summary p,
+.import-summary details {
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.import-summary details ul {
+  padding-left: 18px;
+}
+.import-summary .import-label {
+  color: var(--amber);
+  font-weight: 650;
+}
+.import-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+}
+.import-pages a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+}
+.imported-status {
+  border-left: 3px solid var(--amber);
+}
+.imported-facts-note {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}

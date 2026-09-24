@@ -20,6 +20,13 @@ export const traceStepSchema = z.discriminatedUnion('kind', [
     ...timing,
   }),
   z.object({ kind: z.literal('check'), tool: z.literal('check_requirements'), ...timing }),
+  z.object({
+    kind: z.literal('imported'),
+    tool: z.literal('imported_rules_read'),
+    host: z.string().max(253),
+    ids: z.array(z.string().max(12)).max(30),
+    ...timing,
+  }),
 ]);
 
 export type TraceStep = z.infer<typeof traceStepSchema>;
@@ -43,7 +50,8 @@ export function createTrace(clock: () => number = Date.now) {
     step:
       | { kind: 'mcp'; tool: string; arguments: Record<string, unknown> }
       | { kind: 'model'; round: number }
-      | { kind: 'check'; tool: 'check_requirements' },
+      | { kind: 'check'; tool: 'check_requirements' }
+      | { kind: 'imported'; tool: 'imported_rules_read'; host: string; ids: string[] },
     work: () => Promise<T>,
     describe?: (result: T) => string,
   ): Promise<T> {
@@ -84,6 +92,12 @@ export function createTrace(clock: () => number = Date.now) {
       time({ kind: 'model', round }, work, describe),
     check: <T>(work: () => Promise<T>, describe?: (result: T) => string) =>
       time({ kind: 'check', tool: 'check_requirements' }, work, describe),
+    imported: <T>(
+      host: string,
+      ids: string[],
+      work: () => Promise<T>,
+      describe?: (result: T) => string,
+    ) => time({ kind: 'imported', tool: 'imported_rules_read', host, ids }, work, describe),
   };
 }
 

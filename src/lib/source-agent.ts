@@ -2,7 +2,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { z } from 'zod';
 import { modalChat, type ChatMessage, type ModelTool, type ToolCall } from './modal';
-import type { Finding, Report } from './model';
+import { isImportedId, type Finding, type Report } from './model';
 import { AgentRunError, createTrace, type Trace } from './agent-trace';
 import { entryRecords, parseOutline, type KnowledgeBaseOutline } from './kb-outline';
 import { savedPacks } from './events';
@@ -303,8 +303,11 @@ export async function explainWithSources(report: Report, finding: Finding) {
             throw new Error('The agent explanation did not match the expected format.');
           if (parsed.data.citations.some((path) => !retrieved.has(path)))
             throw new Error('The agent cited a source it did not retrieve.');
+          const eventId = report.dossier.eventId;
+          if (isImportedId(eventId))
+            throw new Error('Finding explanations cover curated events only.');
           const pack = {
-            ...savedPacks[report.dossier.eventId],
+            ...savedPacks[eventId],
             sources: report.sources,
             requirements: report.findings.map((finding) => finding.rule),
           };

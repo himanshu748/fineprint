@@ -12,8 +12,10 @@ import {
   RotateCcw,
   Upload,
 } from 'lucide-react';
-import type { Dossier, EventId, RulePack } from '@/lib/model';
-import { eventCatalog, eventDetails, savedPacks, eventPhase } from '@/lib/events';
+import { isImportedId, type Dossier, type EventId, type RulePack } from '@/lib/model';
+import { describeEvent, eventCatalog, savedPacks, eventPhase } from '@/lib/events';
+import type { ImportedEvent } from '@/lib/imported-event';
+import { ImportedEventSummary, ImportRulesForm } from './import-rules';
 import { ruleImpact } from '@/lib/rule-impact';
 import {
   exportWorkspace,
@@ -37,13 +39,19 @@ const pathNames = {
   'path-two': 'Path Two · app',
   both: 'Both paths',
   'open-invention': 'Open Invention',
+  imported: 'Imported rules',
 };
-type Creation = Pick<Dossier, 'eventId' | 'name' | 'track' | 'origin' | 'startedAt'>;
+type Creation = Pick<
+  Dossier,
+  'eventId' | 'name' | 'track' | 'origin' | 'startedAt' | 'importedTrack'
+>;
+const newImport = 'new-import';
 
 export function ReviewLibrary({
   packs,
   workspace,
   ready,
+  onImported,
   startCreating,
   savedCount,
   onCreate,
@@ -58,6 +66,7 @@ export function ReviewLibrary({
   packs: Partial<Record<EventId, RulePack>>;
   workspace: ReviewWorkspace;
   ready: boolean;
+  onImported: (event: ImportedEvent) => void;
   startCreating: boolean;
   savedCount: number;
   onCreate: (details: Creation) => boolean;
@@ -73,10 +82,12 @@ export function ReviewLibrary({
     startCreating || !workspace.reviews.some((r) => !r.archived),
   );
   const [showArchived, setShowArchived] = useState(false);
-  const [eventId, setEventId] = useState<EventId>('sanity-2026');
-  const event = eventDetails(eventId);
+  const [eventId, setEventId] = useState<Dossier['eventId'] | typeof newImport>('sanity-2026');
+  const event = eventId === newImport ? null : describeEvent(eventId, workspace.imports);
+  const [cachedImport, setCachedImport] = useState(false);
   const [name, setName] = useState('');
   const [track, setTrack] = useState<Dossier['track']>('path-one');
+  const [importedTrack, setImportedTrack] = useState<string | null>(null);
   const [origin, setOrigin] = useState<Dossier['origin']>(null);
   const [startedAt, setStartedAt] = useState('');
   const [importError, setImportError] = useState('');
@@ -108,8 +119,11 @@ export function ReviewLibrary({
       <div className="supported-event">
         <BookOpen size={22} />
         <div>
-          <strong>Two events. Different requirements.</strong>
-          <p>DEV × Sanity Challenge and GIBC V2 Open Invention · curated official sources</p>
+          <strong>Two curated events, or import another.</strong>
+          <p>
+            DEV × Sanity Challenge and GIBC V2 Open Invention have reviewed sources. Any other
+            hackathon can be imported from its rules link and stays marked as not reviewed.
+          </p>
         </div>
         <button className="text-button" onClick={onSources}>
           View covered rules <ArrowRight size={15} />
@@ -130,9 +144,17 @@ export function ReviewLibrary({
             </button>
           </div>
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              onCreate({ eventId, name, track, origin, startedAt: startedAt || null });
+            onSubmit={(submitted) => {
+              submitted.preventDefault();
+              if (eventId === newImport) return;
+              onCreate({
+                eventId,
+                name,
+                track,
+                origin,
+                startedAt: startedAt || null,
+                importedTrack: isImportedId(eventId) ? importedTrack : null,
+              });
             }}
           >
             <label className="field">
@@ -151,9 +173,11 @@ export function ReviewLibrary({
               <select
                 value={eventId}
                 onChange={(e) => {
-                  const id = e.target.value as EventId;
+                  const id = e.target.value as Dossier['eventId'] | typeof newImport;
                   setEventId(id);
-                  setTrack(eventDetails(id).tracks[0].id);
+                  setCachedImport(false);
+                  setImportedTrack(null);
+                  if (id !== newImport) setTrack(describeEvent(id, workspace.imports).tracks[0].id);
                   setOrigin(null);
                 }}
               >
@@ -162,19 +186,63 @@ export function ReviewLibrary({
                     {event.shortTitle} · {eventPhase(packs[event.id] ?? savedPacks[event.id])}
                   </option>
                 ))}
-              </select>
-              <small>{event.coverage}</small>
-            </label>
-            <label className="field">
-              <span>Submission path</span>
-              <select value={track} onChange={(e) => setTrack(e.target.value as Dossier['track'])}>
-                {event.tracks.map((track) => (
-                  <option key={track.id} value={track.id}>
-                    {track.title}
+                {workspace.imports.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title} · imported, not reviewed
                   </option>
                 ))}
+                <option value={newImport}>Another hackathon (paste its rules link)</option>
               </select>
+              {event && !event.imported && <small>{event.coverage}</small>}
             </label>
+            {eventId === newImport && (
+              <ImportRulesForm
+                onImported={(imported, cached) => {
+                  onImported(imported);
+                  setEventId(imported.id);
+                  setTrack('imported');
+                  setImportedTrack(null);
+                  setCachedImport(cached);
+                }}
+              />
+            )}
+            {event?.imported && (
+              <ImportedEventSummary event={event.imported} cached={cachedImport} />
+            )}
+            {event && !event.imported && (
+              <label className="field">
+                <span>Submission path</span>
+                <select
+                  value={track}
+                  onChange={(e) => setTrack(e.target.value as Dossier['track'])}
+                >
+                  {event.tracks.map((track) => (
+                    <option key={track.id} value={track.id}>
+                      {track.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {event?.imported && event.imported.tracks.length > 0 && (
+              <label className="field">
+                <span>Track</span>
+                <select
+                  value={importedTrack ?? 'unknown'}
+                  onChange={(e) =>
+                    setImportedTrack(e.target.value === 'unknown' ? null : e.target.value)
+                  }
+                >
+                  <option value="unknown">Not sure yet</option>
+                  {event.imported.tracks.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+                <small>Track-specific rules stay open until you choose a track.</small>
+              </label>
+            )}
             <div className="create-optional">
               <label className="field">
                 <span>What existed before the event?</span>
@@ -204,7 +272,11 @@ export function ReviewLibrary({
               </label>
             </div>
             <div className="create-actions">
-              <button className="primary-button" type="submit" disabled={!ready || !name.trim()}>
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={!ready || !name.trim() || eventId === newImport}
+              >
                 Create my review <ArrowRight size={17} />
               </button>
               {hasReviews && (
@@ -215,6 +287,8 @@ export function ReviewLibrary({
             </div>
             <p className="create-note">
               Rule checks are free and don’t use the shared AI allowance.
+              {event?.imported &&
+                ' Imported rules were read by a model and not reviewed. Check the quotes against the organizer page.'}
             </p>
           </form>
         </section>
@@ -241,9 +315,11 @@ export function ReviewLibrary({
                         : (review.report?.summary ?? 'Draft · ready for a first check')}
                     </p>
                     {review.report &&
+                      !isImportedId(review.dossier.eventId) &&
                       packs[review.dossier.eventId] &&
                       (() => {
-                        const impact = ruleImpact(review.report, packs[review.dossier.eventId]!);
+                        const pack = packs[review.dossier.eventId as EventId]!;
+                        const impact = ruleImpact(review.report, pack);
                         return impact?.needsRecheck ? (
                           <p className="rule-update-badge">
                             Rules updated · {impact.changes.length} affected checks
@@ -251,9 +327,11 @@ export function ReviewLibrary({
                         ) : null;
                       })()}
                     <small>
-                      {eventDetails(review.dossier.eventId).shortTitle} ·{' '}
-                      {pathNames[review.dossier.track]} · edited{' '}
-                      {new Date(review.updatedAt).toLocaleDateString()}
+                      {describeEvent(review.dossier.eventId, workspace.imports).shortTitle} ·{' '}
+                      {isImportedId(review.dossier.eventId)
+                        ? 'imported, not reviewed'
+                        : pathNames[review.dossier.track]}{' '}
+                      · edited {new Date(review.updatedAt).toLocaleDateString()}
                     </small>
                   </div>
                   {review.archived ? (

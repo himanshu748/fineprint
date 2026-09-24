@@ -3,13 +3,20 @@ import { z } from 'zod';
 export const triState = z.boolean().nullable();
 export const eventIdSchema = z.enum(['sanity-2026', 'gibc-v2-2026']);
 export type EventId = z.infer<typeof eventIdSchema>;
+export const importedEventIdSchema = z
+  .string()
+  .regex(/^imported-[a-f0-9]{12}$/) as z.ZodType<`imported-${string}`>;
+export type ImportedEventId = `imported-${string}`;
+export const packIdSchema = z.union([eventIdSchema, importedEventIdSchema]);
+export type PackId = EventId | ImportedEventId;
+export const isImportedId = (id: string): id is ImportedEventId => id.startsWith('imported-');
 export const monthInput = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
 const dateInput = z.union([monthInput, z.iso.date(), z.iso.datetime({ offset: true })]);
 export const dossierSchema = z
   .object({
-    eventId: eventIdSchema.default('sanity-2026'),
+    eventId: packIdSchema.default('sanity-2026'),
     name: z.string().trim().min(1).max(100),
-    track: z.enum(['path-one', 'path-two', 'both', 'open-invention']),
+    track: z.enum(['path-one', 'path-two', 'both', 'open-invention', 'imported']),
     origin: z.enum(['new', 'components', 'existing']).nullable(),
     startedAt: z
       .string()
@@ -55,6 +62,8 @@ export const dossierSchema = z
     screenshotsCount: z.number().int().min(0).max(100).nullable().default(null),
     devpostComplete: triState.default(null),
     aiUseDisclosed: triState.default(null),
+    importedTrack: z.string().max(12).nullable().default(null),
+    demoLink: triState.default(null),
   })
   .strict();
 
@@ -108,12 +117,13 @@ export const requirementSchema = z.object({
   appliesWhen: expressionSchema.optional(),
   question: z.string(),
   correction: z.string(),
-  review: z.enum(['curated', 'needs-organizer']),
+  review: z.enum(['curated', 'needs-organizer', 'imported']),
   rationale: z.string(),
+  quote: z.string().optional(),
 });
 export type Requirement = z.infer<typeof requirementSchema>;
 export const rulePackSchema = z.object({
-  id: eventIdSchema,
+  id: packIdSchema,
   version: z.string(),
   title: z.string(),
   start: z.string(),
@@ -140,7 +150,7 @@ export type Report = {
   packVersion: string;
   packId: string;
   packSchedule?: { start: string; deadline: string };
-  sourceMode: 'snapshot' | 'sanity';
+  sourceMode: 'snapshot' | 'sanity' | 'imported';
   sources: Source[];
   findings: Finding[];
   counts: Record<Status, number>;
@@ -164,7 +174,7 @@ export const reportSchema = z.object({
   packVersion: z.string(),
   packId: z.string(),
   packSchedule: z.object({ start: z.string(), deadline: z.string() }).optional(),
-  sourceMode: z.enum(['snapshot', 'sanity']),
+  sourceMode: z.enum(['snapshot', 'sanity', 'imported']),
   sources: z.array(sourceSchema).max(20),
   findings: z
     .array(
@@ -233,4 +243,6 @@ export const factLabels: Record<FactKey, string> = {
   screenshotsCount: 'Number of submitted screenshots',
   devpostComplete: 'Devpost description, Built With and full team details complete',
   aiUseDisclosed: 'AI coding tools disclosed in Built With and README',
+  importedTrack: 'Track you are entering',
+  demoLink: 'Public demo link included',
 };

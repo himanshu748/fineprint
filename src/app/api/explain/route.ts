@@ -11,6 +11,7 @@ import { readRequestJson, RequestBodyError } from '@/lib/request-body';
 import { reserveAgentRun } from '@/lib/agent-budget';
 import { AgentRunError } from '@/lib/agent-trace';
 import { trackMatchesEvent } from '@/lib/events';
+import { isImportedId } from '@/lib/model';
 export const runtime = 'nodejs';
 export const maxDuration = 300;
 
@@ -37,13 +38,21 @@ export async function POST(request: Request) {
     const input = requestSchema.safeParse(await readRequestJson(request, 16_000));
     if (!input.success || !trackMatchesEvent(input.data.dossier))
       return Response.json({ error: 'Supply a valid dossier and finding.' }, { status: 400 });
+    const eventId = input.data.dossier.eventId;
+    if (isImportedId(eventId))
+      return Response.json(
+        {
+          error: 'Finding explanations cover curated events. Use Ask FinePrint for imported rules.',
+        },
+        { status: 400 },
+      );
     const limit = await checkAgentLimit(request, 'explain');
     if (!limit.allowed)
       return Response.json(
         { error: limit.error },
         { status: limit.status, headers: { 'Cache-Control': 'no-store' } },
       );
-    const { pack, mode } = await loadRulePack(input.data.dossier.eventId);
+    const { pack, mode } = await loadRulePack(eventId);
     const report = checkDossier(input.data.dossier, pack, undefined, mode);
     const finding = report.findings.find((f) => f.rule.id === input.data.ruleId);
     if (!finding)

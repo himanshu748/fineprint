@@ -28,6 +28,8 @@ import {
   X,
 } from 'lucide-react';
 import {
+  isImportedId,
+  type EventId,
   dossierSchema,
   savedCaseSchema,
   reportSchema,
@@ -41,7 +43,9 @@ import {
 } from '@/lib/model';
 import { blankDossier, examples, rulePack } from '@/lib/rules';
 import { checkDossier, changedFindings, formatFact, reportMarkdown } from '@/lib/engine';
-import { eventCatalog, eventDetails, savedPacks, eventPhase } from '@/lib/events';
+import { describeEvent, eventCatalog, savedPacks, eventPhase } from '@/lib/events';
+import { buildImportedPack, importedLabel } from '@/lib/imported-event';
+import { ImportedFacts } from './imported-facts';
 import { ruleImpact } from '@/lib/rule-impact';
 import { EventComparison } from './event-comparison';
 import { GibcFacts } from './gibc-facts';
@@ -49,6 +53,7 @@ import { useRulePacks } from './use-rule-packs';
 import { ReviewLibrary, downloadText } from './review-library';
 import { useReviews } from './use-reviews';
 import {
+  addImport,
   exportWorkspace,
   importWorkspace,
   maxReviews,
@@ -224,13 +229,16 @@ export function ReviewDesk() {
     clearExplanation();
     try {
       let data: Report;
-      if (useSnapshot) {
-        data = checkDossier(
-          validated.data,
-          savedPacks[validated.data.eventId],
-          undefined,
-          'snapshot',
-        );
+      const eventId = validated.data.eventId;
+      if (isImportedId(eventId)) {
+        const imported = reviews.workspace.imports.find((item) => item.id === eventId);
+        if (!imported)
+          throw new Error(
+            'The imported rules for this review are not on this device. Import the page again.',
+          );
+        data = checkDossier(validated.data, buildImportedPack(imported), undefined, 'imported');
+      } else if (useSnapshot) {
+        data = checkDossier(validated.data, savedPacks[eventId], undefined, 'snapshot');
       } else {
         const response = await fetch('/api/check', {
           method: 'POST',
@@ -251,7 +259,7 @@ export function ReviewDesk() {
           ? current
           : data.findings[0].rule.id,
       );
-      if (!useSnapshot) void catalog.refresh();
+      if (!useSnapshot && !isImportedId(eventId)) void catalog.refresh();
       if (remember && report) setComparing(true);
       setPane('findings');
     } catch (error) {
@@ -386,7 +394,7 @@ export function ReviewDesk() {
         setNotice('The device review limit has been reached. Export your report to keep a copy.');
         return;
       }
-      const item = newReview(facts.name, facts.track);
+      const item = newReview(facts.name, facts.track, { ...facts });
       reviews.add({ ...item, dossier: facts, question: answer.question, answer });
       setReport(null);
       setBaseline(null);
@@ -398,9 +406,12 @@ export function ReviewDesk() {
     setNotice('Quoted facts added. Your other answers and notes have been kept.');
     void runCheck(facts, Boolean(activeReview && !isExample));
   }
-  const event = eventDetails(dossier.eventId);
-  const currentPack = catalog.packs[dossier.eventId];
-  const sourcePack = currentPack ?? savedPacks[dossier.eventId];
+  const event = describeEvent(dossier.eventId, reviews.workspace.imports);
+  const imported = event.imported;
+  const importedPack = useMemo(() => (imported ? buildImportedPack(imported) : null), [imported]);
+  const currentPack = isImportedId(dossier.eventId) ? undefined : catalog.packs[dossier.eventId];
+  const sourcePack =
+    importedPack ?? currentPack ?? savedPacks[dossier.eventId as EventId] ?? rulePack;
   const impact = report && currentPack ? ruleImpact(report, currentPack) : null;
   const rulesChanged = Boolean(impact && (impact.needsRecheck || impact.versionChanged));
   const next = nextFact(report);
@@ -621,6 +632,13 @@ export function ReviewDesk() {
           <ReviewLibrary
             packs={catalog.packs}
             workspace={reviews.workspace}
+            onImported={(item) => {
+              try {
+                reviews.setWorkspace((current) => addImport(current, item));
+              } catch (failure) {
+                setNotice(failure instanceof Error ? failure.message : 'The import was not saved.');
+              }
+            }}
             ready={reviews.ready}
             startCreating={creating}
             savedCount={saved.length}
@@ -701,63 +719,84 @@ export function ReviewDesk() {
                 </button>
               </div>
             )}
-            <div className="rule-version-status">
-              <div>
-                <strong>
-                  {catalog.busy
-                    ? 'Checking rule versions…'
-                    : rulesChanged
-                      ? 'A newer rule pack needs your attention.'
-                      : 'Curated source versions'}
-                </strong>
-                <p>
-                  {catalog.error ||
-                    (catalog.checkedAt
-                      ? `Versions checked ${new Date(catalog.checkedAt).toLocaleString()}. ${catalog.mode === 'sanity' ? 'Read from Sanity.' : 'Local snapshots.'}`
-                      : 'Current versions have not been checked.')}
-                </p>
-                <small>
-                  Refresh checks FinePrint’s published packs, not organizer websites. Sources were
-                  captured{' '}
-                  {sourcePack.sources
-                    .map((source) => source.capturedAt)
-                    .sort()
-                    .at(-1)}
-                  .
-                </small>
-                {impact && rulesChanged && (
-                  <>
-                    <p>
-                      Saved {impact.from} → current {impact.to}. {impact.changes.length} affected
-                      checks.
-                    </p>
-                    <ul>
-                      {impact.changes.map((change) => (
-                        <li key={change.id}>
-                          <strong>{change.title}</strong> · {change.kind}. {change.detail}
-                        </li>
-                      ))}
-                    </ul>
-                  </>
+            {isImportedId(dossier.eventId) ? (
+              <div className="rule-version-status imported-status">
+                <div>
+                  <strong>
+                    {imported ? importedLabel(imported) : 'Imported rules are missing'}
+                  </strong>
+                  <p>
+                    {imported
+                      ? `Captured ${new Date(imported.importedAt).toLocaleString()}. A model extracted these rules and each quote was matched to the page text. Nobody has reviewed them. ${imported.deadline ? `Deadline as quoted: ${new Date(imported.deadline).toLocaleString()}.` : 'No deadline with a timezone was quoted.'}`
+                      : 'The rules for this review are not on this device. Import the page again from My reviews.'}
+                  </p>
+                  {imported && (
+                    <small>
+                      Source version {sourcePack.version}. FinePrint does not watch the page for
+                      changes; import it again to refresh.
+                    </small>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="rule-version-status">
+                <div>
+                  <strong>
+                    {catalog.busy
+                      ? 'Checking rule versions…'
+                      : rulesChanged
+                        ? 'A newer rule pack needs your attention.'
+                        : 'Curated source versions'}
+                  </strong>
+                  <p>
+                    {catalog.error ||
+                      (catalog.checkedAt
+                        ? `Versions checked ${new Date(catalog.checkedAt).toLocaleString()}. ${catalog.mode === 'sanity' ? 'Read from Sanity.' : 'Local snapshots.'}`
+                        : 'Current versions have not been checked.')}
+                  </p>
+                  <small>
+                    Refresh checks FinePrint’s published packs, not organizer websites. Sources were
+                    captured{' '}
+                    {sourcePack.sources
+                      .map((source) => source.capturedAt)
+                      .sort()
+                      .at(-1)}
+                    .
+                  </small>
+                  {impact && rulesChanged && (
+                    <>
+                      <p>
+                        Saved {impact.from} → current {impact.to}. {impact.changes.length} affected
+                        checks.
+                      </p>
+                      <ul>
+                        {impact.changes.map((change) => (
+                          <li key={change.id}>
+                            <strong>{change.title}</strong> · {change.kind}. {change.detail}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+                <button
+                  className="text-button"
+                  disabled={catalog.busy}
+                  onClick={() => void catalog.refresh()}
+                >
+                  Refresh rule versions
+                </button>
+                {rulesChanged && (
+                  <button
+                    className="secondary-button"
+                    disabled={busy}
+                    onClick={() => void runCheck(dossier)}
+                  >
+                    Recheck updated rules <ArrowRight size={15} />
+                  </button>
                 )}
               </div>
-              <button
-                className="text-button"
-                disabled={catalog.busy}
-                onClick={() => void catalog.refresh()}
-              >
-                Refresh rule versions
-              </button>
-              {rulesChanged && (
-                <button
-                  className="secondary-button"
-                  disabled={busy}
-                  onClick={() => void runCheck(dossier)}
-                >
-                  Recheck updated rules <ArrowRight size={15} />
-                </button>
-              )}
-            </div>
+            )}
             <details
               className="assistant-drawer"
               open={assistantOpen}
@@ -777,6 +816,7 @@ export function ReviewDesk() {
               <AskFinePrint
                 key={reviews.workspace.activeId ?? 'sample'}
                 dossier={dossier}
+                imported={imported}
                 initialQuestion={isExample ? '' : activeReview?.question}
                 initialResult={isExample ? null : (activeReview?.answer as AskResponse | null)}
                 onRemember={(question, answer) => {
@@ -848,11 +888,12 @@ export function ReviewDesk() {
               <div className="error-banner" role="alert">
                 <CircleAlert size={18} />
                 <span>{error}</span>
-                {dossierSchema.safeParse(dossier).success && (
+                {dossierSchema.safeParse(dossier).success && !isImportedId(dossier.eventId) && (
                   <>
                     <button onClick={() => void runCheck(dossier)}>Retry</button>
                     <button onClick={() => void runCheck(dossier, true, true)}>
-                      Use saved rules · {savedPacks[dossier.eventId].updatedAt.slice(0, 10)}
+                      Use saved rules ·{' '}
+                      {savedPacks[dossier.eventId as EventId].updatedAt.slice(0, 10)}
                     </button>
                   </>
                 )}
@@ -1082,6 +1123,13 @@ export function ReviewDesk() {
                         <TriSelect field="hasChallengeTag" dossier={dossier} onChange={update} />
                       </details>
                     </>
+                  ) : imported && importedPack ? (
+                    <ImportedFacts
+                      dossier={dossier}
+                      update={update}
+                      event={imported}
+                      pack={importedPack}
+                    />
                   ) : (
                     <GibcFacts dossier={dossier} update={update} />
                   )}
@@ -1312,9 +1360,11 @@ export function ReviewDesk() {
                     </div>
                     <div className="source-citations">
                       <h4>
-                        {activeFinding.rule.sources.length > 1
-                          ? 'Read the sources together'
-                          : 'Official source'}
+                        {report?.sourceMode === 'imported'
+                          ? 'Imported page, not reviewed'
+                          : activeFinding.rule.sources.length > 1
+                            ? 'Read the sources together'
+                            : 'Official source'}
                       </h4>
                       {activeFinding.rule.sources.map((id) => {
                         const source = report!.sources.find((s) => s.id === id);
@@ -1334,9 +1384,14 @@ export function ReviewDesk() {
                               {source.title}
                               <ExternalLink size={13} />
                             </a>
-                            {(activeFinding.rule.id === 'entry-limit' && id !== 'general') ||
-                            (['origin', 'start'].includes(activeFinding.rule.id) &&
-                              id === 'general') ? (
+                            {report!.sourceMode === 'imported' ? (
+                              <>
+                                <blockquote>“{activeFinding.rule.quote}”</blockquote>
+                                <p>{source.authority}. Quote matched to the fetched page text.</p>
+                              </>
+                            ) : (activeFinding.rule.id === 'entry-limit' && id !== 'general') ||
+                              (['origin', 'start'].includes(activeFinding.rule.id) &&
+                                id === 'general') ? (
                               <blockquote>“{source.quote}”</blockquote>
                             ) : (
                               <p>{source.summary}</p>
@@ -1380,25 +1435,27 @@ export function ReviewDesk() {
                         </button>
                       </div>
                     )}
-                    <button
-                      className="explain-button"
-                      onClick={() => void explainFinding()}
-                      disabled={explaining || dirty}
-                    >
-                      {explaining ? (
-                        <LoaderCircle size={15} className="spin" />
-                      ) : (
-                        <Sparkles size={15} />
-                      )}{' '}
-                      {explaining
-                        ? 'Reading source context…'
-                        : access.required && access.available && !access.authorized
-                          ? 'Unlock source agent'
-                          : connection.context && connection.model
-                            ? 'Ask the source agent'
-                            : 'Explain this finding'}
-                      <ArrowRight size={14} />
-                    </button>
+                    {report?.sourceMode !== 'imported' && (
+                      <button
+                        className="explain-button"
+                        onClick={() => void explainFinding()}
+                        disabled={explaining || dirty}
+                      >
+                        {explaining ? (
+                          <LoaderCircle size={15} className="spin" />
+                        ) : (
+                          <Sparkles size={15} />
+                        )}{' '}
+                        {explaining
+                          ? 'Reading source context…'
+                          : access.required && access.available && !access.authorized
+                            ? 'Unlock source agent'
+                            : connection.context && connection.model
+                              ? 'Ask the source agent'
+                              : 'Explain this finding'}
+                        <ArrowRight size={14} />
+                      </button>
+                    )}
                     {showAccess && (
                       <AgentAccessForm
                         onAuthorized={() => {
@@ -1438,12 +1495,19 @@ export function ReviewDesk() {
                         {explanation.trace && <AgentTrace steps={explanation.trace} />}
                       </div>
                     )}
-                    <p className="curation-note">
-                      {connection.context && connection.model && (
-                        <>The source agent shares only this finding’s facts with Modal. </>
-                      )}
-                      AI-assisted curation. An interpretation here is not an organizer approval.
-                    </p>
+                    {report?.sourceMode === 'imported' ? (
+                      <p className="curation-note">
+                        Imported rules, not reviewed. A model chose this mapping; it is not an
+                        organizer approval.
+                      </p>
+                    ) : (
+                      <p className="curation-note">
+                        {connection.context && connection.model && (
+                          <>The source agent shares only this finding’s facts with Modal. </>
+                        )}
+                        AI-assisted curation. An interpretation here is not an organizer approval.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="source-placeholder">
