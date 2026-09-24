@@ -1,18 +1,19 @@
 ---
-title: "Five people, two hackathons: building FinePrint with Sanity"
+title: "FinePrint: an agent that checks your hackathon entry against the rules it reads"
 published: false
+description: "Ask whether your project qualifies. The agent reads a Sanity Knowledge Base, quotes the facts it took from your question and runs typed rule checks, with every step visible."
 tags: devchallenge, sanitychallenge, sanity, ai
 ---
 
-*Prepared for the [Sanity Challenge, Path One: Ship an Agent That Queries Real Content](https://dev.to/challenges/sanity-2026-09-16).*
+*This is a submission for the [Sanity Challenge, Path One: Ship an Agent That Queries Real Content](https://dev.to/challenges/sanity-2026-09-16).*
 
 ## What I Built
 
-I tested the same five-person team and August 23 start date against two hackathons. Sanity blocked both checks. GIBC V2 supported both. The rest of the review still had unanswered questions.
+Hackathon rules live in three places: the challenge page, the FAQ and the official contest rules. They don't always agree, and one missed line can disqualify a good project.
 
-Those are illustrative project facts, checked against the two events’ curated official rules. They make the problem concrete: choosing another event can change the answer even when the project stays the same.
+FinePrint is an agent you can ask. "I started my app in August. I added Sanity this week. Can I enter Path One?" It reads a Sanity Knowledge Base built from the official rules, proposes facts with exact quotes from your question and calls a typed checker over structured requirement records. The answer shows the rules it read, the facts it accepted and every tool call it made.
 
-FinePrint starts with the part I’m unsure about. I can ask, “I started my app in August. I added Sanity this week. Can I enter Path One?” The agent reads a Sanity Knowledge Base, proposes facts with exact quotes from my question, then calls a typed checker. The answer shows its sources, the facts it accepted and the steps it actually ran.
+A keyword search finds the sentence about the entry period. It can't tell you that "started in August" blocks the development-start rule while reusing components is still allowed, or that two official pages disagree about how many entries you may submit. That needs structure: each requirement is a record with its conditions, its event and a reference to the source version it came from.
 
 I picked this challenge as the first rule pack. Its FAQ allows one submission per path; its contest rules say entries are unlimited. FinePrint keeps both statements visible and marks the issue **Rules unclear**. It gives me a precise question to take to the organizer.
 
@@ -32,7 +33,7 @@ Create a Sanity review, enter a team size of five and a development date of Augu
 
 Open **Try a rule-change rehearsal** to lower a hypothetical team limit from six to three. One of the eighteen checks is affected. The rehearsal is labeled and local; it never changes an official source or saved review.
 
-For the source agent, expand **Ask a question about the rules**, choose **Two entries, one path** in a Sanity review and press **Ask FinePrint**. Inspect the actual trace and the source interpretation beside the typed result. **Add these facts to my review** preserves the other answers.
+To try the agent, open any Sanity review. **Ask FinePrint** sits at the top of the desk. Choose **Two entries, one path** and press **Ask FinePrint**. Inspect the actual trace and the source interpretation beside the typed result. **Add these facts to my review** preserves the other answers.
 
 The homepage replays a dated, recorded source explanation. Another example lets you change whether an entire application or only its components existed before the event. The origin check changes, while the August development date remains blocked.
 
@@ -62,7 +63,7 @@ The Knowledge Base currently uses curated dataset records. The September 20 Sani
 
 ## What the live runs showed
 
-The two-event test made four real calls to Sanity Context and Modal: team size and development date, once for each event. All four typed checks matched my authored labels. The model agreed on three. Every answer cited a relevant retrieved entry, and the calls took 9.2–14.9 seconds.
+The two-event test made four real calls to Sanity Context and Modal: team size and development date, once for each event. All four typed checks matched my authored labels. The model agreed on three. Every answer cited a relevant retrieved entry, and the calls took 9.2 to 14.9 seconds.
 
 On the fourth question, the model asked for a timezone even though August 23 was well inside GIBC’s July-to-October build window. It called the result unclear; the typed checker supported the supplied date. FinePrint kept the disagreement visible. That is a failure I want to inspect before relying on the explanation.
 
@@ -76,7 +77,7 @@ After deployment, the same question ran in a browser without an access code in 6
 
 Those runs test particular questions. They do not establish general eligibility accuracy.
 
-## Code and checks
+## Code
 
 FinePrint uses Next.js, TypeScript, Zod, Sanity Content Lake and Context MCP. DeepSeek V4.1 Flash runs on an existing Modal endpoint. Vercel hosts the app.
 
@@ -93,3 +94,16 @@ Codex built the first version. I chose Modal when it asked for a model provider,
 I then asked for a product people could keep using and chose multi-event comparison plus rule-change impact. That introduced another boundary: a project fact can travel between events, but a declaration about an event’s requirements usually cannot.
 
 The hardest boundary is deciding what a person stated. An English question does not establish an English submission; planning an integration does not establish a working integration. FinePrint rejects several such shortcuts, keeps unknown facts visible and lets the person inspect the quoted facts before applying them to the desk.
+
+## Sanity Project Details
+
+- Project ID: `cxbqxkq6`, dataset `production` (public, read-only rule records)
+- Public dataset query: [competitions with their requirement counts](https://cxbqxkq6.api.sanity.io/v2025-02-19/data/query/production?query=*%5B_type%3D%3D%22competition%22%5D%7Btitle%2C%22requirements%22%3Acount(requirements)%7D)
+- Document types: `competition`, `requirement`, `sourceVersion`, `reviewRubric`
+- Knowledge Base: `kbyrY7h8fTnL`, served through the named Context MCP endpoint `fineprint`
+
+No login is needed to try FinePrint. Rule checks run without the model; live agent answers share a limit of five runs per ten minutes.
+
+## Agent Session
+
+<!-- Before publishing: upload a Codex or Claude Code transcript at https://dev.to/agent_sessions/new, check it for keys and tokens, press Make Public, then embed it here. Delete this section if you skip it. -->
