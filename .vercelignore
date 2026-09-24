@@ -7,6 +7,7 @@
 !/evaluation/baseline.json
 !/evaluation/live-context.json
 !/evaluation/multi-event-context.json
+!/evaluation/results.json
 !package.json
 !package-lock.json
 !next.config.ts
