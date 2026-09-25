@@ -9,9 +9,10 @@ import {
 } from 'lucide-react';
 import { checkDossier } from '@/lib/engine';
 import { examples, rulePack } from '@/lib/rules';
+import { runScenarios } from '@/lib/scenarios';
+import type { Status } from '@/lib/model';
 import { gibcRulePack } from '@/lib/gibc-rules';
 import recorded from '../../../evaluation/live-context.json';
-import regression from '../../../evaluation/results.json';
 import { RecordedAnswer } from './product-demo';
 import { Bento } from './landing-bento';
 import { RevealRoot, Ticker } from './landing-motion';
@@ -41,6 +42,7 @@ const questions = [
 ];
 
 export function LandingPage() {
+  const run = recorded.results.find((result) => result.ruleId === 'origin')!;
   const before = checkDossier(examples[1].dossier, rulePack, '2026-09-22T10:00:00.000Z');
   const after = checkDossier(
     { ...examples[1].dossier, origin: 'components' },
@@ -53,6 +55,7 @@ export function LandingPage() {
     before: before.findings.find((row) => row.rule.id === id)!.status,
     after: after.findings.find((row) => row.rule.id === id)!.status,
   }));
+  const regression = runScenarios();
   const source = rulePack.sources[2];
   const ruleTitles = [
     ...new Set([...rulePack.requirements, ...gibcRulePack.requirements].map((rule) => rule.title)),
@@ -122,8 +125,11 @@ export function LandingPage() {
               </div>
               <div className="fp-frame-body">
                 <RecordedAnswer
-                  answer={recorded.results[0].text.split('. ').slice(0, 2).join('. ') + '.'}
-                  paths={recorded.results[0].paths}
+                  scenario="My app existed before the event. I added a Sanity feature during it."
+                  status={run.engineStatus as Status}
+                  answer={run.text.split('. ').slice(0, 2).join('. ') + '.'}
+                  paths={run.paths}
+                  recordedOn="September 20, 2026"
                 />
                 <div className="source-demonstration">
                   <div className="demo-document-heading">
@@ -131,7 +137,7 @@ export function LandingPage() {
                     <strong>Rule and source</strong>
                     <span>Illustrative project</span>
                   </div>
-                  <details open>
+                  <details open id="recorded-source">
                     <summary>
                       <span>
                         <small>Entry eligibility</small>

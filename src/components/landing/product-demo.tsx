@@ -1,11 +1,23 @@
 'use client';
-import { StatusTag } from '../status-tag';
+import { StatusTag, statusLabels } from '../status-tag';
 
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Check, RotateCcw, ShieldQuestion } from 'lucide-react';
 import type { Status } from '@/lib/model';
 
-export function RecordedAnswer({ answer, paths }: { answer: string; paths: string[] }) {
+export function RecordedAnswer({
+  scenario,
+  status,
+  answer,
+  paths,
+  recordedOn,
+}: {
+  scenario: string;
+  status: Status;
+  answer: string;
+  paths: string[];
+  recordedOn: string;
+}) {
   const [replay, setReplay] = useState(0);
   const [seen, setSeen] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
@@ -37,7 +49,7 @@ export function RecordedAnswer({ answer, paths }: { answer: string; paths: strin
       <div key={replay} className="recorded-content">
         <div className="recorded-question">
           <span>Example scenario</span>
-          <p>I’m planning two entries in the same path.</p>
+          <p>{scenario}</p>
         </div>
         <div className="recorded-reads">
           <span>
@@ -54,17 +66,17 @@ export function RecordedAnswer({ answer, paths }: { answer: string; paths: strin
         <div className="recorded-result">
           <div>
             <ShieldQuestion size={19} />
-            <strong>Rules unclear</strong>
+            <strong>{statusLabels[status]}</strong>
           </div>
           <p>{answer}</p>
-          <a href="#conflict">
-            See the two sources
+          <a href="#recorded-source">
+            See the rule and source
             <ArrowDown size={14} />
           </a>
         </div>
       </div>
       <p className="recorded-caption">
-        Recorded source explanation · September 20, 2026
+        Recorded source explanation · {recordedOn}
         <br />
         Replay is an illustration. No live request is made here.
       </p>

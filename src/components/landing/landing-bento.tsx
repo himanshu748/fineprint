@@ -1,24 +1,37 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronDown } from 'lucide-react';
-import { rulePack } from '@/lib/rules';
-import type { Status } from '@/lib/model';
+import { checkDossier } from '@/lib/engine';
+import { examples, rulePack, rulePackSeptember20 } from '@/lib/rules';
+import type { RulePack, Status } from '@/lib/model';
+import { StatusTag, statusLabels } from '../status-tag';
 import { FactChange } from './product-demo';
 import { RecordedComparison } from './recorded-comparison';
 import multiEvent from '../../../evaluation/multi-event-context.json';
 
 type Row = { id: string; title: string; before: Status; after: Status };
 
-function ConflictTile() {
-  const conflict = rulePack.requirements.find((rule) => rule.id === 'entry-limit')!;
+function RuleChangeTile() {
+  const contest = (pack: RulePack) => pack.sources.find((source) => source.id === 'contest')!;
+  const quotes = [rulePackSeptember20, rulePack].map((pack) => contest(pack));
+  const limit = (pack: RulePack, checkedAt: string) =>
+    checkDossier(examples[2].dossier, pack, checkedAt).findings.find(
+      (finding) => finding.rule.id === 'entry-limit',
+    )!;
+  const saved = limit(rulePackSeptember20, '2026-09-22T12:00:00.000Z');
+  const current = limit(rulePack, '2026-09-24T12:00:00.000Z');
   return (
-    <article className="fp-tile fp-tile-conflict" id="conflict" data-reveal>
+    <article className="fp-tile fp-tile-conflict" id="rule-change" data-reveal>
       <div className="fp-tile-copy">
-        <h3>Two official sources. Two different answers.</h3>
-        <p>FinePrint keeps both claims in view and gives you the question to ask the organizer.</p>
+        <h3>The contest rules changed. Saved reviews show it.</h3>
+        <p>
+          The contest rules page said one thing on September 20 and another on September 24.
+          FinePrint published a new dated pack and kept the old one, so a saved review names the
+          change.
+        </p>
       </div>
       <div className="fp-quotes">
-        {rulePack.sources.slice(0, 2).map((source, index) => (
-          <figure key={source.id} className={`fp-quote fp-quote-${index + 1}`}>
+        {quotes.map((source, index) => (
+          <figure key={source.capturedAt} className={`fp-quote fp-quote-${index + 1}`}>
             <figcaption>
               <BookOpen size={15} />
               <a href={source.url} rel="noreferrer">
@@ -29,12 +42,12 @@ function ConflictTile() {
             <blockquote>
               {index === 0 ? (
                 <>
-                  “No, <mark>only one submission per path</mark> is allowed.”
+                  “There is <mark>no limit on the number of Entries</mark> you may submit during the
+                  Entry Period.”
                 </>
               ) : (
                 <>
-                  “There is <mark>no limit on the number of Entries</mark> you may submit during the
-                  Entry Period.”
+                  “<mark>Only one submission per path</mark> is allowed.”
                 </>
               )}
             </blockquote>
@@ -43,8 +56,16 @@ function ConflictTile() {
         ))}
       </div>
       <div className="fp-conflict-question">
-        <span className="status-tag unclear">Rules unclear</span>
-        <p>{conflict.question}</p>
+        <span className="fp-status-change">
+          <StatusTag status={saved.status} />
+          <ArrowRight size={16} aria-hidden="true" />
+          <StatusTag status={current.status} />
+        </span>
+        <p>
+          A saved review with two entries in Path One: pack {rulePackSeptember20.version} marked it{' '}
+          {statusLabels[saved.status]}. Pack {rulePack.version} marks it{' '}
+          {statusLabels[current.status]}, with both official pages quoting the same limit.
+        </p>
       </div>
     </article>
   );
@@ -94,7 +115,7 @@ export function Bento({ comparison }: { comparison: Row[] }) {
         </p>
       </div>
       <div className="fp-bento">
-        <ConflictTile />
+        <RuleChangeTile />
         <SourceTile />
         <article className="fp-tile fp-tile-change" data-reveal>
           <div className="fp-tile-copy">

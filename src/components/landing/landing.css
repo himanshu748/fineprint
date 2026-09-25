@@ -1045,6 +1045,13 @@
   padding-top: 18px;
   border-top: 1px solid #ffffff24;
 }
+.fp-status-change {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  color: #e8f0ec;
+}
 .fp-conflict-question p {
   max-width: 62ch;
   font-size: 14px;
