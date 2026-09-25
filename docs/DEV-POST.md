@@ -27,6 +27,10 @@ Saved reports retain the requirements and sources used at check time. When a new
 
 [Try FinePrint](https://fineprint-kappa.vercel.app) · [Open the review desk](https://fineprint-kappa.vercel.app/review) · [Source code](https://github.com/himanshu748/fineprint)
 
+A 65-second run on the deployed app, recorded September 25 with nothing sped up: the dated rule change, the agent answering a two-entries question through Sanity Context and an imported Devpost rules page.
+
+{% embed https://www.youtube.com/watch?v=Vy0qynByqZ4 %}
+
 ![FinePrint compares an illustrative five-person project against the Sanity and GIBC rule packs. Team size and the August start date are blocked for Sanity and supported for GIBC.](https://fineprint-kappa.vercel.app/docs/event-comparison.png)
 
 *Browser capture from September 22. The example also declares that every member is a student. Both reviews retain unanswered questions.*
