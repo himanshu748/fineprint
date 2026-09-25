@@ -13,9 +13,9 @@ Hackathon rules live in three places: the challenge page, the FAQ and the offici
 
 FinePrint is an agent you can ask. "I started my app in August. I added Sanity this week. Can I enter Path One?" It reads a Sanity Knowledge Base built from the official rules, proposes facts with exact quotes from your question and calls a typed checker over structured requirement records. The answer shows the rules it read, the facts it accepted and every tool call it made.
 
-A keyword search finds the sentence about the entry period. It can't tell you that "started in August" blocks the development-start rule while reusing components is still allowed, or that two official pages disagree about how many entries you may submit. That needs structure: each requirement is a record with its conditions, its event and a reference to the source version it came from.
+A keyword search finds the sentence about the entry period. It can't tell you that "started in August" blocks the development-start rule while reusing components is still allowed, or that the contest rules changed their entry limit halfway through the challenge. That needs structure: each requirement is a record with its conditions, its event and a reference to the source version it came from.
 
-I picked this challenge as the first rule pack. Its FAQ allows one submission per path; its contest rules say entries are unlimited. FinePrint keeps both statements visible and marks the issue **Rules unclear**. It gives me a precise question to take to the organizer.
+I picked this challenge as the first rule pack, and it changed under me. On September 20 the FAQ said "only one submission per path is allowed" while the contest rules said "There is no limit on the number of Entries you may submit during the Entry Period." FinePrint marked two entries in one path **Rules unclear** and gave a question for the organizer. By September 24 DEV had replaced that contest-rules line with "Only one submission per path is allowed. This is to encourage quality over quantity." I published a new rule pack, `2026-09-24.1`, and a saved two-entry review now shows the check going from Rules unclear to **Blocked**, with both dated quotes. The old pack stays in Sanity, so the change is visible, not overwritten.
 
 I added GIBC V2’s Open Invention track as a second curated event. FinePrint checks 19 Sanity requirements and 18 GIBC requirements. **Compare events** carries team size and development date across both, while leaving event-specific answers unknown. An answer about what existed before September 18 cannot establish what existed before July 11. Each check can be Supported, Blocked, Missing fact, Rules unclear or Not applicable. Changing a fact highlights the affected findings. Personal reviews autosave in the browser and can be downloaded as Markdown. A facts-only backup moves work between browsers without importing an unverified verdict.
 
@@ -35,7 +35,7 @@ Create a Sanity review, enter a team size of five and a development date of Augu
 
 Open **Try a rule-change rehearsal** to lower a hypothetical team limit from six to three. One of the eighteen checks is affected. The rehearsal is labeled and local; it never changes an official source or saved review.
 
-To try the agent, open any Sanity review. **Ask FinePrint** sits at the top of the desk. Choose **Two entries, one path** and press **Ask FinePrint**. Inspect the actual trace and the source interpretation beside the typed result. **Add these facts to my review** preserves the other answers.
+To try the agent, open any Sanity review. **Ask FinePrint** sits at the top of the desk. Choose **Two entries, one path** and press **Ask FinePrint**; the answer now cites the September 24 rule and the typed check is Blocked. Inspect the actual trace and the source interpretation beside the typed result. **Add these facts to my review** preserves the other answers.
 
 To check another event, start a review and pick **Another hackathon (paste its rules link)**. Try `https://zero-origin.devpost.com/rules`, then press **Read the rules**. You get a review of that event's requirements, with the ones FinePrint could not map listed as Check yourself. **Ask FinePrint** works on it too.
 
@@ -47,7 +47,7 @@ Live requests share a limit of five runs per ten minutes in a Vercel regional bu
 
 ## How I Used Sanity
 
-The public `production` dataset in project `cxbqxkq6` contains two competitions, 37 requirements and five source versions. Each requirement references its event’s official sources. Event IDs, pack versions and explicit source references keep identical concepts such as team size separate. A GROQ query loads the pack, and Zod validates it before the checker uses it.
+The public `production` dataset in project `cxbqxkq6` contains two competitions whose current packs hold 37 requirements, plus the dated source versions each pack quotes. Superseded packs stay in the dataset. Each requirement references its event’s official sources. Event IDs, pack versions and explicit source references keep identical concepts such as team size separate. A GROQ query loads the pack, and Zod validates it before the checker uses it.
 
 These relationships also make the change review possible. A saved finding records the requirement and source versions it used. If a curator changes the team-size requirement, FinePrint follows those references to the team finding. If only the capture date changes, it leaves the condition unchanged. Sanity holds the content and its relationships; the app uses them for retrieval, comparisons and report updates.
 
@@ -63,7 +63,7 @@ For a question, the agent follows this sequence:
 
 The question flow allows four model rounds, six entry reads and 45,000 source characters. The trace shows the actual calls and elapsed times. A provider error produces an error state with the completed steps.
 
-The Knowledge Base reads the curated dataset records plus three official pages as website sources: the challenge page, the contest rules and DEV's general hackathon rules. When those sources were added, Context raised two conflicts. One was mine: an entry said development had to start after the opening moment, while the rules say "during, and not prior to, the Entry Period" and the checker accepts the opening moment. I resolved it in favor of the source. The other is DEV's: the FAQ allows one submission per path and the contest rules allow unlimited entries. Picking a side would misstate one official page, so I wrote a standing instruction instead: keep both statements visible, treat one entry per path as safe under both and ask the organizers before planning more. After the rebuild, the live agent answered "Can I submit two entries to Path One?" that way in 9.6 seconds, with citations.
+The Knowledge Base reads the curated dataset records plus three official pages as website sources: the challenge page, the contest rules and DEV's general hackathon rules. When those sources were added, Context raised two conflicts. One was mine: an entry said development had to start after the opening moment, while the rules say "during, and not prior to, the Entry Period" and the checker accepts the opening moment. I resolved it in favor of the source. The other was the entry limit. The contest rules page Context crawled that day already said one submission per path, while my September 20 dataset record still quoted "no limit". Context flagged the stale record before I had noticed the change myself. I resolved it in favor of the live page, added a standing instruction that dates the old wording as a rule change and published the new pack.
 
 For an imported event, the agent still reads the Knowledge Base for how FinePrint weighs sources, and uses a separate `imported_rules_read` tool over the quoted requirements. The trace names both, and citations are limited to what was actually read in that run.
 
@@ -77,7 +77,7 @@ The [recorded questions, answers and tool traces](https://github.com/himanshu748
 
 In a September 22 local run against the real Sanity and Modal services, the August question completed in 12.8 seconds. The agent read four entries and accepted three quoted facts. The date remained a month, with the inferred challenge year disclosed. It refused to treat “started in August” as proof that the whole application already existed. The model still interpreted the prior-work rule as blocked, while the typed check needed that missing fact. Both results were visible.
 
-A second run took 11.4 seconds and read three entries. For “I am planning two entries in Path One,” both the source interpretation and the typed checker kept the submission limit unclear.
+A second run took 11.4 seconds and read three entries. For “I am planning two entries in Path One,” both the source interpretation and the typed checker kept the submission limit unclear. That was correct against the September 20 rules; against the September 24 pack the same question is Blocked.
 
 After deployment, the same question ran in a browser without an access code in 6.4 seconds. Its trace showed eight actual steps, including three Knowledge Base reads and the requirement check. A separate hosted check verified that the per-finding explanation still worked.
 
@@ -123,7 +123,3 @@ The hardest boundary is deciding what a person stated. An English question does 
 - Knowledge Base: `kbyrY7h8fTnL`, served through the named Context MCP endpoint `fineprint`
 
 No login is needed to try FinePrint. Rule checks run without the model; live agent answers share a limit of five runs per ten minutes.
-
-## Agent Session
-
-<!-- Before publishing: upload a Codex or Claude Code transcript at https://dev.to/agent_sessions/new, check it for keys and tokens, press Make Public, then embed it here. Delete this section if you skip it. -->
