@@ -38,13 +38,16 @@ export function ruleImpact(report: Report, pack: RulePack) {
       report.packSchedule?.deadline !== pack.deadline &&
       (report.packSchedule !== undefined || report.packVersion !== pack.version) &&
       canonical(rule).includes('$deadline');
-    if (canonical(previous.rule) !== canonical(rule) || changedSources || scheduleChanged)
+    const ruleChanged = canonical(previous.rule) !== canonical(rule);
+    if (ruleChanged || changedSources || scheduleChanged)
       changes.push({
         id: rule.id,
         title: rule.title,
         kind: 'changed',
         detail: changedSources
-          ? 'Linked source content changed.'
+          ? ruleChanged
+            ? 'Requirement and linked source content changed.'
+            : 'Linked source content changed.'
           : scheduleChanged
             ? 'Event timing changed or the older timing record is unavailable.'
             : 'Requirement or applicability changed.',

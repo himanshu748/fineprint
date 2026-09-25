@@ -2,7 +2,7 @@ import type { Dossier, Status } from './model';
 import { checkDossier } from './engine';
 import { examples, rulePack } from './rules';
 
-export const evaluationClock = '2026-09-20T12:00:00.000Z';
+export const evaluationClock = '2026-09-24T12:00:00.000Z';
 export type Scenario = {
   name: string;
   patch: Partial<Dossier>;
@@ -168,16 +168,16 @@ export const scenarios: Scenario[] = [
     expected: 'blocked',
   },
   {
-    name: 'One entry satisfies both conflicting statements',
+    name: 'One entry meets the per-path limit',
     patch: { entriesPerPath: 1 },
     rule: 'entry-limit',
     expected: 'supported',
   },
   {
-    name: 'Two same-path entries activate the discrepancy',
+    name: 'Two same-path entries exceed the per-path limit',
     patch: { entriesPerPath: 2 },
     rule: 'entry-limit',
-    expected: 'unclear',
+    expected: 'blocked',
   },
   {
     name: 'An unknown entry count stays unknown',

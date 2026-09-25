@@ -45,12 +45,12 @@ describe('report invariants', () => {
     expect(changedFindings(before, after).sort()).toEqual(['origin', 'credit', 'new-work'].sort());
   });
   it('flags stale snapshots instead of implying current rules', () => {
-    const report = checkDossier(examples[0].dossier, rulePack, '2026-09-29T12:00:00Z');
+    const report = checkDossier(examples[0].dossier, rulePack, '2026-10-02T12:00:00Z');
     expect(report.sourceHealth).toBe('aging-snapshot');
   });
   it('exports provenance and limitations with each report', () => {
     const text = reportMarkdown(checkDossier(examples[0].dossier, rulePack, evaluationClock));
-    expect(text).toContain('2026-09-20.1');
+    expect(text).toContain(rulePack.version);
     expect(text).toContain('not independently verified');
     expect(text).toContain('https://dev.to/page/official-hackathon-rules');
   });

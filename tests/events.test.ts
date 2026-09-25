@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { checkDossier, changedFindings } from '../src/lib/engine';
 import { eventPhase, factsForEvent, savedPacks } from '../src/lib/events';
-import { blankDossier, rulePack } from '../src/lib/rules';
+import { blankDossier, examples, rulePack, rulePackSeptember20 } from '../src/lib/rules';
 import { gibcRulePack } from '../src/lib/gibc-rules';
 import { ruleImpact } from '../src/lib/rule-impact';
 import { validateRulePack } from '../src/lib/sanity';
@@ -144,6 +144,24 @@ describe('specific rule change impact', () => {
   });
   it('never compares rule history across unrelated events', () =>
     expect(ruleImpact(report, rulePack)).toBeNull());
+  it('shows the September 24 entry limit as a rule change to a saved two-entry review', () => {
+    const saved = checkDossier(examples[2].dossier, rulePackSeptember20, '2026-09-22T08:00:00Z');
+    const current = checkDossier(examples[2].dossier, rulePack, '2026-09-24T12:00:00Z');
+    const limit = (report: typeof saved) =>
+      report.findings.find((finding) => finding.rule.id === 'entry-limit')!.status;
+    expect([limit(saved), limit(current)]).toEqual(['unclear', 'blocked']);
+    const impact = ruleImpact(saved, rulePack)!;
+    expect(impact).toMatchObject({ from: '2026-09-20.1', to: '2026-09-24.1', needsRecheck: true });
+    expect(impact.changes.find((change) => change.id === 'entry-limit')).toMatchObject({
+      kind: 'changed',
+      detail: 'Requirement and linked source content changed.',
+    });
+    expect(
+      impact.changes.every((change) =>
+        rulePack.requirements.find((rule) => rule.id === change.id)!.sources.includes('contest'),
+      ),
+    ).toBe(true);
+  });
   it('ignores object key order from API serialization', () => {
     const pack = clone();
     pack.requirements[0] = Object.fromEntries(

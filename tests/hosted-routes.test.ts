@@ -98,7 +98,7 @@ it('checks submitted facts again before requesting the explanation', async () =>
   );
   expect(response.status).toBe(200);
   expect(mocks.source.mock.calls[0][1]).toMatchObject({
-    status: 'unclear',
+    status: 'blocked',
     rule: { id: 'entry-limit' },
   });
 });

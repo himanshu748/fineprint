@@ -13,11 +13,11 @@ const pathTwo = any(eq('track', 'path-two'), eq('track', 'both'));
 
 export const rulePack: RulePack = {
   id: 'sanity-2026',
-  version: '2026-09-20.1',
+  version: '2026-09-24.1',
   title: 'Sanity Challenge',
   start: '2026-09-18T16:00:00.000Z',
   deadline: '2026-10-05T06:59:00.000Z',
-  updatedAt: '2026-09-20T12:00:00.000Z',
+  updatedAt: '2026-09-24T12:00:00.000Z',
   reviewNote:
     'AI-assisted source curation. Interpretations are not organizer approvals. Review the official pages before entering.',
   sources: [
@@ -26,8 +26,8 @@ export const rulePack: RulePack = {
       title: 'Challenge brief & FAQ',
       url: 'https://dev.to/challenges/sanity-2026-09-16',
       publisher: 'DEV Community',
-      capturedAt: '2026-09-20',
-      version: 'snapshot-2026-09-20',
+      capturedAt: '2026-09-24',
+      version: 'snapshot-2026-09-24',
       authority: 'Event instructions and FAQ',
       quote: 'No, only one submission per path is allowed.',
       summary:
@@ -38,20 +38,20 @@ export const rulePack: RulePack = {
       title: 'Sanity contest rules',
       url: 'https://dev.to/page/sanity-challenge-v26-09-16-contest-rules',
       publisher: 'DEV Community',
-      capturedAt: '2026-09-20',
-      version: 'snapshot-2026-09-20',
+      capturedAt: '2026-09-24',
+      version: 'snapshot-2026-09-24',
       authority: 'Event-specific contest rules',
-      quote: 'There is no limit on the number of Entries you may submit during the Entry Period.',
+      quote: 'Only one submission per path is allowed.',
       summary:
-        'The entry period runs from September 18 at 9:00 AM PDT to October 4 at 11:59 PM PDT. A project ID or public dataset URL and a DEV post are required. A tie across paths favors someone who has not won a path. General rules take precedence over conflicting event-specific terms.',
+        'The entry period runs from September 18 at 9:00 AM PDT to October 4 at 11:59 PM PDT. Only one submission per path is allowed. A project ID or public dataset URL and a DEV post are required. A tie across paths favors someone who has not won a path. General rules take precedence over conflicting event-specific terms.',
     },
     {
       id: 'general',
       title: 'General contest rules',
       url: 'https://dev.to/page/official-hackathon-rules',
       publisher: 'Major League Hacking / DEV',
-      capturedAt: '2026-09-20',
-      version: 'updated-2026-02-25; captured-2026-09-20',
+      capturedAt: '2026-09-24',
+      version: 'updated-2026-02-25; captured-2026-09-24',
       authority: 'General rules; expressly control conflicting contest-announcement terms',
       quote: 'development of your Entry was started during, and not prior to, the Entry Period',
       summary:
@@ -227,15 +227,15 @@ export const rulePack: RulePack = {
       title: 'Entries in the same path',
       scope: 'entry',
       category: 'participation',
-      summary: 'The FAQ and contest rules disagree about the submission limit.',
+      summary: 'Only one submission per path is allowed.',
       sources: ['faq', 'contest'],
       check: { op: 'lte', fact: 'entriesPerPath', value: 1 },
-      question:
-        'Which submission limit governs multiple entries in the same path: the FAQ limit or the event rules?',
-      correction: 'Request an organizer ruling before planning multiple entries in the same path.',
-      review: 'needs-organizer',
+      question: 'How many separate entries are you planning in this path?',
+      correction:
+        'Submit one entry in this path. Entering the other path as well needs its own post.',
+      review: 'curated',
       rationale:
-        'One entry satisfies both statements. More than one activates the discrepancy; it is not automatically declared permitted or prohibited.',
+        'Since September 24 the FAQ and the contest rules state the same limit. On September 20 the contest rules said there was no limit on entries, so reports from that pack marked two entries as unclear.',
     },
     {
       id: 'separate-posts',
@@ -445,9 +445,9 @@ export const examples: { id: string; name: string; description: string; dossier:
     },
   },
   {
-    id: 'conflict',
+    id: 'two-entries',
     name: 'Two entries',
-    description: 'A second submission activates conflicting instructions.',
+    description: 'A second entry in the same path exceeds the limit.',
     dossier: {
       ...blankDossier,
       name: 'Two planned entries',
@@ -468,3 +468,39 @@ export const examples: { id: string; name: string; description: string; dossier:
     },
   },
 ];
+
+const entryLimitSeptember20: Requirement = {
+  id: 'entry-limit',
+  title: 'Entries in the same path',
+  scope: 'entry',
+  category: 'participation',
+  summary: 'The FAQ and contest rules disagree about the submission limit.',
+  sources: ['faq', 'contest'],
+  check: { op: 'lte', fact: 'entriesPerPath', value: 1 },
+  question:
+    'Which submission limit governs multiple entries in the same path: the FAQ limit or the event rules?',
+  correction: 'Request an organizer ruling before planning multiple entries in the same path.',
+  review: 'needs-organizer',
+  rationale:
+    'One entry satisfies both statements. More than one activates the discrepancy; it is not automatically declared permitted or prohibited.',
+};
+
+/** The September 20 pack, as saved reviews from that date recorded it. Published history only. */
+export const rulePackSeptember20: RulePack = {
+  ...rulePack,
+  version: '2026-09-20.1',
+  updatedAt: '2026-09-20T12:00:00.000Z',
+  sources: rulePack.sources.map((source) => ({
+    ...source,
+    capturedAt: '2026-09-20',
+    version: source.version.replace('2026-09-24', '2026-09-20'),
+    ...(source.id === 'contest' && {
+      quote: 'There is no limit on the number of Entries you may submit during the Entry Period.',
+      summary:
+        'The entry period runs from September 18 at 9:00 AM PDT to October 4 at 11:59 PM PDT. A project ID or public dataset URL and a DEV post are required. A tie across paths favors someone who has not won a path. General rules take precedence over conflicting event-specific terms.',
+    }),
+  })),
+  requirements: rulePack.requirements.map((rule) =>
+    rule.id === 'entry-limit' ? entryLimitSeptember20 : rule,
+  ),
+};

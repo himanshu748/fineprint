@@ -15,7 +15,7 @@ vi.mock('@modelcontextprotocol/sdk/client/streamableHttp.js', () => ({
 import { explainWithSources } from '../src/lib/source-agent';
 import { checkDossier } from '../src/lib/engine';
 import { examples, rulePack } from '../src/lib/rules';
-const report = checkDossier(examples[2].dossier, rulePack, '2026-09-20T12:00:00Z');
+const report = checkDossier(examples[2].dossier, rulePack, '2026-09-24T12:00:00Z');
 const finding = report.findings.find((f) => f.rule.id === 'entry-limit')!;
 const tool = (name = 'knowledge_base_read', paths = ['rules/entries']) => ({
   role: 'assistant',
@@ -46,7 +46,7 @@ describe('source-agent evidence boundary', () => {
           text:
             name === 'initial_context'
               ? 'Knowledge base id: kbtest\nOutline:\nrules/entries'
-              : 'The FAQ allows one entry, but the contest rules state unlimited entries. The conflict remains unresolved.\n## Sources\n1. Sanity contest rules',
+              : 'The FAQ and the contest rules both allow one submission per path.\n## Sources\n1. Sanity contest rules',
         },
       ],
     }));
@@ -57,13 +57,13 @@ describe('source-agent evidence boundary', () => {
       role: 'assistant',
       content: JSON.stringify({
         explanation:
-          'The official pages disagree about the entry limit. Ask the organizer which limit governs this case.',
+          'Both official pages allow one submission per path. Keep one entry in this path.',
         citations: ['rules/entries'],
       }),
     });
     const result = await explainWithSources(report, finding);
     expect(result.mode).toBe('live');
-    expect(result.status).toBe('unclear');
+    expect(result.status).toBe('blocked');
     expect(result.paths).toEqual(['rules/entries']);
     expect(mocks.call).toHaveBeenCalledWith(
       {
@@ -92,7 +92,7 @@ describe('source-agent evidence boundary', () => {
       role: 'assistant',
       content: JSON.stringify({
         explanation:
-          'The official pages disagree about the entry limit and an organizer decision is necessary.',
+          'Both official pages allow one submission per path, so a second entry is blocked.',
         citations: ['invented/path'],
       }),
     });
