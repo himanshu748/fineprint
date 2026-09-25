@@ -23,7 +23,7 @@ const prompts = [
   },
   {
     label: 'Two entries, one path',
-    text: 'I am planning two entries in Path One. Which submission limit applies?',
+    text: 'I am planning two entries in Path One. Is that allowed?',
   },
 ];
 

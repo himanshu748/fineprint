@@ -1582,11 +1582,13 @@ export function ReviewDesk() {
             <div className="info-note">
               <ShieldQuestion size={22} />
               <div>
-                <h3>Source agreement matters.</h3>
+                <h3>Sources change. Packs are dated.</h3>
                 <p>
-                  Sanity’s FAQ and contest rules disagree about the number of entries. FinePrint
-                  preserves both claims. General rules also state an explicit precedence
-                  relationship; the app does not invent one for every other source.
+                  On September 20 Sanity’s contest rules said entries were unlimited while the FAQ
+                  allowed one per path. On September 24 both pages state one submission per path.
+                  FinePrint published a new pack and kept the old one, so saved reviews show the
+                  change. General rules also state an explicit precedence relationship; the app does
+                  not invent one for every other source.
                 </p>
               </div>
             </div>
