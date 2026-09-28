@@ -49,6 +49,14 @@ The landing page includes the four recorded comparison runs. Switch between team
 
 Live requests share a limit of five runs per ten minutes in a Vercel regional bucket. The question and any form facts explicitly included with it go to the model provider. They are not written to the public Sanity dataset.
 
+## Code
+
+FinePrint uses Next.js, TypeScript, Zod, Sanity Content Lake and Context MCP. DeepSeek V4.1 Flash runs on an existing Modal endpoint. Vercel hosts the app.
+
+Start with [`question-agent.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-agent.ts) for the tool loop, [`question-facts.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-facts.ts) for quote validation and [`engine.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/engine.ts) for the checks.
+
+The automated suite includes migration of older reviews, event isolation, unknown facts, changed source dependencies, added and removed rules, deadline changes and bounded API requests. Production smoke checks also exercise anonymous comparisons with cloud providers disabled. The engine matches 42 authored regression scenarios. An earlier recorded model baseline, given the nine Knowledge Base entries that existed at that time, matches 39 of those labels. I wrote the fixtures and the rule pack; that comparison measures agreement with my labels, not independent accuracy or retrieval quality.
+
 ## How I Used Sanity
 
 The public `production` dataset in project `cxbqxkq6` contains two competitions whose current packs hold 37 requirements, plus the dated source versions each pack quotes. Superseded packs stay in the dataset. Each requirement references its event’s official sources. Event IDs, pack versions and explicit source references keep identical concepts such as team size separate. A GROQ query loads the pack, and Zod validates it before the checker uses it.
@@ -65,9 +73,13 @@ For a question, the agent follows this sequence:
 4. Validate those proposals and run the typed conditions. Return the model’s interpretation alongside the checker’s result, including disagreements.
 5. Write the answer and cite retrieved entry paths. The question flow removes and discloses citation paths that were never read, and rejects an answer if no valid citations remain.
 
+<!-- AGENT TRACE IMAGE -->
+
 The question flow allows four model rounds, six entry reads and 45,000 source characters. The trace shows the actual calls and elapsed times. A provider error produces an error state with the completed steps.
 
-The Knowledge Base reads the curated dataset records plus three official pages as website sources: the challenge page, the contest rules and DEV's general hackathon rules. When those sources were added, Context raised two conflicts. One was mine: an entry said development had to start after the opening moment, while the rules say "during, and not prior to, the Entry Period" and the checker accepts the opening moment. I resolved it in favor of the source. The other was the entry limit. The contest rules page Context crawled that day already said one submission per path, while my September 20 dataset record still quoted "no limit". Context flagged the stale record before I had noticed the change myself. I resolved it in favor of the live page, added a standing instruction that dates the old wording as a rule change and published the new pack.
+The Knowledge Base has four sources. The first is the curated FinePrint `production` dataset, filtered to the current rule packs. The other three are DEV pages added as website sources: the [challenge page](https://dev.to/challenges/sanity-2026-09-16), the [Sanity contest rules](https://dev.to/page/sanity-challenge-v26-09-16-contest-rules) and the [official hackathon rules](https://dev.to/page/official-hackathon-rules). When those sources were added, Context raised two conflicts. One was mine: an entry said development had to start after the opening moment, while the rules say "during, and not prior to, the Entry Period" and the checker accepts the opening moment. I resolved it in favor of the source. The other was the entry limit. The contest rules page Context crawled that day already said one submission per path, while my September 20 dataset record still quoted "no limit". Context flagged the stale record before I had noticed the change myself. I resolved it in favor of the live page, added a standing instruction that dates the old wording as a rule change and published the new pack.
+
+<!-- KB CONFLICT IMAGE -->
 
 For an imported event, the agent still reads the Knowledge Base for how FinePrint weighs sources, and uses a separate `imported_rules_read` tool over the quoted requirements. The trace names both, and citations are limited to what was actually read in that run.
 
@@ -98,14 +110,6 @@ The first runs mapped too loosely. "AI tools are permitted" became "AI use discl
 The importer's limits are real. Pages that render their rules with JavaScript expose little text, so a lablab event page gives about 1,000 characters and you need to add its rules page. The model's mappings aren't reviewed and vary between runs; the labels and quote checks keep that visible.
 
 Those runs test particular questions and pages. They do not establish general eligibility accuracy.
-
-## Code
-
-FinePrint uses Next.js, TypeScript, Zod, Sanity Content Lake and Context MCP. DeepSeek V4.1 Flash runs on an existing Modal endpoint. Vercel hosts the app.
-
-Start with [`question-agent.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-agent.ts) for the tool loop, [`question-facts.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-facts.ts) for quote validation and [`engine.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/engine.ts) for the checks.
-
-The automated suite includes migration of older reviews, event isolation, unknown facts, changed source dependencies, added and removed rules, deadline changes and bounded API requests. Production smoke checks also exercise anonymous comparisons with cloud providers disabled. The engine matches 42 authored regression scenarios. An earlier recorded model baseline, given the nine Knowledge Base entries that existed at that time, matches 39 of those labels. I wrote the fixtures and the rule pack; that comparison measures agreement with my labels, not independent accuracy or retrieval quality.
 
 ## Working with coding agents
 
