@@ -2,7 +2,7 @@ import { agentAccess } from '@/lib/agent-access';
 import { reserveAgentRun } from '@/lib/agent-budget';
 import { checkAgentLimit } from '@/lib/agent-rate-limit';
 import { importSummary } from '@/lib/imported-event';
-import { modalConfigured } from '@/lib/modal';
+import { modalConfigHint, modalConfigured } from '@/lib/modal';
 import { PageFetchError } from '@/lib/page-fetch';
 import { readRequestJson, RequestBodyError } from '@/lib/request-body';
 import { sameOrigin } from '@/lib/request-origin';
@@ -37,11 +37,13 @@ export async function POST(request: Request) {
       return json({ error: 'Paste one rules link and at most two extra pages.' }, 400);
     const limit = await checkAgentLimit(request, 'explain');
     if (!limit.allowed) return json({ error: limit.error }, limit.status);
-    if (!modalConfigured())
+    if (!modalConfigured()) {
+      console.error(`Rule import is disabled. ${modalConfigHint}`);
       return json(
         { error: 'Rule import needs the Modal model. The two curated events still work.' },
         503,
       );
+    }
     const prepared = await prepareImport(input.data);
     const cached = cachedImport(prepared.contentHash);
     if (cached) return json({ event: cached, summary: importSummary(cached), cached: true });

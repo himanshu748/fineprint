@@ -6,8 +6,9 @@ import { AgentRunError } from '@/lib/agent-trace';
 import { dossierSchema, isImportedId, packIdSchema, type EventId } from '@/lib/model';
 import { buildImportedPack, importedEventSchema } from '@/lib/imported-event';
 import { trackMatchesEvent } from '@/lib/events';
-import { modalConfigured } from '@/lib/modal';
+import { modalConfigHint, modalConfigured } from '@/lib/modal';
 import { askWithSources, questionDossier } from '@/lib/question-agent';
+import { contextConfigHint } from '@/lib/source-agent';
 import { readRequestJson, RequestBodyError } from '@/lib/request-body';
 import { sameOrigin } from '@/lib/request-origin';
 import { loadRulePack } from '@/lib/sanity';
@@ -66,7 +67,12 @@ export async function POST(request: Request) {
       return json({ error: 'Choose a supported track for this event.' }, 400);
     const limit = await checkAgentLimit(request, 'explain');
     if (!limit.allowed) return json({ error: limit.error }, limit.status);
-    if (!process.env.SANITY_CONTEXT_URL || !process.env.SANITY_CONTEXT_TOKEN || !modalConfigured())
+    if (
+      !process.env.SANITY_CONTEXT_URL ||
+      !process.env.SANITY_CONTEXT_TOKEN ||
+      !modalConfigured()
+    ) {
+      console.error(`Live questions are disabled. ${contextConfigHint} ${modalConfigHint}`);
       return json(
         {
           error:
@@ -74,6 +80,7 @@ export async function POST(request: Request) {
         },
         503,
       );
+    }
     release = reserveAgentRun();
     if (!release)
       return json(

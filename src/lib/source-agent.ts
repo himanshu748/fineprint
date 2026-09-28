@@ -42,6 +42,9 @@ function toolText(result: unknown): string {
   return text;
 }
 
+export const contextConfigHint =
+  'Set SANITY_CONTEXT_URL to a Sanity organization Context MCP endpoint and SANITY_CONTEXT_TOKEN to an organization Context Viewer token.';
+
 export async function withContext<T>(work: (client: Client) => Promise<T>): Promise<T> {
   const url = new URL(process.env.SANITY_CONTEXT_URL || 'https://not-configured.invalid');
   if (
@@ -49,9 +52,11 @@ export async function withContext<T>(work: (client: Client) => Promise<T>): Prom
     url.hostname !== 'api.sanity.io' ||
     !url.pathname.startsWith('/v1/context/organizations/')
   )
-    throw new Error('Use a Sanity organization Context MCP endpoint.');
+    throw new Error(
+      'Set SANITY_CONTEXT_URL to a Sanity organization Context MCP endpoint (https://api.sanity.io/v1/context/organizations/...).',
+    );
   if (!process.env.SANITY_CONTEXT_TOKEN)
-    throw new Error('Sanity Context needs an organization Context Viewer token.');
+    throw new Error('Set SANITY_CONTEXT_TOKEN to a Sanity organization Context Viewer token.');
   const client = new Client({ name: 'fineprint-source-agent', version: '0.1.0' });
   const transport = new StreamableHTTPClientTransport(url, {
     requestInit: {

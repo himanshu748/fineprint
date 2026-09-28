@@ -37,6 +37,8 @@ const responseSchema = z.object({
     .min(1),
 });
 
+export const modalConfigHint =
+  'Set MODAL_BASE_URL and MODAL_MODEL, plus MODAL_PROXY_TOKEN_ID with MODAL_PROXY_TOKEN_SECRET or MODAL_API_KEY. MODAL_USE_CLI=true works only in local development.';
 export function modalConfigured() {
   return !!(
     process.env.MODAL_BASE_URL &&
@@ -54,7 +56,9 @@ export function modalUrl(path: string) {
     base.username ||
     base.password
   )
-    throw new Error('Use a verified HTTPS Modal endpoint.');
+    throw new Error(
+      'Set MODAL_BASE_URL to a verified HTTPS Modal endpoint (*.modal.run or *.modal.direct).',
+    );
   return `${base.href.replace(/\/$/, '')}/${path}`;
 }
 
@@ -119,7 +123,7 @@ export async function modalChat(
   requireTool = false,
   maxTokens = 1200,
 ) {
-  if (!modalConfigured()) throw new Error('Modal is not configured.');
+  if (!modalConfigured()) throw new Error(`Modal is not configured. ${modalConfigHint}`);
   const body = JSON.stringify({
     model: process.env.MODAL_MODEL,
     messages,

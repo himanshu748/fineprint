@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { dossierSchema } from '@/lib/model';
 import { checkDossier } from '@/lib/engine';
 import { loadRulePack } from '@/lib/sanity';
-import { modalConfigured } from '@/lib/modal';
+import { modalConfigHint, modalConfigured } from '@/lib/modal';
 import { explainWithSources } from '@/lib/source-agent';
 import { sameOrigin } from '@/lib/request-origin';
 import { agentAccess } from '@/lib/agent-access';
@@ -64,11 +64,13 @@ export async function POST(request: Request) {
       process.env.SANITY_CONTEXT_URL || process.env.SANITY_CONTEXT_TOKEN,
     );
     if (contextConfigured) {
-      if (!modalConfigured())
+      if (!modalConfigured()) {
+        console.error(`Source explanations are disabled. ${modalConfigHint}`);
         return Response.json(
           { error: 'Sanity Context is configured, but the Modal model connection is incomplete.' },
           { status: 503 },
         );
+      }
       release = reserveAgentRun();
       if (!release)
         return Response.json(
