@@ -228,7 +228,7 @@ export function reportMarkdown(report: Report): string {
   return `# FinePrint: ${md(report.dossier.name)}\n\n${report.summary}\n\nChecked: ${report.checkedAt}\nSource pack: ${report.packId} / ${report.packVersion} (${report.sourceMode})\n\n${report.coverage}\n${report.sourceHealth === 'aging-snapshot' ? '\nSource snapshot is older than seven days. Recheck the official rules.\n' : ''}\n${report.findings
     .map(
       (f) =>
-        `## ${md(f.rule.title)} — ${f.status}\n\nScope: ${f.rule.scope}\n\n${md(f.rule.summary)}\n\n${md(f.reason)}\n\n${f.facts.map((fact) => `- ${md(factLabels[fact.key as FactKey] ?? fact.key)}: ${md(formatFact(fact.value))}`).join('\n')}\n\n${f.rule.sources
+        `## ${md(f.rule.title)}: ${f.status}\n\nScope: ${f.rule.scope}\n\n${md(f.rule.summary)}\n\n${md(f.reason)}\n\n${f.facts.map((fact) => `- ${md(factLabels[fact.key as FactKey] ?? fact.key)}: ${md(formatFact(fact.value))}`).join('\n')}\n\n${f.rule.sources
           .map((id) => {
             const s = report.sources.find((s) => s.id === id)!;
             return `[${md(s.title)}](${s.url}) · captured ${s.capturedAt}`;

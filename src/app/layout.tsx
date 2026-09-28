@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 export const metadata: Metadata = {
-  title: 'FinePrint — eligibility, explained',
+  title: 'FinePrint: eligibility, explained',
   description:
     'Understand which competition requirements apply to your project, with sources and explicit uncertainty.',
 };

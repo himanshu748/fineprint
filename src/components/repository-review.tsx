@@ -207,7 +207,7 @@ export function RepositoryReview() {
                 {f.evidence.map((e, i) => (
                   <div className="repo-evidence" key={`${e.path}-${i}`}>
                     <a href={e.url}>
-                      {e.path}:{e.start}–{e.end}
+                      {e.path}:{e.start}-{e.end}
                     </a>
                     <span>
                       {e.kind === 'test'
