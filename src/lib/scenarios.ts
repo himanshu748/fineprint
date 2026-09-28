@@ -289,7 +289,6 @@ export function runScenarios() {
     clock: evaluationClock,
     rulePackVersion: rulePack.version,
     labelReview: 'Developer-authored; independent human review pending',
-    baseline: 'Not run',
     cases,
   };
 }

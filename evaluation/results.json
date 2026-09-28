@@ -1,10 +1,9 @@
 {
   "total": 42,
   "passed": 42,
-  "clock": "2026-09-20T12:00:00.000Z",
-  "rulePackVersion": "2026-09-20.1",
+  "clock": "2026-09-24T12:00:00.000Z",
+  "rulePackVersion": "2026-09-24.1",
   "labelReview": "Developer-authored; independent human review pending",
-  "baseline": "Not run",
   "cases": [
     {
       "name": "A new entry can reuse components",
@@ -189,17 +188,17 @@
       "passed": true
     },
     {
-      "name": "One entry satisfies both conflicting statements",
+      "name": "One entry meets the per-path limit",
       "rule": "entry-limit",
       "expected": "supported",
       "actual": "supported",
       "passed": true
     },
     {
-      "name": "Two same-path entries activate the discrepancy",
+      "name": "Two same-path entries exceed the per-path limit",
       "rule": "entry-limit",
-      "expected": "unclear",
-      "actual": "unclear",
+      "expected": "blocked",
+      "actual": "blocked",
       "passed": true
     },
     {
@@ -300,5 +299,30 @@
       "actual": "blocked",
       "passed": true
     }
-  ]
+  ],
+  "baseline": {
+    "runAt": "2026-09-20T17:24:54.829Z",
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "packVersion": "2026-09-20.1",
+    "total": 42,
+    "completed": 42,
+    "passed": 39,
+    "mismatches": [
+      {
+        "name": "Opening-day date needs an exact time",
+        "status": "unclear",
+        "expected": "missing"
+      },
+      {
+        "name": "Unknown reuse makes applicability unknown",
+        "status": "unclear",
+        "expected": "missing"
+      },
+      {
+        "name": "A login-free app does not need credentials",
+        "status": "missing",
+        "expected": "not-applicable"
+      }
+    ]
+  }
 }
