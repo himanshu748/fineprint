@@ -73,7 +73,9 @@ For a question, the agent follows this sequence:
 4. Validate those proposals and run the typed conditions. Return the model’s interpretation alongside the checker’s result, including disagreements.
 5. Write the answer and cite retrieved entry paths. The question flow removes and discloses citation paths that were never read, and rejects an answer if no valid citations remain.
 
-<!-- AGENT TRACE IMAGE -->
+![A live run on the deployed app: the agent reads the Sanity Context outline, three Knowledge Base entries and the structured requirements, then answers Blocked for two Path One entries with both its reading and the rule check shown](https://fineprint-kappa.vercel.app/docs/agent-trace.png)
+
+*Live run on the deployed app, September 28: 5.7 seconds, eight recorded steps.*
 
 The question flow allows four model rounds, six entry reads and 45,000 source characters. The trace shows the actual calls and elapsed times. A provider error produces an error state with the completed steps.
 
