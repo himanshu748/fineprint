@@ -1,8 +1,18 @@
 # FinePrint
 
-[Live app](https://fineprint-kappa.vercel.app) · [Review desk](https://fineprint-kappa.vercel.app/review)
+FinePrint is an agent that checks your hackathon entry against the rules it reads. Ask whether your project qualifies and it reads a Sanity Knowledge Base through Sanity Context MCP, quotes the facts it took from your question and runs typed checks over structured requirement records in Sanity Content Lake, with every tool call visible. Rule checks also run for free without AI, and any other hackathon can be imported from its public rules page.
 
-Compare selected event rules against your project, save your progress, and return as your project changes. FinePrint guides you through missing facts and links each finding to its official source. Optional AI questions read a Sanity Knowledge Base through Context MCP and compare the source interpretation with a typed rules check.
+```sh
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+Then open http://127.0.0.1:3000. Use Node.js 24 (see `.nvmrc`). With `.env.local` left blank the desk uses a dated local rule pack. Setting `SANITY_PROJECT_ID=cxbqxkq6` and `SANITY_DATASET=production` in `.env.local` reads the public curated dataset without a token. Live questions also need `SANITY_CONTEXT_URL`, `SANITY_CONTEXT_TOKEN` and the Modal variables in `.env.example`.
+
+[Live app](https://fineprint-kappa.vercel.app) · [Review desk](https://fineprint-kappa.vercel.app/review) · [DEV post](https://dev.to/himanshu_748/fineprint-an-agent-that-checks-your-hackathon-entry-against-the-rules-it-reads-5fpa) · [Demo video](https://youtu.be/Vy0qynByqZ4)
+
+Compare selected event rules against your project, save your progress, and return as your project changes. FinePrint guides you through missing facts and links each finding to its official source.
 
 Two events are curated and reviewed. Any other hackathon can be imported from its public rules link: FinePrint fetches the page, a model proposes requirements, every requirement must quote the page word for word and each one is mapped onto FinePrint's fixed fact vocabulary or left as "check yourself". Imported rules are always labeled "Imported from <host>, not reviewed" and stay in your browser.
 
@@ -42,7 +52,7 @@ Measured on September 24, 2026 with three live pages (a Devpost rules page, the 
 
 ## Architecture
 
-- **Content Lake:** two competitions, 37 requirements and five source versions linked by references. Event and version IDs prevent collisions. Refresh rule versions compares saved reports with current curated packs, tracing changed requirements and sources to affected findings. A version-only refresh is distinguished from a changed condition. The local rehearsal never writes an official change.
+- **Content Lake:** two competitions, 37 requirements and five current source versions (eight including superseded) linked by references. Event and version IDs prevent collisions. Refresh rule versions compares saved reports with current curated packs, tracing changed requirements and sources to affected findings. A version-only refresh is distinguished from a changed condition. The local rehearsal never writes an official change.
 - **Sanity Context:** a dedicated MCP endpoint backed by Knowledge Base `kbyrY7h8fTnL`; the agent reads `initial_context` and selected `knowledge_base_read` paths.
 - **Modal:** DeepSeek V4.1 Flash selects source entries and proposes quoted facts and interpretations.
 - **Typed check:** the agent invokes `check_requirements`. Zod validates proposals, conservative guards reject unsupported quotes, then the condition engine evaluates the facts. The agent cannot overwrite the resulting statuses.
@@ -54,15 +64,7 @@ The question flow is bounded to four model rounds, six retrieved entries and 45,
 
 ## Local development
 
-Use Node.js 24.
-
-```sh
-npm ci
-cp .env.example .env.local
-npm run dev
-```
-
-The desk works with a dated local rule pack without provider credentials. Live questions require a read-only Sanity Context token and a Modal endpoint. The existing authenticated Modal CLI can be used only in local development; production requires a server-side invocation credential.
+Setup commands are at the top of this file. The desk works with a dated local rule pack without provider credentials. Live questions require a read-only Sanity Context token and a Modal endpoint. The existing authenticated Modal CLI can be used only in local development; production requires a server-side invocation credential.
 
 If a hosted rule check cannot reach its source, the desk offers **Use saved rules** with the event-specific date explicitly and labels the resulting report. AI failures and rate limits leave the manual workflow available. Neither mode automatically refreshes the official websites.
 
