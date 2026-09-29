@@ -2441,6 +2441,47 @@ button:disabled:hover {
   color: var(--amber);
   font-size: 12px;
 }
+.knowledge-base-reads {
+  margin-top: 20px;
+  font-size: 12px;
+}
+.knowledge-base-reads summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 650;
+  min-height: 36px;
+  padding: 6px 0;
+}
+.knowledge-base-reads > p {
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.8;
+  max-width: 70ch;
+}
+.knowledge-base-entry {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.knowledge-base-reads code {
+  overflow-wrap: anywhere;
+}
+.knowledge-base-entry > code {
+  color: var(--accent);
+}
+.knowledge-base-entry ul {
+  padding-left: 18px;
+  margin: 8px 0 0;
+}
+.knowledge-base-entry li {
+  padding: 4px 0;
+}
+.knowledge-base-entry li span,
+.knowledge-base-entry li code {
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
 .ask-facts {
   margin-top: 10px;
   border-block: 1px solid var(--line);

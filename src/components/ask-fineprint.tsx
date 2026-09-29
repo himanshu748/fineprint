@@ -15,6 +15,7 @@ import type { Dossier } from '@/lib/model';
 import { formatFact } from '@/lib/engine';
 import { AgentTrace } from './agent-trace';
 import { AgentAccessForm } from './agent-access-form';
+import { KnowledgeBaseReads } from './knowledge-base-reads';
 
 const prompts = [
   {
@@ -36,6 +37,7 @@ export function AskFinePrint({
   onRemember,
   onManualReview,
   onSources,
+  sampleOnly = false,
 }: {
   dossier: Dossier;
   imported?: ImportedEvent | null;
@@ -45,6 +47,7 @@ export function AskFinePrint({
   onRemember: (question: string, answer: AskResponse | null) => void;
   onManualReview: () => void;
   onSources: () => void;
+  sampleOnly?: boolean;
 }) {
   const event = describeEvent(dossier.eventId, imported ? [imported] : []);
   const eventPrompts = imported
@@ -201,7 +204,9 @@ export function AskFinePrint({
               disabled={busy}
               onChange={(event) => setIncludeFacts(event.target.checked)}
             />
-            Include my current project facts
+            {sampleOnly
+              ? 'Include the illustrative sample facts'
+              : 'Include my current project facts'}
           </label>
           <button
             className="primary-button ask-submit"
@@ -214,9 +219,11 @@ export function AskFinePrint({
         </div>
         <p className="ask-privacy">
           Your question{includeFacts ? ' and selected project facts are' : ' is'} sent to Modal. A
-          copy of your question and answer is saved in this browser. AI runs share an allowance of
+          {sampleOnly
+            ? ' completed answer stays here until you leave or close this sample. AI runs share an allowance of'
+            : ' copy of your question and answer is saved in this browser. AI runs share an allowance of'}{' '}
           five per ten minutes. Additional checks may limit repeated requests from the same network.
-          The form works without AI.
+          {sampleOnly ? 'The walkthrough above works without AI.' : 'The form works without AI.'}
         </p>
       </form>
       {busy && (
@@ -245,7 +252,8 @@ export function AskFinePrint({
           </p>
           {error.trace && <AgentTrace steps={error.trace} />}
           <button className="secondary-button" onClick={onManualReview}>
-            Continue with the form <ArrowRight size={15} />
+            {sampleOnly ? 'Return to the walkthrough' : 'Continue with the form'}{' '}
+            <ArrowRight size={15} />
           </button>
         </div>
       )}
@@ -268,6 +276,7 @@ export function AskFinePrint({
               Read the official rules <ArrowRight size={14} />
             </button>
           </div>
+          <KnowledgeBaseReads entries={result.knowledgeBase.read} id={result.knowledgeBase.id} />
           <div className="ask-comparisons">
             <h4>Checks behind this answer</h4>
             <p>
@@ -352,28 +361,30 @@ export function AskFinePrint({
             </details>
           )}
           <AgentTrace steps={result.trace} />
-          <div className="ask-apply">
-            <p>
-              {result.engine.checked} requirements checked · {result.engine.counts.missing} need
-              facts.
-              <br />
-              <small>
-                Add the quoted facts to your review and check again. Your other answers and notes
-                stay as entered.
-              </small>
-            </p>
-            <button
-              className="secondary-button"
-              disabled={applied}
-              onClick={() => {
-                onApply(result);
-                setApplied(true);
-              }}
-            >
-              {applied ? 'Facts added to your review' : 'Add these facts to my review'}
-              <ArrowDown size={16} />
-            </button>
-          </div>
+          {!sampleOnly && (
+            <div className="ask-apply">
+              <p>
+                {result.engine.checked} requirements checked · {result.engine.counts.missing} need
+                facts.
+                <br />
+                <small>
+                  Add the quoted facts to your review and check again. Your other answers and notes
+                  stay as entered.
+                </small>
+              </p>
+              <button
+                className="secondary-button"
+                disabled={applied}
+                onClick={() => {
+                  onApply(result);
+                  setApplied(true);
+                }}
+              >
+                {applied ? 'Facts added to your review' : 'Add these facts to my review'}
+                <ArrowDown size={16} />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </section>

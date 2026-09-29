@@ -10,13 +10,15 @@ npm run dev
 
 Then open http://127.0.0.1:3000. Use Node.js 24 (see `.nvmrc`). With `.env.local` left blank the desk uses a dated local rule pack. Setting `SANITY_PROJECT_ID=cxbqxkq6` and `SANITY_DATASET=production` in `.env.local` reads the public curated dataset without a token. Live questions also need `SANITY_CONTEXT_URL`, `SANITY_CONTEXT_TOKEN` and the Modal variables in `.env.example`.
 
-[Live app](https://fineprint-kappa.vercel.app) · [Review desk](https://fineprint-kappa.vercel.app/review) · [DEV post](https://dev.to/himanshu_748/fineprint-an-agent-that-checks-your-hackathon-entry-against-the-rules-it-reads-5fpa) · [Demo video](https://youtu.be/Vy0qynByqZ4)
+[Live app](https://fineprint-kappa.vercel.app) · [Guided demo](https://fineprint-kappa.vercel.app/demo) · [Review desk](https://fineprint-kappa.vercel.app/review) · [DEV post](https://dev.to/himanshu_748/fineprint-an-agent-that-checks-your-hackathon-entry-against-the-rules-it-reads-5fpa) · [Demo video](https://youtu.be/Vy0qynByqZ4)
 
 Compare selected event rules against your project, save your progress, and return as your project changes. FinePrint guides you through missing facts and links each finding to its official source.
 
 Two events are curated and reviewed. Any other hackathon can be imported from its public rules link: FinePrint fetches the page, a model proposes requirements, every requirement must quote the page word for word and each one is mapped onto FinePrint's fixed fact vocabulary or left as "check yourself". Imported rules are always labeled "Imported from <host>, not reviewed" and stay in your browser.
 
 ## Try it
+
+For a quick introduction, open the **Guided demo**. Its three steps use the real dated September 20 and September 24 rule packs and the same typed checker as the review desk: two entries move from Rules unclear to Blocked after the source revision; choosing one entry produces Supported for that selected requirement. A separate September 22 receipt places the exact Context path, linked Team size record, quoted fact and typed result together. The saved receipt makes no new request. Opening the optional live question does not submit it; only **Ask FinePrint** starts a new provider call. The walkthrough does not save or replace personal reviews.
 
 1. Open **My reviews**, enter your project name, and choose an event and track. Leave unknown facts unanswered.
 2. Create your review and follow **Add this fact** to the next missing answer. **Check rules** refreshes the findings without using AI.

@@ -1,0 +1,494 @@
+.page {
+  min-height: 100vh;
+  background: #f7f8f3;
+  font-size: 15px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px max(5vw, 24px);
+  border-bottom: 1px solid #d8e1d9;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #123f34;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.header nav a,
+.footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 650;
+}
+.main {
+  max-width: 1168px;
+  margin: 0 auto;
+  padding: 52px 32px 32px;
+}
+.intro {
+  max-width: 760px;
+}
+.intro h1 {
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+.intro p {
+  margin-top: 15px;
+  max-width: 65ch;
+  font-size: 17px;
+  line-height: 1.75;
+  color: #465950;
+}
+.intro > span {
+  display: block;
+  margin-top: 15px;
+  color: #52675b;
+  font-size: 12px;
+}
+.steps {
+  display: flex;
+  margin-top: 36px;
+  border-bottom: 1px solid #cbd6cc;
+}
+.steps button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 14px 22px;
+  border-bottom: 2px solid transparent;
+  color: #52675b;
+  font-size: 14px;
+  font-weight: 650;
+}
+.steps button span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #a4b6aa;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.steps button[aria-current='step'] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: #edf3e9;
+}
+.steps button[aria-current='step'] span {
+  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.workbench {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  margin-top: 26px;
+  border: 1px solid #cbd6cc;
+  border-radius: 14px;
+  background: white;
+  overflow: hidden;
+}
+.explanation {
+  padding: 32px;
+}
+.explanation h2,
+.contextProof h2,
+.liveHeading h2 {
+  font-size: 27px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+.explanation > p {
+  margin-top: 16px;
+  line-height: 1.8;
+  color: #465950;
+}
+.facts {
+  margin: 24px 0 0;
+  padding: 0;
+}
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+.facts dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.facts dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 650;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.explanation .scope,
+.scope {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #52675b;
+}
+.entryControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+.entryControls button {
+  min-height: 44px;
+  padding: 9px 15px;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.entryControls button[aria-pressed='true'] {
+  background: var(--sage);
+  color: var(--accent);
+  border-color: #91b5a4;
+}
+.evidence {
+  background: #fafcf9;
+  border-left: 1px solid #d8e1d9;
+}
+.evidenceHeading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 19px 28px;
+  border-bottom: 1px solid #d8e1d9;
+}
+.evidenceHeading h3 {
+  font-size: 14px;
+  font-weight: 750;
+}
+.sources article,
+.sourceUpdate,
+.ruleRecord {
+  padding: 22px 28px;
+}
+.sources article + article {
+  border-top: 1px solid #d8e1d9;
+}
+.sources a,
+.sourceUpdate a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.sources blockquote,
+.sourceUpdate blockquote {
+  margin: 14px 0 11px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  line-height: 1.65;
+  letter-spacing: -0.02em;
+  color: #274b3d;
+}
+.sources small,
+.sourceUpdate small {
+  color: #52675b;
+  font-size: 11px;
+}
+.finding {
+  padding: 23px 28px;
+  border-bottom: 1px solid #d8e1d9;
+}
+.finding p {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.ruleRecord h4 {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.ruleRecord dl {
+  margin: 16px 0;
+}
+.ruleRecord dl > div {
+  margin-top: 12px;
+}
+.ruleRecord dt {
+  font-size: 11px;
+  color: #52675b;
+}
+.ruleRecord dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+.ruleRecord p,
+.sourceUpdate p {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.stepActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.stepActions > button {
+  width: auto;
+}
+.stepActions > a:not(.primaryLink) {
+  font-size: 13px;
+  font-weight: 650;
+}
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-height: 44px;
+  padding: 12px 17px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-size: 13px;
+  font-weight: 650;
+}
+.primaryLink:hover {
+  background: var(--accent-dark);
+  text-decoration: none;
+}
+.contextProof {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: 36px;
+  margin-top: 68px;
+  padding-top: 38px;
+  border-top: 1px solid #cbd6cc;
+}
+.contextProof > div:first-child p {
+  margin-top: 16px;
+  color: #465950;
+  line-height: 1.8;
+}
+.receipt {
+  border: 1px solid #cbd6cc;
+  border-radius: 14px;
+  background: white;
+  padding: 23px 26px;
+}
+.receiptHeading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  color: #52675b;
+}
+.receiptHeading strong {
+  font-weight: 650;
+}
+.receiptHeading span {
+  font-variant-numeric: tabular-nums;
+}
+.receiptQuestion {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.7;
+  font-weight: 550;
+}
+.proofChain {
+  margin: 23px 0 0;
+}
+.proofChain > div {
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+}
+.proofChain dt {
+  color: #52675b;
+  font-size: 11px;
+}
+.proofChain dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 0 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.proofChain dd > code + span {
+  flex-basis: 100%;
+}
+.receipt :global(.run-trace),
+.receipt :global(.knowledge-base-reads) {
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+  padding-top: 13px;
+}
+.receipt .scope {
+  margin-top: 16px;
+}
+.liveSection {
+  margin-top: 54px;
+  padding-top: 32px;
+  border-top: 1px solid #cbd6cc;
+}
+.liveHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.liveHeading p {
+  margin-top: 12px;
+  color: #465950;
+}
+.liveHeading button {
+  flex-shrink: 0;
+}
+.liveSection > .scope {
+  margin-top: 15px;
+}
+.liveSection :global(.ask-panel) {
+  margin-top: 22px;
+}
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 25px;
+  margin-top: 50px;
+  border-top: 1px solid #cbd6cc;
+}
+@media (max-width: 850px) {
+  .main {
+    padding: 36px 22px 28px;
+  }
+  .contextProof {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .contextProof > div:first-child p {
+    max-width: 65ch;
+  }
+  .explanation {
+    padding: 25px;
+  }
+  .sources article,
+  .sourceUpdate,
+  .ruleRecord,
+  .finding,
+  .evidenceHeading {
+    padding-left: 23px;
+    padding-right: 23px;
+  }
+  .liveHeading {
+    align-items: flex-start;
+  }
+}
+@media (max-width: 650px) {
+  .page {
+    font-size: 14px;
+  }
+  .header {
+    padding: 19px 20px;
+    gap: 16px;
+  }
+  .brand {
+    font-size: 22px;
+    gap: 7px;
+  }
+  .header nav a {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .main {
+    padding: 31px 18px 25px;
+  }
+  .intro p {
+    font-size: 15px;
+  }
+  .intro > span {
+    line-height: 1.8;
+  }
+  .steps {
+    margin-top: 25px;
+  }
+  .steps button {
+    flex: 1;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px 5px;
+    font-size: 11px;
+    min-width: 0;
+    line-height: 1.5;
+  }
+  .workbench {
+    grid-template-columns: 1fr;
+    margin-top: 20px;
+  }
+  .explanation {
+    padding: 24px 22px;
+  }
+  .explanation h2,
+  .contextProof h2,
+  .liveHeading h2 {
+    font-size: 25px;
+  }
+  .evidence {
+    border-left: 0;
+    border-top: 1px solid #d8e1d9;
+  }
+  .sources blockquote,
+  .sourceUpdate blockquote {
+    font-size: 21px;
+  }
+  .stepActions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    gap: 13px;
+  }
+  .stepActions > button,
+  .stepActions > a {
+    justify-content: center;
+    text-align: center;
+  }
+  .contextProof {
+    margin-top: 44px;
+    padding-top: 28px;
+  }
+  .receipt {
+    padding: 21px;
+  }
+  .receiptHeading {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .liveSection {
+    margin-top: 36px;
+    padding-top: 28px;
+  }
+  .liveHeading {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 35px;
+  }
+}

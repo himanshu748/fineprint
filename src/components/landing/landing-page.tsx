@@ -1,12 +1,5 @@
 import Link from 'next/link';
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  ChevronDown,
-  FileSearch,
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen, ChevronDown, FileSearch } from 'lucide-react';
 import { checkDossier } from '@/lib/engine';
 import { examples, rulePack } from '@/lib/rules';
 import { runScenarios } from '@/lib/scenarios';
@@ -103,14 +96,14 @@ export function LandingPage() {
               rule and shows the source.
             </p>
             <div className="fp-actions">
-              <Link className="product-cta fp-cta" href="/review">
-                Start a free review
+              <Link className="product-cta fp-cta" href="/demo">
+                Try the guided demo
                 <ArrowRight size={18} />
               </Link>
-              <a className="fp-secondary" href="#how-it-works">
-                See a recorded run
-                <ArrowDown size={16} />
-              </a>
+              <Link className="fp-secondary" href="/review">
+                Start my review
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </section>
 
