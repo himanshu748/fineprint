@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { POST } from '../src/app/api/ask/route';
 import { rulePack } from '../src/lib/rules';
+import { clearImportCache, rememberImport } from '../src/lib/rule-import';
 const mocks = vi.hoisted(() => ({ limit: vi.fn(), load: vi.fn(), ask: vi.fn(), reserve: vi.fn() }));
 vi.mock('@/lib/agent-rate-limit', () => ({ checkAgentLimit: mocks.limit }));
 vi.mock('@/lib/sanity', () => ({ loadRulePack: mocks.load }));
@@ -18,6 +19,7 @@ const request = (body: unknown, origin = 'https://fineprint-kappa.vercel.app') =
   });
 const input = { question: 'I started my app in August. Can I enter?', track: 'path-one' };
 beforeEach(() => {
+  clearImportCache();
   vi.stubEnv('NODE_ENV', 'production');
   vi.stubEnv('FINEPRINT_REQUIRE_ACCESS_CODE', 'false');
   vi.stubEnv('SANITY_CONTEXT_URL', 'https://api.sanity.io/test');
@@ -80,7 +82,22 @@ it('rebuilds an imported pack on the server and refuses a mismatched import', as
   expect(pack.requirements[0].check).toEqual({ op: 'lte', fact: 'teamSize', value: 4 });
   expect(mode).toBe('imported');
   expect(event.id).toBe(imported.id);
+  expect(mocks.ask.mock.calls[0][5]).toBe('browser-copy');
   expect(mocks.load).not.toHaveBeenCalled();
   expect((await POST(request({ ...body, imported: undefined }))).status).toBe(400);
   expect((await POST(request({ ...input, imported }))).status).toBe(400);
+  rememberImport(imported);
+  mocks.ask.mockClear();
+  expect(
+    (await POST(request({ ...body, imported: { ...imported, title: 'Edited client name' } })))
+      .status,
+  ).toBe(200);
+  expect(mocks.ask.mock.calls[0][4]).toEqual(imported);
+  expect(mocks.ask.mock.calls[0][5]).toBe('server-import');
+});
+it('does not spend model quota when Context configuration is incomplete', async () => {
+  vi.stubEnv('SANITY_CONTEXT_TOKEN', '');
+  expect((await POST(request(input))).status).toBe(503);
+  expect(mocks.limit).not.toHaveBeenCalled();
+  expect(mocks.reserve).not.toHaveBeenCalled();
 });

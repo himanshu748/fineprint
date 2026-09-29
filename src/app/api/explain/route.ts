@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { dossierSchema } from '@/lib/model';
 import { checkDossier } from '@/lib/engine';
 import { loadRulePack } from '@/lib/sanity';
-import { modalConfigHint, modalConfigured } from '@/lib/modal';
+import { modalConfigured } from '@/lib/modal';
 import { explainWithSources } from '@/lib/source-agent';
 import { sameOrigin } from '@/lib/request-origin';
 import { agentAccess } from '@/lib/agent-access';
@@ -46,7 +46,20 @@ export async function POST(request: Request) {
         },
         { status: 400 },
       );
-    const limit = await checkAgentLimit(request, 'explain');
+    if (Boolean(process.env.SANITY_CONTEXT_URL) !== Boolean(process.env.SANITY_CONTEXT_TOKEN))
+      return Response.json(
+        { error: 'The Sanity Context connection is incomplete. Set both its URL and token.' },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      );
+    const contextConfigured = Boolean(
+      process.env.SANITY_CONTEXT_URL && process.env.SANITY_CONTEXT_TOKEN,
+    );
+    if (contextConfigured && !modalConfigured())
+      return Response.json(
+        { error: 'Sanity Context is configured, but the Modal model connection is incomplete.' },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      );
+    const limit = await checkAgentLimit(request, contextConfigured ? 'explain' : 'read');
     if (!limit.allowed)
       return Response.json(
         { error: limit.error },
@@ -60,17 +73,7 @@ export async function POST(request: Request) {
         { error: 'This finding is not part of the curated rule pack.' },
         { status: 404 },
       );
-    const contextConfigured = Boolean(
-      process.env.SANITY_CONTEXT_URL || process.env.SANITY_CONTEXT_TOKEN,
-    );
     if (contextConfigured) {
-      if (!modalConfigured()) {
-        console.error(`Source explanations are disabled. ${modalConfigHint}`);
-        return Response.json(
-          { error: 'Sanity Context is configured, but the Modal model connection is incomplete.' },
-          { status: 503 },
-        );
-      }
       release = reserveAgentRun();
       if (!release)
         return Response.json(

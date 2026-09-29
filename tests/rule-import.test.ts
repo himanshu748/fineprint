@@ -205,6 +205,85 @@ describe('fetching and caching', () => {
 
 describe('mapping guards from live imports', () => {
   it.each([
+    ['team-size-max', 4, 'Teams must have at least four members.', { teamSize: 3 }],
+    ['team-size-min', 4, 'Teams may have up to four members.', { teamSize: 10 }],
+    ['team-size-max', 2, 'Teams must have 2 to 4 members.', { teamSize: 3 }],
+    ['team-size-max', 4, 'Teams must have fewer than four members.', { teamSize: 4 }],
+    ['minimum-age', 18, 'Participants must be under 18 years old.', { minimumAge: 25 }],
+    ['video-max-minutes', 3, 'Submit a video at least 3 minutes long.', { videoMinutes: 1 }],
+    ['screenshots-min', 3, 'Submit no more than 3 screenshots.', { screenshotsCount: 4 }],
+    ['public-repository', null, 'A public repository is not required.', { publicRepository: true }],
+    [
+      'public-repository',
+      null,
+      'You must provide a video; a public repository is optional.',
+      { publicRepository: true },
+    ],
+    ['students-only', null, 'Students and professionals may enter.', { allStudents: true }],
+    ['new-work', null, 'Existing applications must include a new feature.', { origin: 'new' }],
+  ])('does not certify an unsupported %s mapping', (kind, value, quote, patch) => {
+    const output = modelOutput();
+    output.requirements = output.requirements.slice(0, 1);
+    Object.assign(output.requirements[0], { kind, value, quote });
+    const event = assembleImport(prepared(`${text} ${quote}`), output, meta);
+    expect(event.requirements[0]).toMatchObject({ kind: 'check-yourself', value: null });
+    const report = checkDossier(
+      facts(patch as Record<string, unknown>),
+      buildImportedPack(event),
+      undefined,
+      'imported',
+    );
+    expect(report.findings[0].status).not.toBe('supported');
+  });
+
+  it.each([
+    ['team-size-max', 4, 'Teams must have 2 to 4 members.'],
+    ['team-size-min', 2, 'Teams must have 2 to 4 members.'],
+    ['team-size-min', 4, 'Teams must have at least four members.'],
+    ['public-repository', null, 'You must submit a public repository.'],
+    ['students-only', null, 'Only students may enter.'],
+  ] as const)('keeps grounded %s bounds and obligations', (kind, value, quote) => {
+    const output = modelOutput();
+    output.requirements = output.requirements.slice(0, 1);
+    Object.assign(output.requirements[0], { kind, value, quote });
+    const event = assembleImport(prepared(`${text} ${quote}`), output, meta);
+    expect(event.requirements[0]).toMatchObject({ kind, value });
+  });
+
+  it.each([
+    '2027-12-01T23:59:00-05:00',
+    '2026-12-01T09:00:00+00:00',
+    '2027-10-01T09:00:00+00:00',
+    '2026-10-01T23:59:00+00:00',
+    '2026-10-01T09:00:00-05:00',
+    '2026-10-01T09:00:30+00:00',
+  ])('rejects a date with unquoted calendar, time or offset: %s', (iso) => {
+    const output = modelOutput();
+    output.event.start.iso = iso;
+    const event = assembleImport(prepared(text), output, meta);
+    expect(event.start).toBeNull();
+    expect(event.startQuote).toBeNull();
+    expect(event.requirements[2].kind).toBe('check-yourself');
+  });
+
+  it('does not combine calendar fields and times from different dates in one quote', () => {
+    const quote =
+      'Starts October 1, 2026 at 9:00 AM UTC and ends December 1, 2027 at 11:59 PM UTC.';
+    const output = modelOutput();
+    output.event.start = { iso: '2026-10-01T23:59:00+00:00', quote };
+    expect(assembleImport(prepared(`${text} ${quote}`), output, meta).start).toBeNull();
+  });
+
+  it('leaves an inverted event window to manual review', () => {
+    const output = modelOutput();
+    [output.event.start, output.event.deadline] = [output.event.deadline, output.event.start];
+    const event = assembleImport(prepared(text), output, meta);
+    expect(event.start).toBeNull();
+    expect(event.deadline).toBeNull();
+    expect(event.requirements[2].kind).toBe('check-yourself');
+  });
+
+  it.each([
     [
       'ai-use-disclosed',
       'AI tools, APIs, open-source libraries and cloud platforms are permitted.',
@@ -213,6 +292,17 @@ describe('mapping guards from live imports', () => {
     ['one-team-only', 'Please only publish one submission per team.'],
     ['public-repository', 'It is recommended, that at least one team member has a Github account.'],
     ['judge-access', 'All required files and videos must be accessible to judges.'],
+    ['ai-use-disclosed', 'You must credit all prior work.'],
+    ['demo-link', 'You must provide a link to your source code repository.'],
+    ['published-submission', 'You must publish a demo video.'],
+    ['working-prototype', 'You must include screenshots of the prototype.'],
+    ['guardian-consent', 'All minors must enter on a team.'],
+    ['setup-instructions', 'You must include a README.'],
+    ['demo-video', 'A demo video may be submitted; you must provide a public repository.'],
+    ['public-repository', 'A public repository may be submitted; you must provide a demo video.'],
+    ['demo-video', 'A demo video may be submitted and you must provide a public repository.'],
+    ['no-excluded-affiliation', 'Employees are not ineligible to enter.'],
+    ['no-excluded-affiliation', 'Employees are not not eligible to enter.'],
   ] as const)('leaves %s to the user when the quote does not state it', (kind, quote) => {
     expect(supportsKind(kind, quote)).toBe(false);
   });
@@ -221,11 +311,14 @@ describe('mapping guards from live imports', () => {
     ['one-team-only', 'Teams must have 2 to 4 members, with each participant in only one team.'],
     ['judge-access', 'If your app requires logging in, please provide testing credentials.'],
     ['working-prototype', 'You will need to deliver a working prototype of your project.'],
+    ['no-excluded-affiliation', 'Employees are not eligible to enter.'],
+    ['no-excluded-affiliation', 'Employees are ineligible to enter.'],
   ] as const)('keeps %s when the quote states it', (kind, quote) => {
     expect(supportsKind(kind, quote)).toBe(true);
   });
-  it('drops a start or deadline whose quote names no timezone', () => {
-    const page = 'Online Build: 3-8 November 2026. Deadline: Sep 26, 2026 @ 11:00pm IST. ' + text;
+  it('drops a date with no timezone while preserving an explicit numeric offset', () => {
+    const page =
+      'Online Build: 3-8 November 2026. Deadline: Sep 26, 2026 @ 11:00pm UTC+05:30. ' + text;
     const output = modelOutput();
     output.event.start = {
       iso: '2026-11-03T00:00:00+00:00',
@@ -233,10 +326,42 @@ describe('mapping guards from live imports', () => {
     };
     output.event.deadline = {
       iso: '2026-09-26T23:00:00+05:30',
-      quote: 'Deadline: Sep 26, 2026 @ 11:00pm IST',
+      quote: 'Deadline: Sep 26, 2026 @ 11:00pm UTC+05:30',
     };
     const event = assembleImport(prepared(page), output, meta);
     expect(event.start).toBeNull();
     expect(event.deadline).toBe('2026-09-26T17:30:00.000Z');
+  });
+
+  it.each([
+    ['Starts October 1, 2026 UTC', '2026-10-01T00:00:00+00:00'],
+    ['Starts October 1, 2026 at 9:00 AM IST', '2026-10-01T09:00:00+05:30'],
+    ['Starts 01/10/2026 at 09:00 UTC', '2026-10-01T09:00:00+00:00'],
+  ])('leaves incomplete or ambiguous timestamp evidence unverified: %s', (quote, iso) => {
+    const output = modelOutput();
+    output.event.start = { quote, iso };
+    expect(assembleImport(prepared(`${text} ${quote}`), output, meta).start).toBeNull();
+  });
+
+  it.each([
+    ['Starts 1 October 2026 at 12:00 AM GMT', '2026-10-01T00:00:00Z', '2026-10-01T00:00:00.000Z'],
+    [
+      'Starts Oct. 1, 2026 at 12:00 PM UTC',
+      '2026-10-01T12:00:00+00:00',
+      '2026-10-01T12:00:00.000Z',
+    ],
+    ['Starts 2026-10-01T09:00:00+05:30', '2026-10-01T09:00:00+05:30', '2026-10-01T03:30:00.000Z'],
+  ])('retains directly stated calendar and time evidence: %s', (quote, iso, expected) => {
+    const output = modelOutput();
+    output.event.start = { quote, iso };
+    expect(assembleImport(prepared(`${text} ${quote}`), output, meta).start).toBe(expected);
+  });
+
+  it('requires both verified boundaries before checking a build window', () => {
+    const output = modelOutput();
+    (output.event as { deadline: unknown }).deadline = null;
+    expect(assembleImport(prepared(text), output, meta).requirements[2].kind).toBe(
+      'check-yourself',
+    );
   });
 });

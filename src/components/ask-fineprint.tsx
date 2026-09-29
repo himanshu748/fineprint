@@ -214,8 +214,9 @@ export function AskFinePrint({
         </div>
         <p className="ask-privacy">
           Your question{includeFacts ? ' and selected project facts are' : ' is'} sent to Modal. A
-          copy of your question and answer is saved in this browser. AI requests share an allowance
-          of five runs per ten minutes. The form works without AI.
+          copy of your question and answer is saved in this browser. AI runs share an allowance of
+          five per ten minutes. Additional checks may limit repeated requests from the same network.
+          The form works without AI.
         </p>
       </form>
       {busy && (

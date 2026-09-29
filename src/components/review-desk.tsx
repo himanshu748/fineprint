@@ -1806,11 +1806,12 @@ export function ReviewDesk() {
             <section>
               <h2>Do I need to use AI?</h2>
               <p>
-                No. Add facts and use Check rules as often as you need. Optional questions and
-                explanations share an allowance of five requests per ten minutes in a regional pool.
-                If it is busy, continue with the form. The AI service receives your question and any
-                facts you explicitly include; avoid putting passwords or private access codes in a
-                question.
+                No. Add facts and use Check rules as often as you need. Optional questions,
+                explanations and imports share an allowance of five AI runs per ten minutes.
+                Additional checks may limit repeated requests from the same network. Reusing a
+                recent import does not use an AI run. If it is busy, continue with the form. The AI
+                service receives your question and any facts you explicitly include; avoid putting
+                passwords or private access codes in a question.
               </p>
             </section>
             <section>

@@ -63,7 +63,7 @@ it('imports a page, reports counts and reuses the cached result without a second
   expect(second.event.id).toBe(body.event.id);
   expect(mocks.chat).toHaveBeenCalledTimes(1);
   expect(mocks.reserve).toHaveBeenCalledTimes(1);
-  expect(mocks.limit).toHaveBeenCalledTimes(2);
+  expect(mocks.limit.mock.calls.map((call) => call[1])).toEqual(['read', 'model', 'read']);
 });
 
 it.each([429, 503])('refuses before fetching when the shared limit returns %s', async (status) => {

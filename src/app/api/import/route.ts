@@ -35,8 +35,6 @@ export async function POST(request: Request) {
     const input = importInputSchema.safeParse(await readRequestJson(request, 8_000));
     if (!input.success)
       return json({ error: 'Paste one rules link and at most two extra pages.' }, 400);
-    const limit = await checkAgentLimit(request, 'explain');
-    if (!limit.allowed) return json({ error: limit.error }, limit.status);
     if (!modalConfigured()) {
       console.error(`Rule import is disabled. ${modalConfigHint}`);
       return json(
@@ -44,9 +42,13 @@ export async function POST(request: Request) {
         503,
       );
     }
+    const limit = await checkAgentLimit(request, 'read');
+    if (!limit.allowed) return json({ error: limit.error }, limit.status);
     const prepared = await prepareImport(input.data);
     const cached = cachedImport(prepared.contentHash);
     if (cached) return json({ event: cached, summary: importSummary(cached), cached: true });
+    const modelLimit = await checkAgentLimit(request, 'model');
+    if (!modelLimit.allowed) return json({ error: modelLimit.error }, modelLimit.status);
     release = reserveAgentRun();
     if (!release) return json({ error: 'The shared AI allowance is busy. Try again later.' }, 429);
     const event = await extractImport(prepared);

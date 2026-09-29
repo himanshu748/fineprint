@@ -150,15 +150,10 @@ const numberWords = [
   'nineteen',
   'twenty',
 ];
-function statesNumber(quote: string, value: number) {
-  const text = quote.toLowerCase();
-  if (new RegExp(`(^|[^\\d.])${String(value).replace('.', '\\.')}([^\\d]|$)`).test(text))
-    return true;
-  return Boolean(numberWords[value] && new RegExp(`\\b${numberWords[value]}\\b`).test(text));
+function numberPattern(value?: number | null) {
+  if (value === null || value === undefined) return `(?:\\d+(?:\\.\\d+)?|${numberWords.join('|')})`;
+  return `(?:${String(value).replace('.', '\\.')}|${numberWords[value] ?? '(?!)'})`;
 }
-
-const timezone =
-  /\b(utc|gmt|[ecmpa][sd]t|ist|cet|cest|bst|aest|aedt|jst|kst|sgt|wat|eat|time zone|timezone)\b|[+-]\d{2}:?\d{2}\b/i;
 
 // A quote must name the requirement for its kind; otherwise the rule is left to the user.
 const kindWords: Partial<Record<ImportKind, RegExp>> = {
@@ -194,24 +189,231 @@ const kindWords: Partial<Record<ImportKind, RegExp>> = {
   'published-submission': /\b(publish\w*|post\w*|submit\w*)\b/,
 };
 const soft = /\b(recommend\w*|encourag\w*|optional|suggest\w*|welcome)\b/;
-const firm = /\b(must|required?|requires|need to|needs to|have to|has to|shall|only)\b/;
-export function supportsKind(kind: ImportKind, quote: string) {
-  const text = quote.toLowerCase();
-  if (soft.test(text) && !firm.test(text)) return false;
-  return kindWords[kind]?.test(text) ?? true;
+const negative = /\b(not|never|without|no)\b|n't\b/;
+const obligation =
+  /\b(must|shall|required?|requires|need to|needs to|have to|has to)\b|^(please )?(submit|provide|include|publish|disclose|credit|ensure)\b|,\s*(please )?(provide|include)\b/;
+const upper = '(?:up to|at most|no more than|no longer than|maximum(?: of)?|limited to|limit of)';
+const lower = '(?:at least|no fewer than|minimum(?: of)?)';
+
+/** Numeric evidence must bind the stated value to the subject and inclusive direction. */
+function supportsBound(kind: ImportKind, text: string, value?: number | null) {
+  const number = numberPattern(value);
+  const anyNumber = numberPattern();
+  const test = (pattern: string) => new RegExp(pattern).test(text);
+  const units: Partial<Record<ImportKind, string>> = {
+    'team-size-max': '(?:members?|people|participants?|individuals?)',
+    'team-size-min': '(?:members?|people|participants?|individuals?)',
+    'entries-max': '(?:entries|submissions?|projects?)',
+    'minimum-age': '(?:years?(?: old| of age)?)',
+    'video-max-minutes': '(?:minutes?|mins?)',
+    'screenshots-min': '(?:screenshots?|images?)',
+  };
+  const unit = units[kind];
+  if (!unit) return false;
+  const isMinimum = ['team-size-min', 'minimum-age', 'screenshots-min'].includes(kind);
+  const direction = isMinimum ? lower : upper;
+  if (test(`\\b${direction}\\s+${number}\\s+${unit}\\b`)) return true;
+  if (kind === 'minimum-age')
+    return test(`\\b${number}\\s+years? (?:old|of age) (?:or older|or above)\\b`);
+  if (kind === 'team-size-max' || kind === 'team-size-min') {
+    const range = isMinimum
+      ? `${number}\\s*(?:to|[-–])\\s*${anyNumber}`
+      : `${anyNumber}\\s*(?:to|[-–])\\s*${number}`;
+    return (
+      test(`\\bteams? (?:must have|may have|can have|of) ${range}\\s+${unit}\\b`) ||
+      test(`\\b${isMinimum ? 'minimum' : 'maximum'} team size (?:is |of )?${number}(?![\\d.])`)
+    );
+  }
+  return kind === 'entries-max' && test(`\\bonly ${number}\\s+${unit}\\b`);
 }
 
-/** A stated date must be quoted verbatim, carry a timezone and name its own day. */
+export function supportsKind(kind: ImportKind, quote: string, value?: number | null) {
+  if (kind === 'check-yourself') return true;
+  const text = normalizeSpace(quote.toLowerCase()).replace(/[‘’]/g, "'");
+  if (!kindWords[kind]?.test(text) || soft.test(text)) return false;
+  // A permission or denial must not turn into a mandatory positive condition.
+  // Negative requirements have their own explicit patterns below.
+  const negativeKind = ['not-previous-entry', 'no-excluded-affiliation', 'one-team-only'].includes(
+    kind,
+  );
+  const withoutBoundNegations = text.replace(/\bno (more|longer|fewer) than\b/g, '');
+  if (!negativeKind && negative.test(withoutBoundNegations)) return false;
+  if ('needsValue' in importKinds[kind]) {
+    if (value === null) return false;
+    return supportsBound(kind, text, value);
+  }
+  if (kind === 'students-only')
+    return (
+      (/\b(?:only|limited to|restricted to) (?:currently enrolled )?students?\b/.test(text) ||
+        /\b(?:participants|entrants|team members) must (?:all )?be (?:currently enrolled )?students\b/.test(
+          text,
+        )) &&
+      !/\b(professionals?|non-students?|or)\b/.test(text)
+    );
+  if (kind === 'one-team-only')
+    return (
+      /\b(?:each|every) (?:participant|person|member)\b[^.;]*\b(?:only one|a single) team\b/.test(
+        text,
+      ) ||
+      /\b(?:participants?|members?|entrants?) (?:may|can|must) (?:only (?:join|be on)|(?:join|be on) only) one team\b/.test(
+        text,
+      ) ||
+      /\b(?:participants?|members?|entrants?) (?:may not|must not|cannot) (?:join|be on) (?:more than one|multiple) teams?\b/.test(
+        text,
+      )
+    );
+  if (kind === 'no-excluded-affiliation') {
+    const remaining = text.replace(/\b(?:not eligible|may not enter|cannot enter)\b/g, '');
+    return (
+      !negative.test(remaining) &&
+      /\b(?:employees?|staff|judges?|sponsors?|organi[sz]ers?|family|household)\b[^.;]*\b(?:not eligible|ineligible|may not enter|cannot enter|excluded)\b/.test(
+        text,
+      )
+    );
+  }
+  if (kind === 'not-previous-entry')
+    return (
+      /\b(?:must not|may not|cannot|can't)\b[^.;]*\b(?:previously|already|prior)\b[^.;]*\b(?:submitted|entered)\b/.test(
+        text,
+      ) ||
+      /\b(?:previous|prior) (?:hackathon|competition|contest) entries\b[^.;]*\b(?:not allowed|not eligible|ineligible|prohibited)\b/.test(
+        text,
+      )
+    );
+  // An obligation about a nearby artifact is not evidence for a different fact.
+  const requiredSubject: Partial<Record<ImportKind, RegExp>> = {
+    'public-repository': /\bpublic (?:source[ -]code |code )?(?:repository|repo|source code)\b/,
+    'new-work':
+      /\b(?:projects?|applications?|apps?|entries|submissions?) must be (?:entirely )?(?:new|newly (?:created|built|developed)|(?:built|created|developed) from scratch)\b/,
+    'build-window':
+      /\b(?:created|developed|built|started|development|building)\b[^.;]*\b(?:during|within|after)\b[^.;]*\b(?:event|hackathon|submission|competition|contest|build|entry) (?:period|window|starts?|begins?)\b/,
+    'age-requirement':
+      /\b(?:participants?|entrants?|members?) must (?:all )?be (?:adults?|of (?:legal )?age|of (?:the )?age of majority)\b/,
+    residency:
+      /\b(?:must (?:reside|live|be (?:a )?(?:resident|citizen))|residency (?:conditions|requirements|restrictions))\b/,
+    'guardian-consent': /\b(?:parent(?:al)?|guardian)\S* (?:permission|consent)\b/,
+    'credit-prior-work':
+      /\b(?:reused|prior|previous|existing|third.party) (?:work|code|components?|material|assets?)\b/,
+    'substantial-new-work':
+      /\b(?:substantial|significant|meaningful) (?:new )?(?:work|changes?|improvements?)\b/,
+    'working-prototype':
+      /\b(?:working|functional|running) (?:prototype|project|application|app|version|demo)\b/,
+    'setup-instructions':
+      /\b(?:setup|set.up|installation|usage) instructions?\b|\binstructions? (?:for|to|on) (?:install|set.up|run|us(?:e|ing))\b/,
+    'demo-video':
+      /\bdemo(?:nstration)? video\b|\bvideo (?:showing|demonstrating) (?:the|your) (?:project|app|application)\b/,
+    'demo-link':
+      /\b(?:public |live |hosted |deployed )?demo (?:link|url)\b|\b(?:link|url) to (?:the|your|a) (?:live|hosted|deployed|working) (?:demo|app|application|project)\b/,
+    english:
+      /\b(?:submissions?|entries|posts?|articles?|write.ups?)\b[^.;]*\b(?:in english|english language)\b|\bsubmit (?:in english|an english)\b/,
+    'judge-access':
+      /\b(?:provide|include|supply|share) (?:the |a )?(?:testing |test |login |demo )?(?:credentials|accounts?|passwords?)\b/,
+    'ai-use-disclosed':
+      /\b(?:ai|artificial intelligence|llms?) (?:tools?|use|assistance|models?)\b/,
+    'published-submission':
+      /\b(?:publish|post) (?:the |your |a )?(?:submission|entry|article|post|write.up)\b|\b(?:submission|entry|article|post) must be published\b/,
+  };
+  const subject = requiredSubject[kind];
+  if (!subject) return false;
+  return text
+    .split(
+      /[;!?]|\.(?:\s|$)|\b(?:but|however|whereas)\b|\band\s+(?=(?:you|teams?|participants?|entrants?)\b)/,
+    )
+    .some(
+      (clause) =>
+        obligation.test(clause.trim()) &&
+        subject.test(clause) &&
+        !/\b(?:may|can|permitted|allowed)\b/.test(clause),
+    );
+}
+
+const monthNames =
+  'jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?';
+const monthNumbers = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec',
+];
+
+/** Accept only a complete calendar date followed by its own explicit time and UTC offset. */
+function quotedInstants(quote: string) {
+  const text = normalizeSpace(quote).toLowerCase();
+  const calendars = [
+    {
+      pattern: /\b(\d{4})-(\d{2})-(\d{2})(?=t|\s|,|@)/g,
+      parts: (m: RegExpExecArray) => [Number(m[1]), Number(m[2]), Number(m[3])],
+    },
+    {
+      pattern: new RegExp(
+        `\\b(${monthNames})\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,\\s*|\\s+)(\\d{4})\\b`,
+        'g',
+      ),
+      parts: (m: RegExpExecArray) => [
+        Number(m[3]),
+        monthNumbers.indexOf(m[1].slice(0, 3)) + 1,
+        Number(m[2]),
+      ],
+    },
+    {
+      pattern: new RegExp(
+        `\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(${monthNames})\\.?(?:,\\s*|\\s+)(\\d{4})\\b`,
+        'g',
+      ),
+      parts: (m: RegExpExecArray) => [
+        Number(m[3]),
+        monthNumbers.indexOf(m[2].slice(0, 3)) + 1,
+        Number(m[1]),
+      ],
+    },
+  ];
+  const instants: string[] = [];
+  for (const { pattern, parts } of calendars) {
+    for (const date of text.matchAll(pattern)) {
+      const time =
+        /^\s*,?\s*(?:t|at\s+|@\s*)?(\d{1,2})(?::(\d{2}))?(?::(\d{2})(\.\d+)?)?\s*(am|pm)?\s*((?:utc|gmt)(?:\s*[+-]\d{2}:?\d{2})?|z|[+-]\d{2}:?\d{2})(?![\w:+-])/.exec(
+          text.slice(date.index! + date[0].length),
+        );
+      if (!time || (!time[2] && !time[5])) continue;
+      let hour = Number(time[1]);
+      if (time[5]) {
+        if (hour < 1 || hour > 12) continue;
+        hour = (hour % 12) + (time[5] === 'pm' ? 12 : 0);
+      }
+      const [year, month, day] = parts(date);
+      const rawOffset = time[6].replace(/^(?:utc|gmt)/, '').trim();
+      const offset =
+        !rawOffset || rawOffset === 'z'
+          ? '+00:00'
+          : rawOffset.replace(/^([+-]\d{2})(\d{2})$/, '$1:$2');
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const iso = `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${time[2] ?? '00'}:${time[3] ?? '00'}${time[4] ?? ''}${offset}`;
+      if (z.iso.datetime({ offset: true }).safeParse(iso).success) instants.push(iso);
+    }
+  }
+  return instants;
+}
+
+/** Every date component must agree with one complete timestamp quoted from a source. */
 function verifiedDate(value: ModelOutput['event']['start'], pages: PreparedPage[]) {
   if (!value) return { iso: null, quote: null };
   const parsed = z.iso.datetime({ offset: true }).safeParse(value.iso);
-  const day = /^\d{4}-\d{2}-(\d{2})/.exec(value.iso)?.[1];
   if (
     !parsed.success ||
-    !day ||
     !findPage(value.quote, pages) ||
-    !timezone.test(value.quote) ||
-    !new RegExp(`(^|\\D)0?${Number(day)}(st|nd|rd|th)?(\\D|$)`).test(value.quote)
+    !quotedInstants(value.quote).some(
+      (quoted) =>
+        new Date(quoted).getTime() === new Date(value.iso).getTime() &&
+        quoted.slice(-6) === value.iso.replace(/Z$/, '+00:00').slice(-6),
+    )
   )
     return { iso: null, quote: null };
   return { iso: new Date(value.iso).toISOString(), quote: normalizeSpace(value.quote) };
@@ -241,8 +443,12 @@ export function assembleImport(
   const output = parsed.data;
   const trackNames = [...new Set(output.event.tracks)];
   const tracks = trackNames.map((title, index) => ({ id: `t${index + 1}`, title }));
-  const start = verifiedDate(output.event.start, prepared.pages);
-  const deadline = verifiedDate(output.event.deadline, prepared.pages);
+  let start = verifiedDate(output.event.start, prepared.pages);
+  let deadline = verifiedDate(output.event.deadline, prepared.pages);
+  if (start.iso && deadline.iso && new Date(deadline.iso) <= new Date(start.iso)) {
+    start = { iso: null, quote: null };
+    deadline = { iso: null, quote: null };
+  }
   const kept: ImportedRequirement[] = [];
   const dropped: ImportedEvent['dropped'] = [];
   for (const item of output.requirements) {
@@ -263,9 +469,8 @@ export function assembleImport(
     }
     const kind = importKinds[item.kind] as { needsValue?: boolean };
     const unsupported =
-      !supportsKind(item.kind, item.quote) ||
-      (kind.needsValue && (item.value === null || !statesNumber(item.quote, item.value))) ||
-      (item.kind === 'build-window' && !start.iso);
+      !supportsKind(item.kind, item.quote, item.value) ||
+      (item.kind === 'build-window' && (!start.iso || !deadline.iso));
     kept.push({
       id: `r${kept.length + 1}`,
       title: item.title,

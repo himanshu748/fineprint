@@ -29,6 +29,7 @@ beforeEach(() => {
   vi.stubEnv('FINEPRINT_AGENT_ACCESS_KEY', code);
   vi.stubEnv('FINEPRINT_SESSION_SECRET', 'route-test-session-secret-at-least-32-characters');
   vi.stubEnv('SANITY_CONTEXT_URL', 'https://api.sanity.io/context-test');
+  vi.stubEnv('SANITY_CONTEXT_TOKEN', 'test-context-token');
   mocks.limit.mockReset().mockResolvedValue({ allowed: true });
   mocks.load.mockReset().mockResolvedValue({ pack: rulePack, mode: 'sanity' });
   mocks.source
@@ -121,3 +122,16 @@ it('does not mislabel a provider JSON failure as invalid user input', async () =
     ).status,
   ).toBe(503);
 });
+it.each(['SANITY_CONTEXT_URL', 'SANITY_CONTEXT_TOKEN'])(
+  'reports incomplete %s without spending quota',
+  async (key) => {
+    vi.stubEnv(key, '');
+    const response = await explain(
+      await request('/api/explain', { dossier: examples[2].dossier, ruleId: 'entry-limit' }, true),
+    );
+    expect(response.status).toBe(503);
+    expect((await response.json()).error).toContain('incomplete');
+    expect(mocks.limit).not.toHaveBeenCalled();
+    expect(mocks.source).not.toHaveBeenCalled();
+  },
+);

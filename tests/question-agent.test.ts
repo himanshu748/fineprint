@@ -187,10 +187,52 @@ describe('conservative facts', () => {
     ['I am not sure about my age', 'adultTeam', true, 'I am not sure about my age'],
     ['I started in August', 'origin', 'existing', 'I started in August'],
     ['I use Sanity', 'adultTeam', true, 'Everyone is over 18'],
+    ['I use Sanity', 'usesSanity', false, 'I use Sanity'],
+    ['Our repository is public', 'publicRepository', false, 'Our repository is public'],
+    ['Our app requires login', 'requiresLogin', false, 'Our app requires login'],
+    ['I use Sanity, but I have no demo', 'usesSanity', false, 'I use Sanity, but I have no demo'],
+    ['I use Sanity without Context', 'usesSanity', false, 'I use Sanity without Context'],
+    ['We have not stopped using Sanity.', 'usesSanity', false, 'We have not stopped using Sanity.'],
+    ['We are not without Sanity.', 'usesSanity', false, 'We are not without Sanity.'],
+    [
+      'No registration is required to view our public GitHub repository.',
+      'publicRepository',
+      false,
+      'No registration is required to view our public GitHub repository.',
+    ],
+    [
+      'It is not true that our repository is private.',
+      'publicRepository',
+      false,
+      'It is not true that our repository is private.',
+    ],
+    ['This is not a new application', 'origin', 'new', 'This is not a new application'],
   ])('keeps unsupported facts unknown: %s', (text, key, value, quote) => {
     const result = readQuestionFacts(text, [{ key, value, quote }], rulePack);
     expect(result.patch).not.toHaveProperty(key);
     expect(result.rejected).toHaveLength(1);
+  });
+  it('keeps explicit negative facts and affirmative project history', () => {
+    const result = readQuestionFacts(
+      'I do not use Sanity. Our app does not require login. This is a new application.',
+      [
+        { key: 'usesSanity', value: false, quote: 'I do not use Sanity' },
+        { key: 'requiresLogin', value: false, quote: 'Our app does not require login' },
+        { key: 'origin', value: 'new', quote: 'This is a new application' },
+      ],
+      rulePack,
+    );
+    expect(result.patch).toMatchObject({ usesSanity: false, requiresLogin: false, origin: 'new' });
+    expect(result.rejected).toHaveLength(0);
+  });
+  it.each([
+    ['Our repository is private.', 'publicRepository'],
+    ['Our repository is not public.', 'publicRepository'],
+    ['Our submission is in French.', 'englishSubmission'],
+  ])('keeps an explicit negative predicate: %s', (quote, key) => {
+    const result = readQuestionFacts(quote, [{ key, value: false, quote }], rulePack);
+    expect(result.patch).toHaveProperty(key, false);
+    expect(result.rejected).toHaveLength(0);
   });
   it('rejects conflicting duplicate proposals instead of silently keeping the first', () => {
     const result = readQuestionFacts(

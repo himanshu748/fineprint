@@ -202,8 +202,10 @@ export function ImportRulesForm({
         </p>
       )}
       <p className="create-note">
-        Importing uses one run of the shared AI allowance (five per ten minutes). The page text is
-        sent to Modal. Imported rules stay in this browser and are marked as not reviewed.
+        AI runs share an allowance of five per ten minutes. Additional checks may limit repeated
+        requests from the same network. If FinePrint can reuse a recent import, no AI run is used.
+        Otherwise, page text is sent to Modal and uses an AI run. Imported rules stay in this
+        browser and are marked as not reviewed.
       </p>
     </div>
   );

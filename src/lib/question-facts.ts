@@ -179,6 +179,35 @@ const factWords: Partial<Record<ExtractableFact, RegExp>> = {
   hasChallengeTag: /\b(tags?|tagged|sanitychallenge)\b/,
   seeksMultiplePrizes: /\b(prizes?|win|winning|awards?)\b/,
 };
+const negation =
+  /\b(not|no|never|without|don't|doesn't|didn't|haven't|hasn't|isn't|aren't|won't|can't|cannot)\b/;
+
+// False needs a direct denial of this predicate, not merely a nearby "no".
+// Unrecognized wording stays unknown so the user can confirm it in the form.
+const negativeSubject = '(?:i|we|(?:our|my|the|this) (?:app|application|project))';
+const deniesUse = (subject: string) =>
+  new RegExp(
+    `^${negativeSubject} (?:do not|don't|does not|doesn't|never) use(?:s|d)? ${subject}(?: at all)?$`,
+  );
+const negativeAssertions: Partial<Record<ExtractableFact, RegExp>> = {
+  usesSanity: deniesUse('sanity'),
+  usesContext: deniesUse('(?:sanity )?(?:context(?: mcp)?|mcp)'),
+  usesKnowledgeBase: deniesUse('(?:a |the )?(?:knowledge base|kb)'),
+  requiresLogin:
+    /^(?:(?:our|my|the|this) (?:app|application|project) (?:does not|doesn't) (?:require|need) (?:a )?(?:login|log in|sign.in|account|authentication)|no (?:login|account|authentication) (?:is )?(?:required|needed)|(?:login|authentication) (?:is not|isn't) (?:required|needed))$/,
+  publicRepository:
+    /^(?:(?:(?:our|my|the|this) )?(?:source code |github )?(?:repository|repo) (?:is private|is not public|isn't public)|(?:we|i) (?:do not|don't) have a public (?:repository|repo))$/,
+  englishSubmission:
+    /^(?:(?:our|my|the|this) )?(?:submission|post|article|write.up) (?:(?:is not|isn't) (?:written )?(?:in )?english|(?:is |is written )?(?:entirely |only )?in (?:french|spanish|german|hindi|portuguese|japanese|chinese))$/,
+  publishedPost:
+    /^(?:(?:our|my|the|this) )?(?:submission|post|article|write.up) (?:is not|isn't|has not been|hasn't been) published$/,
+  workingPrototype:
+    /^(?:(?:our|my|the|this) )?(?:prototype|app|application|project) (?:is not|isn't) (?:working|functional|running)$/,
+  allStudents:
+    /^(?:(?:we|all team members) (?:are not|aren't) students|not all (?:of us|team members) are students)$/,
+  excludedAffiliation:
+    /^(?:we|i) (?:are not|am not|aren't) (?:employees?|staff|affiliated) (?:of|with) (?:the )?(?:organizers?|sponsors?)$/,
+};
 
 function simplify(text: string) {
   return text
@@ -294,13 +323,23 @@ function normalize(key: ExtractableFact, raw: unknown, quote: string, pack: Rule
   if (typeof result === 'boolean') {
     if (/^(can|could|should|must|do|does|did|is|are|would|will)\b/.test(text))
       return { reject: 'A question about a requirement does not establish the fact' };
-    if (
-      result &&
-      /\b(not|no|never|without|don't|doesn't|didn't|haven't|hasn't|isn't|aren't|won't|can't)\b/.test(
-        text,
-      )
-    )
+    if (result && negation.test(text))
       return { reject: 'The quote contains a negation; review this fact manually' };
+    if (!result) {
+      if (
+        /\b(?:stop(?:ped|ping)?|ceas(?:e|ed|ing)|quit|discontinu(?:e|ed|ing)|abandon(?:ed|ing)?|deny|denied|denying)\b/.test(
+          text,
+        )
+      )
+        return { reject: 'A negated change or denial does not establish this fact as false' };
+      const clauses = text
+        .split(/[,;.!?]|\b(?:but|and|however|although)\b/)
+        .filter((clause) => factWords[key]?.test(clause))
+        .map((clause) => clause.trim());
+      const denial = negativeAssertions[key];
+      if (!denial || !clauses.length || clauses.some((clause) => !denial.test(clause)))
+        return { reject: 'The quoted words do not explicitly deny this fact' };
+    }
     if (result && /\b(plan|planning|intend|will|going to|hope)\b/.test(text))
       return { reject: 'A planned action does not establish completed work' };
   }
@@ -321,6 +360,8 @@ function normalize(key: ExtractableFact, raw: unknown, quote: string, pack: Rule
     return { reject: 'The quoted words do not contain this identifier' };
   if (key === 'origin' && !originWords[result as NonNullable<Dossier['origin']>].test(text))
     return { reject: 'The quoted words do not describe this project history' };
+  if (key === 'origin' && negation.test(text))
+    return { reject: 'The project history contains a negation; review it manually' };
   if (factWords[key] && !factWords[key].test(text))
     return { reject: 'The quoted words do not mention this fact' };
   if (key === 'englishSubmission' && !/\b(submission|post|article|write-?up)\b/.test(text))

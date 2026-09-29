@@ -12,6 +12,7 @@ import { contextConfigHint } from '@/lib/source-agent';
 import { readRequestJson, RequestBodyError } from '@/lib/request-body';
 import { sameOrigin } from '@/lib/request-origin';
 import { loadRulePack } from '@/lib/sanity';
+import { cachedImport } from '@/lib/rule-import';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -65,8 +66,6 @@ export async function POST(request: Request) {
       : questionDossier(input.data.track, input.data.eventId);
     if (base.eventId !== input.data.eventId || !trackMatchesEvent(base))
       return json({ error: 'Choose a supported track for this event.' }, 400);
-    const limit = await checkAgentLimit(request, 'explain');
-    if (!limit.allowed) return json({ error: limit.error }, limit.status);
     if (
       !process.env.SANITY_CONTEXT_URL ||
       !process.env.SANITY_CONTEXT_TOKEN ||
@@ -81,22 +80,29 @@ export async function POST(request: Request) {
         503,
       );
     }
+    const limit = await checkAgentLimit(request, 'explain');
+    if (!limit.allowed) return json({ error: limit.error }, limit.status);
     release = reserveAgentRun();
     if (!release)
       return json(
         { error: 'The agent is at its request limit. Try later or use the manual review desk.' },
         429,
       );
-    if (imported)
+    if (imported) {
+      const cached = cachedImport(imported.contentHash);
+      const verified = cached?.id === imported.id ? cached : undefined;
+      const rules = verified ?? imported;
       return json(
         await askWithSources(
           input.data.question,
           base,
-          buildImportedPack(imported),
+          buildImportedPack(rules),
           'imported',
-          imported,
+          rules,
+          verified ? 'server-import' : 'browser-copy',
         ),
       );
+    }
     const { pack, mode } = await loadRulePack(input.data.eventId as EventId);
     return json(await askWithSources(input.data.question, base, pack, mode));
   } catch (error) {
