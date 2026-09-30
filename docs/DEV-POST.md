@@ -103,6 +103,8 @@ For an imported event, the agent still reads the Knowledge Base for how FinePrin
 
 The September 29 production check asked about a five-person team entering Path One. The agent read the Knowledge Base, accepted the quoted team-size fact and returned the correct **Blocked** finding. Its nine-step trace completed in about 6.3 seconds. A separate cited explanation completed in about 6.0 seconds, and a third request from the same network in that window returned the rate-limit message without starting a model call. The release passed 345 automated tests, the production build and 13 checks with providers disabled. Those checks cover different boundaries; a passing local test alone does not establish a working hosted agent.
 
+The latest guided-demo browser check also ran the optional live question. It completed in 8.3 seconds with nine recorded steps and four retrieved entries, and the entry-limit requirement appeared beside its quoted fact and Blocked finding. The guided sequence separately showed Rules unclear, Blocked and Supported for that selected requirement. Desktop and 390-pixel browser checks passed; the demonstration kept personal saved reviews untouched.
+
 The following earlier runs preserve the disagreements and importer failures that shaped the current implementation.
 
 The two-event test made four real calls to Sanity Context and Modal: team size and development date, once for each event. All four typed checks matched my authored labels. The model agreed on three. Every answer cited a relevant retrieved entry, and the calls took 9.2 to 14.9 seconds.
