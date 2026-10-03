@@ -1,15 +1,15 @@
 @import '@fontsource-variable/manrope';
 
 :root {
-  --page: #f5f7f8;
+  --page: #f3f5fa;
   --surface: #fff;
-  --ink: #233139;
-  --muted: #617079;
-  --line: #e2e8e9;
-  --line-strong: #cbd6d7;
-  --accent: #155d4b;
-  --accent-dark: #104838;
-  --sage: #edf5f1;
+  --ink: #18253f;
+  --muted: #53627a;
+  --line: #e0e5ef;
+  --line-strong: #c5cfdf;
+  --accent: #294ac2;
+  --accent-dark: #203996;
+  --sage: #edf1fc;
   --red: #aa4336;
   --red-bg: #fbefed;
   --amber: #845c17;
@@ -18,7 +18,7 @@
   --blue-bg: #edf2fa;
   --supported: #327146;
   --supported-bg: #edf5ef;
-  --focus: #4c9981;
+  --focus: #5472de;
   --control-radius: 8px;
   --radius: 14px;
   --shadow: 0 6px 22px -10px #253f4630;
@@ -29,7 +29,7 @@
 }
 html {
   scroll-behavior: smooth;
-  scrollbar-color: #b7c8c4 var(--page);
+  scrollbar-color: #aebbd2 var(--page);
   scrollbar-width: thin;
 }
 body {
@@ -90,8 +90,8 @@ textarea:focus-visible {
   outline-offset: 3px;
 }
 ::selection {
-  background: #c9e5d9;
-  color: #173d32;
+  background: #dce4ff;
+  color: #172b68;
 }
 input,
 textarea {
@@ -128,7 +128,7 @@ button {
     box-shadow 0.17s ease;
 }
 button:hover {
-  background: #eaf0ee;
+  background: var(--sage);
 }
 button:disabled:hover {
   background: inherit;
@@ -3744,4 +3744,10 @@ button:disabled:hover {
   display: block;
   color: var(--muted);
   margin-top: 4px;
+}
+
+.brand-mark {
+  flex-shrink: 0;
+  object-fit: contain;
+  margin-inline: -8px;
 }

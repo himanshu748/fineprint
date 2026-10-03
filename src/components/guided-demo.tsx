@@ -1,14 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, FileSearch } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen } from 'lucide-react';
 import { checkDossier } from '@/lib/engine';
 import { traceStepSchema } from '@/lib/agent-trace';
 import { examples, rulePack, rulePackSeptember20 } from '@/lib/rules';
 import { ruleImpact } from '@/lib/rule-impact';
 import { statusSchema } from '@/lib/model';
 import recorded from '../../evaluation/multi-event-context.json';
+import { BrandMark } from './brand-mark';
 import { StatusTag } from './status-tag';
 import { AgentTrace } from './agent-trace';
 import { AskFinePrint } from './ask-fineprint';
@@ -33,6 +34,21 @@ const quotedTeamFact = receipt.acceptedFacts.find((fact) => fact.key === 'teamSi
 
 export function GuidedDemo() {
   const [step, setStep] = useState(0);
+  const stepHeading = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    stepHeading.current?.scrollIntoView({
+      block: 'start',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    });
+    stepHeading.current?.focus({ preventScroll: true });
+  }, [step]);
   const [entries, setEntries] = useState(2);
   const [liveOpen, setLiveOpen] = useState(false);
   const currentReport = checkDossier({ ...sample, entriesPerPath: entries }, rulePack, checkedAt);
@@ -51,7 +67,7 @@ export function GuidedDemo() {
       </a>
       <header className={styles.header}>
         <Link className={styles.brand} href="/" aria-label="FinePrint home">
-          <FileSearch size={25} strokeWidth={1.65} /> FinePrint.
+          <BrandMark /> FinePrint.
         </Link>
         <nav aria-label="Demo navigation">
           <Link href="/review">
@@ -84,7 +100,7 @@ export function GuidedDemo() {
 
         <section className={styles.workbench} aria-labelledby="demo-step-title">
           <div className={styles.explanation}>
-            <h2 id="demo-step-title">
+            <h2 id="demo-step-title" ref={stepHeading} tabIndex={-1}>
               {step === 0
                 ? 'Two sources. Two different limits.'
                 : step === 1

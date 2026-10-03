@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background: #f7f8f3;
+  background: var(--page);
   font-size: 15px;
 }
 .header {
@@ -9,13 +9,13 @@
   justify-content: space-between;
   gap: 24px;
   padding: 24px max(5vw, 24px);
-  border-bottom: 1px solid #d8e1d9;
+  border-bottom: 1px solid var(--line);
 }
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: #123f34;
+  color: var(--ink);
   font-size: 25px;
   font-weight: 800;
   letter-spacing: -0.035em;
@@ -46,18 +46,18 @@
   max-width: 65ch;
   font-size: 17px;
   line-height: 1.75;
-  color: #465950;
+  color: var(--muted);
 }
 .intro > span {
   display: block;
   margin-top: 15px;
-  color: #52675b;
+  color: var(--muted);
   font-size: 12px;
 }
 .steps {
   display: flex;
   margin-top: 36px;
-  border-bottom: 1px solid #cbd6cc;
+  border-bottom: 1px solid var(--line-strong);
 }
 .steps button {
   display: flex;
@@ -66,7 +66,7 @@
   min-height: 58px;
   padding: 14px 22px;
   border-bottom: 2px solid transparent;
-  color: #52675b;
+  color: var(--muted);
   font-size: 14px;
   font-weight: 650;
 }
@@ -75,7 +75,7 @@
   place-items: center;
   width: 26px;
   height: 26px;
-  border: 1px solid #a4b6aa;
+  border: 1px solid var(--line-strong);
   border-radius: 50%;
   font-variant-numeric: tabular-nums;
   font-size: 12px;
@@ -83,7 +83,7 @@
 .steps button[aria-current='step'] {
   color: var(--accent);
   border-bottom-color: var(--accent);
-  background: #edf3e9;
+  background: var(--sage);
 }
 .steps button[aria-current='step'] span {
   color: white;
@@ -94,7 +94,7 @@
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
   margin-top: 26px;
-  border: 1px solid #cbd6cc;
+  border: 1px solid var(--line-strong);
   border-radius: 14px;
   background: white;
   overflow: hidden;
@@ -112,7 +112,7 @@
 .explanation > p {
   margin-top: 16px;
   line-height: 1.8;
-  color: #465950;
+  color: var(--muted);
 }
 .facts {
   margin: 24px 0 0;
@@ -140,7 +140,7 @@
 .scope {
   font-size: 12px;
   line-height: 1.8;
-  color: #52675b;
+  color: var(--muted);
 }
 .entryControls {
   display: flex;
@@ -159,18 +159,18 @@
 .entryControls button[aria-pressed='true'] {
   background: var(--sage);
   color: var(--accent);
-  border-color: #91b5a4;
+  border-color: var(--accent);
 }
 .evidence {
-  background: #fafcf9;
-  border-left: 1px solid #d8e1d9;
+  background: var(--page);
+  border-left: 1px solid var(--line);
 }
 .evidenceHeading {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 19px 28px;
-  border-bottom: 1px solid #d8e1d9;
+  border-bottom: 1px solid var(--line);
 }
 .evidenceHeading h3 {
   font-size: 14px;
@@ -182,7 +182,7 @@
   padding: 22px 28px;
 }
 .sources article + article {
-  border-top: 1px solid #d8e1d9;
+  border-top: 1px solid var(--line);
 }
 .sources a,
 .sourceUpdate a {
@@ -199,16 +199,16 @@
   font-size: 22px;
   line-height: 1.65;
   letter-spacing: -0.02em;
-  color: #274b3d;
+  color: var(--ink);
 }
 .sources small,
 .sourceUpdate small {
-  color: #52675b;
+  color: var(--muted);
   font-size: 11px;
 }
 .finding {
   padding: 23px 28px;
-  border-bottom: 1px solid #d8e1d9;
+  border-bottom: 1px solid var(--line);
 }
 .finding p {
   margin-top: 14px;
@@ -227,7 +227,7 @@
 }
 .ruleRecord dt {
   font-size: 11px;
-  color: #52675b;
+  color: var(--muted);
 }
 .ruleRecord dd {
   margin: 4px 0 0;
@@ -276,15 +276,15 @@
   gap: 36px;
   margin-top: 68px;
   padding-top: 38px;
-  border-top: 1px solid #cbd6cc;
+  border-top: 1px solid var(--line-strong);
 }
 .contextProof > div:first-child p {
   margin-top: 16px;
-  color: #465950;
+  color: var(--muted);
   line-height: 1.8;
 }
 .receipt {
-  border: 1px solid #cbd6cc;
+  border: 1px solid var(--line-strong);
   border-radius: 14px;
   background: white;
   padding: 23px 26px;
@@ -294,7 +294,7 @@
   justify-content: space-between;
   gap: 16px;
   font-size: 11px;
-  color: #52675b;
+  color: var(--muted);
 }
 .receiptHeading strong {
   font-weight: 650;
@@ -316,7 +316,7 @@
   border-top: 1px solid var(--line);
 }
 .proofChain dt {
-  color: #52675b;
+  color: var(--muted);
   font-size: 11px;
 }
 .proofChain dd {
@@ -343,7 +343,7 @@
 .liveSection {
   margin-top: 54px;
   padding-top: 32px;
-  border-top: 1px solid #cbd6cc;
+  border-top: 1px solid var(--line-strong);
 }
 .liveHeading {
   display: flex;
@@ -353,7 +353,7 @@
 }
 .liveHeading p {
   margin-top: 12px;
-  color: #465950;
+  color: var(--muted);
 }
 .liveHeading button {
   flex-shrink: 0;
@@ -371,7 +371,7 @@
   gap: 20px;
   padding-top: 25px;
   margin-top: 50px;
-  border-top: 1px solid #cbd6cc;
+  border-top: 1px solid var(--line-strong);
 }
 @media (max-width: 850px) {
   .main {
@@ -450,7 +450,7 @@
   }
   .evidence {
     border-left: 0;
-    border-top: 1px solid #d8e1d9;
+    border-top: 1px solid var(--line);
   }
   .sources blockquote,
   .sourceUpdate blockquote {
@@ -491,4 +491,8 @@
     gap: 15px;
     margin-top: 35px;
   }
+}
+
+.explanation h2 {
+  scroll-margin-top: 24px;
 }

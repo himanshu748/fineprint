@@ -1,4 +1,5 @@
 'use client';
+import { BrandMark } from './brand-mark';
 import { StatusTag, statusLabels } from './status-tag';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -138,7 +139,7 @@ export function ReviewDesk() {
   const catalog = useRulePacks();
   const [hydrated, setHydrated] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [assistantOpen, setAssistantOpen] = useState(true);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [focusField, setFocusField] = useState<FactKey | null>(null);
   const factsRef = useRef<HTMLElement>(null);
   const [view, setView] = useState<View>('reviews');
@@ -552,9 +553,7 @@ export function ReviewDesk() {
       </a>
       <header className="app-bar">
         <a className="brand" href="/" aria-label="FinePrint home">
-          <span className="brand-symbol">
-            <FileSearch size={23} strokeWidth={1.75} />
-          </span>
+          <BrandMark />
           FinePrint<span className="brand-period">.</span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
@@ -861,7 +860,7 @@ export function ReviewDesk() {
             {report && !dirty && !rulesChanged && next && (
               <div className="next-fact" aria-label="Next step">
                 <div>
-                  <strong>Next: {next.title.replace(/^GIBC: /, '').toLowerCase()}</strong>
+                  <strong>Next: {next.title.replace(/^GIBC: /, '')}</strong>
                   <p>{next.question}</p>
                 </div>
                 <button className="secondary-button" onClick={() => jumpToFact(next.field)}>
@@ -913,11 +912,10 @@ export function ReviewDesk() {
                 before relying on this report.
               </div>
             )}
-            <div className="mobile-pane-tabs" role="tablist" aria-label="Review panes">
+            <div className="mobile-pane-tabs" role="group" aria-label="Review panes">
               {(['facts', 'findings', 'sources'] as Pane[]).map((p) => (
                 <button
-                  role="tab"
-                  aria-selected={pane === p}
+                  aria-pressed={pane === p}
                   key={p}
                   className={pane === p ? 'active' : ''}
                   onClick={() => setPane(p)}

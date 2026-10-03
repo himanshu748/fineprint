@@ -1,16 +1,16 @@
 ---
 name: 'FinePrint'
-description: 'A forest-ink review desk with a pale-paper product introduction.'
+description: 'A cobalt and slate evidence desk with an asymmetric, computed rule check.'
 colors:
-  page: '#f5f7f8'
+  page: '#f3f5fa'
   surface: '#fff'
-  ink: '#233139'
-  muted: '#617079'
-  line: '#e2e8e9'
-  line-strong: '#cbd6d7'
-  accent: '#155d4b'
-  accent-dark: '#104838'
-  sage: '#edf5f1'
+  ink: '#18253f'
+  muted: '#53627a'
+  line: '#e0e5ef'
+  line-strong: '#c5cfdf'
+  accent: '#294ac2'
+  accent-dark: '#203996'
+  sage: '#edf1fc'
   red: '#aa4336'
   red-bg: '#fbefed'
   amber: '#845c17'
@@ -24,12 +24,12 @@ colors:
   not-applicable-bg: '#f0f2f3'
   selected: '#eff6f2'
   selected-line: '#c1d8cb'
-  focus: '#4c9981'
+  focus: '#5472de'
   field-bg: '#fafcfb'
   control-hover: '#eaf0ee'
   pane-navigation: '#eaf0ed'
-  landing-paper: '#f7f8f3'
-  landing-dark: '#123f34'
+  landing-paper: '#f3f5fa'
+  landing-dark: '#182b50'
   landing-copy: '#506456'
   landing-line: '#d8e1d9'
   landing-surface-line: '#cbd6cc'
@@ -371,3 +371,15 @@ The shared `StatusTag` owns the five outcome labels across findings, event compa
 The recorded comparison uses real September 22 receipts. Team-size and development-date examples retain the independent model reading, typed check, source pack version and disagreement. Expandable source records and trace steps disclose evidence without simulating a live run.
 
 Interaction references: [21st.dev ToolCallsSection](https://21st.dev/@heygaia/components/tool-calls-section) for progressive disclosure of tool activity and [AuditLog](https://21st.dev/@corr/components/audit-log) for readable event metadata. FinePrint uses its own implementation and existing forest/paper palette. No reference component source or unlicensed package was copied.
+
+## October 3: evidence desk direction
+
+User feedback: FinePrint and INKSHIFT looked the same. FinePrint now uses cool slate surfaces, cobalt actions (#294ac2), dark ink (#18253f), left-aligned Manrope display type, and a two-column opening with a real submission-limit check. INKSHIFT retains its warm paper, green actions, serif emphasis, and illustrated gathering sequence.
+
+The FinePrint opening computes from the existing September 20 and September 24 packs and the same checker. Source date and one/two declared entries are independent pressed controls. The result stays explicitly scoped to one requirement. Status colors retain their meanings. The hero has no challenge pill, paper dots, serif emphasis, browser chrome, scroll tilt, or looping shine. Requirement titles are a static wrapped list, counts stay visible, and source illustrations no longer loop. The one authored motion is brief nonspatial result feedback; reduced motion leaves the written finding visible.
+
+The optional question drawer starts collapsed. Guided chapters scroll and focus their new heading, with instant scrolling under reduced motion. Mobile pane selectors use a labeled group of pressed buttons instead of incomplete tab semantics. The palette carries through the demo and review desk; quoted source text can still use serif type.
+
+The previous generated .impeccable/design.json is historical; current code and this section describe the revised direction.
+
+The generated navy/cobalt document-F mark is a transparent raster shared by the landing, guided demo, review desk, repository review and favicon. The original is kept in docs/branding; the shipped header version is256px and the favicon128px.

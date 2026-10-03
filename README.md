@@ -30,7 +30,7 @@ For a quick introduction, open the **Guided demo**. Its three steps use the real
 
 No account is required. Archive and restore reviews, or delete an archived review after confirming. Backups preserve existing reviews on import and require a fresh check. An example review is available separately and is always labeled illustrative.
 
-The homepage contains a clearly labeled recorded source explanation, an expandable official source, the dated September 20 to September 24 contest-rules change and an interactive check comparison. It makes no live model request. The old Three.js scene has been removed.
+The homepage opens with a working submission-limit check: choose the September 20 or September 24 source pack and declare one or two entries. The same typed checker returns Rules unclear, Blocked or Supported for that requirement. The cool slate/cobalt evidence desk also contains the clearly dated Context receipt, source quotations and recorded comparisons. It makes no live model request. The optional AI form starts collapsed in personal reviews; guided chapters scroll and focus their new explanation.
 
 ## Scope and evidence
 

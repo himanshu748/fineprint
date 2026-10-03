@@ -1,17 +1,17 @@
-# FinePrint landing and question flow
+# FinePrint evidence desk
 
 Mode: Persuade for /; Operate for /review.
 
-The user approved Claude’s product-focused, scroll-based page, dropping Three.js. Preserve FinePrint’s forest action color, Manrope typography and real review-desk vocabulary. Build directly in code. No generated mockup was requested or used.
+On October 3 the user observed that FinePrint and INKSHIFT looked the same. FinePrint now has a cool slate/cobalt evidence-desk identity, asymmetric composition and sans-serif display voice. INKSHIFT retains warm paper and green. Build directly in code.
 
 ## First viewport
-A two-column composition on pale paper: the large “A great project. One overlooked rule.” headline and clear review CTA sit beside a readable recorded source explanation. The replay is explicitly dated and never presented as a current request. The mechanism is visible before scrolling: a question, exact source entry paths and a Rules unclear answer.
+Left: “The rules changed. Did your entry?”, explanatory copy and guided-demo/review actions. Right: a real typed submission-limit check from two dated packs, with source date and declared entries controls. The visible result is scoped to this requirement and labeled as an illustrative entry with real sources, computed without AI.
 
-## Visitor path and signature interaction
-Native scroll leads from the recorded answer to an expandable official source, then the real FAQ/contest disagreement on dark forest. The final interactive fact switch recomputes the origin status from the real engine. The August development date stays blocked, proving that fixing one fact cannot erase another blocker. Reduced motion keeps every state readable and controls usable. All navigation remains in normal document flow beneath an opaque sticky header.
+## Evidence and motion
+Recorded Context reads and exact quotes follow the opening. Keep their date and recorded label. Requirement counts and wrapped titles remain static. No decorative looping choreography, dotted backdrop or browser-frame tilt. Brief result color feedback follows the user's action. Reduced motion leaves written findings and control state available.
 
 ## Review flow
-Personal reviews lead the desk. New visitors enter a project name and path, leaving other facts unknown. Returning visitors resume local reviews; autosave, archive/restore and portable backups are part of the main workflow. The next missing fact receives one clear action. Ask FinePrint is an optional disclosure; including the current facts requires an explicit checkbox. After a real read, show the answer, citations, source interpretation versus typed check, accepted quoted facts and actual timed tool/model steps. Apply preserves other manual answers and the previous report. Examples and diagnostics are secondary. No fabricated live progress; errors remain errors.
+The optional agent drawer starts collapsed. Personal facts and findings stay primary. Guiding chapters focus and scroll to their new explanation. Pressed pane controls work on phones without implying an incomplete tabs pattern. Preserve saved reviews and all server guards.
 
-## Verification contract
-Desktop 1440x900 and user default 1280x720; phone 390x844. Check narrow layout, source links, real answer, apply, comparison and no horizontal overflow. Interface evidence must distinguish a recorded homepage run from the live /review result. Existing metadata is dated to September 20 and is not silently refreshed.
+## Verification
+Desktop1280x720 and phone390x844; three computed states, source links, personal review drawer, guided step focus/position, no horizontal overflow, visible keyboard focus, successful build/test/typecheck. No provider request is needed for the opening check.

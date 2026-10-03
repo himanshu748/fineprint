@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowLeft, FileSearch, Github, LoaderCircle, Download } from 'lucide-react';
+import { ArrowLeft, Github, LoaderCircle, Download } from 'lucide-react';
+import { BrandMark } from './brand-mark';
 import { rubrics, rubricIdSchema } from '@/lib/rubrics';
 import { repositoryReportSchema, type RepositoryReport } from '@/lib/repository-schema';
 import { AgentTrace } from './agent-trace';
@@ -86,7 +87,7 @@ export function RepositoryReview() {
     <div className="repo-page">
       <header className="app-bar">
         <a className="brand" href="/" aria-label="FinePrint home">
-          <FileSearch size={23} /> FinePrint.
+          <BrandMark /> FinePrint.
         </a>
         <a href="/review" className="repo-back">
           <ArrowLeft size={16} /> My reviews

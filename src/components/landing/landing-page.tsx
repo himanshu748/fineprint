@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, BookOpen, ChevronDown, FileSearch } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen, ChevronDown } from 'lucide-react';
 import { checkDossier } from '@/lib/engine';
 import { examples, rulePack } from '@/lib/rules';
 import { runScenarios } from '@/lib/scenarios';
@@ -8,7 +8,8 @@ import { gibcRulePack } from '@/lib/gibc-rules';
 import recorded from '../../../evaluation/live-context.json';
 import { RecordedAnswer } from './product-demo';
 import { Bento } from './landing-bento';
-import { RevealRoot, Ticker } from './landing-motion';
+import { BrandMark } from '../brand-mark';
+import { RuleRecheck } from './rule-recheck';
 import './landing.css';
 
 const questions = [
@@ -61,7 +62,7 @@ export function LandingPage() {
       </a>
       <header className="product-header">
         <a className="product-brand" href="/" aria-label="FinePrint home">
-          <FileSearch size={26} strokeWidth={1.65} />
+          <BrandMark />
           FinePrint<span>.</span>
         </a>
         <nav aria-label="Landing navigation">
@@ -72,197 +73,178 @@ export function LandingPage() {
           </Link>
         </nav>
       </header>
-      <RevealRoot>
-        <main>
-          <section className="fp-hero" aria-labelledby="hero-title">
-            <div className="fp-dots" aria-hidden="true" />
-            <a
-              className="fp-pill"
-              href="https://dev.to/challenges/sanity-2026-09-16"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <span>Path One</span>
-              Built for the DEV x Sanity Challenge
-              <ArrowUpRight size={14} />
-            </a>
+      <main>
+        <section className="fp-hero" aria-labelledby="hero-title">
+          <div className="fp-hero-copy">
             <h1 id="hero-title">
-              A great project.
+              The rules changed.
               <br />
-              One overlooked <em>rule.</em>
+              Did your entry?
             </h1>
             <p>
-              Ask whether your hackathon project qualifies. FinePrint quotes your facts, checks each
-              rule and shows the source.
+              Keep your project facts beside the rules that govern them. FinePrint shows what
+              changed, which check it affects, and the source behind the answer.
             </p>
             <div className="fp-actions">
               <Link className="product-cta fp-cta" href="/demo">
-                Try the guided demo
-                <ArrowRight size={18} />
+                Follow the rule change <ArrowRight size={18} />
               </Link>
               <Link className="fp-secondary" href="/review">
-                Start my review
-                <ArrowRight size={16} />
+                Start my review <ArrowRight size={16} />
               </Link>
             </div>
-          </section>
+            <a
+              className="fp-event-link"
+              href="https://dev.to/challenges/sanity-2026-09-16"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Built for Sanity Challenge · Path One <ArrowUpRight size={14} />
+            </a>
+          </div>
+          <RuleRecheck />
+        </section>
 
-          <section className="fp-stage" id="how-it-works" aria-label="Recorded agent run">
-            <div className="fp-glow" aria-hidden="true" />
-            <div className="fp-frame">
-              <div className="fp-chrome" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-                <em>Recorded run, September 20, 2026</em>
-              </div>
-              <div className="fp-frame-body">
-                <RecordedAnswer
-                  scenario="My app existed before the event. I added a Sanity feature during it."
-                  status={run.engineStatus as Status}
-                  answer={run.text.split('. ').slice(0, 2).join('. ') + '.'}
-                  paths={run.paths}
-                  recordedOn="September 20, 2026"
-                />
-                <div className="source-demonstration">
-                  <div className="demo-document-heading">
-                    <BookOpen size={18} />
-                    <strong>Rule and source</strong>
-                    <span>Illustrative project</span>
-                  </div>
-                  <details open id="recorded-source">
-                    <summary>
-                      <span>
-                        <small>Entry eligibility</small>
-                        <strong>Development start</strong>
-                      </span>
-                      <span className="status-tag blocked">Blocked</span>
-                    </summary>
-                    <div className="source-open">
-                      <p>
-                        The example started in August. The official entry period began September 18.
-                      </p>
-                      <div className="source-fact">
-                        <span>Entry development began</span>
-                        <strong>2026-08-23</strong>
-                      </div>
-                      <blockquote>“{source.quote}”</blockquote>
-                      <a href={source.url} rel="noreferrer">
-                        {source.title}
-                        <ArrowUpRight size={15} />
-                      </a>
-                      <small>Captured {source.capturedAt}</small>
-                    </div>
-                  </details>
+        <section className="fp-stage" id="how-it-works" aria-label="Recorded agent run">
+          <div className="fp-frame">
+            <div className="fp-run-heading">
+              <h2>The agent leaves a readable trail.</h2>
+              <span>Recorded run · September 20, 2026</span>
+            </div>
+            <div className="fp-frame-body">
+              <RecordedAnswer
+                scenario="My app existed before the event. I added a Sanity feature during it."
+                status={run.engineStatus as Status}
+                answer={run.text.split('. ').slice(0, 2).join('. ') + '.'}
+                paths={run.paths}
+                recordedOn="September 20, 2026"
+              />
+              <div className="source-demonstration">
+                <div className="demo-document-heading">
+                  <BookOpen size={18} />
+                  <strong>Rule and source</strong>
+                  <span>Illustrative project</span>
                 </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="fp-rules" aria-labelledby="rules-title">
-            <h2 id="rules-title">The rules FinePrint checks today</h2>
-            <dl className="fp-numbers" data-reveal>
-              <div>
-                <dt>Curated requirements</dt>
-                <dd>
-                  <Ticker value={requirementCount} />
-                </dd>
-              </div>
-              <div>
-                <dt>Events with dated sources</dt>
-                <dd>
-                  <Ticker value={2} />
-                </dd>
-              </div>
-              <div>
-                <dt>Regression scenarios passing</dt>
-                <dd>
-                  <Ticker value={regression.passed} />
-                  <span>/{regression.total}</span>
-                </dd>
-              </div>
-            </dl>
-            <div className="fp-marquee">
-              <ul>
-                {ruleTitles.map((title) => (
-                  <li key={title}>{title}</li>
-                ))}
-              </ul>
-              <ul aria-hidden="true">
-                {ruleTitles.map((title) => (
-                  <li key={title}>{title}</li>
-                ))}
-              </ul>
-            </div>
-            <p className="fp-rules-note">
-              Requirement titles from the Sanity Challenge and GIBC V2 Open Invention packs. The
-              scenarios are authored regression cases, not an accuracy study.
-            </p>
-          </section>
-
-          <Bento comparison={comparison} />
-
-          <section className="fp-imported" aria-labelledby="imported-title" data-reveal>
-            <div>
-              <h2 id="imported-title">Checking a different hackathon?</h2>
-              <p>
-                Paste its rules link. FinePrint imports the rules as a separate pack and labels it
-                as imported. No one has reviewed it against the official pages, so treat every
-                finding as a starting point.
-              </p>
-              <Link className="fp-text-link" href="/review">
-                Start a review
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-            <ul className="fp-packs" aria-label="Rule pack labels">
-              <li>
-                <strong>Sanity Challenge</strong>
-                <span className="fp-pack-tag">
-                  Curated, captured {rulePack.sources[0].capturedAt}
-                </span>
-              </li>
-              <li>
-                <strong>GIBC V2 Open Invention</strong>
-                <span className="fp-pack-tag">
-                  Curated, captured {gibcRulePack.sources[0].capturedAt}
-                </span>
-              </li>
-              <li className="fp-pack-imported">
-                <strong>A rules link you paste</strong>
-                <span className="fp-pack-tag">Imported, not reviewed</span>
-              </li>
-            </ul>
-          </section>
-
-          <section className="fp-faq" aria-labelledby="faq-title">
-            <h2 id="faq-title">Before you rely on a report</h2>
-            <div className="fp-answers">
-              {questions.map(({ question, answer }) => (
-                <details key={question}>
+                <details open id="recorded-source">
                   <summary>
-                    {question}
-                    <ChevronDown size={18} aria-hidden="true" />
+                    <span>
+                      <small>Entry eligibility</small>
+                      <strong>Development start</strong>
+                    </span>
+                    <span className="status-tag blocked">Blocked</span>
                   </summary>
-                  <p>{answer}</p>
+                  <div className="source-open">
+                    <p>
+                      The example started in August. The official entry period began September 18.
+                    </p>
+                    <div className="source-fact">
+                      <span>Entry development began</span>
+                      <strong>2026-08-23</strong>
+                    </div>
+                    <blockquote>“{source.quote}”</blockquote>
+                    <a href={source.url} rel="noreferrer">
+                      {source.title}
+                      <ArrowUpRight size={15} />
+                    </a>
+                    <small>Captured {source.capturedAt}</small>
+                  </div>
                 </details>
-              ))}
+              </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="fp-close" aria-labelledby="close-title">
-            <div className="fp-close-dots" aria-hidden="true" />
-            <h2 id="close-title">
-              Before you hit submit, read the <em>FinePrint.</em>
-            </h2>
-            <p>Create a review. Keep the sources and your next steps together.</p>
-            <Link className="product-cta fp-cta fp-cta-light" href="/review">
-              Start a free review
-              <ArrowRight size={18} />
+        <section className="fp-rules" aria-labelledby="rules-title">
+          <h2 id="rules-title">The rules FinePrint checks today</h2>
+          <dl className="fp-numbers">
+            <div>
+              <dt>Curated requirements</dt>
+              <dd>{requirementCount}</dd>
+            </div>
+            <div>
+              <dt>Events with dated sources</dt>
+              <dd>2</dd>
+            </div>
+            <div>
+              <dt>Regression scenarios passing</dt>
+              <dd>
+                {regression.passed}
+                <span>/{regression.total}</span>
+              </dd>
+            </div>
+          </dl>
+          <div className="fp-marquee">
+            <ul>
+              {ruleTitles.map((title) => (
+                <li key={title}>{title}</li>
+              ))}
+            </ul>
+          </div>
+          <p className="fp-rules-note">
+            Requirement titles from the Sanity Challenge and GIBC V2 Open Invention packs. The
+            scenarios are authored regression cases, not an accuracy study.
+          </p>
+        </section>
+
+        <Bento comparison={comparison} />
+
+        <section className="fp-imported" aria-labelledby="imported-title">
+          <div>
+            <h2 id="imported-title">Checking a different hackathon?</h2>
+            <p>
+              Paste its rules link. FinePrint imports the rules as a separate pack and labels it as
+              imported. No one has reviewed it against the official pages, so treat every finding as
+              a starting point.
+            </p>
+            <Link className="fp-text-link" href="/review">
+              Start a review
+              <ArrowRight size={15} />
             </Link>
-          </section>
-        </main>
-      </RevealRoot>
+          </div>
+          <ul className="fp-packs" aria-label="Rule pack labels">
+            <li>
+              <strong>Sanity Challenge</strong>
+              <span className="fp-pack-tag">
+                Curated, captured {rulePack.sources[0].capturedAt}
+              </span>
+            </li>
+            <li>
+              <strong>GIBC V2 Open Invention</strong>
+              <span className="fp-pack-tag">
+                Curated, captured {gibcRulePack.sources[0].capturedAt}
+              </span>
+            </li>
+            <li className="fp-pack-imported">
+              <strong>A rules link you paste</strong>
+              <span className="fp-pack-tag">Imported, not reviewed</span>
+            </li>
+          </ul>
+        </section>
+
+        <section className="fp-faq" aria-labelledby="faq-title">
+          <h2 id="faq-title">Before you rely on a report</h2>
+          <div className="fp-answers">
+            {questions.map(({ question, answer }) => (
+              <details key={question}>
+                <summary>
+                  {question}
+                  <ChevronDown size={18} aria-hidden="true" />
+                </summary>
+                <p>{answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="fp-close" aria-labelledby="close-title">
+          <h2 id="close-title">A finding you can explain. A source you can inspect.</h2>
+          <p>Create a review. Keep the sources and your next steps together.</p>
+          <Link className="product-cta fp-cta fp-cta-light" href="/review">
+            Start a free review
+            <ArrowRight size={18} />
+          </Link>
+        </section>
+      </main>
       <footer className="product-footer">
         <a className="product-brand" href="/">
           FinePrint.

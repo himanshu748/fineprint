@@ -20,7 +20,7 @@ function RuleChangeTile() {
   const saved = limit(rulePackSeptember20, '2026-09-22T12:00:00.000Z');
   const current = limit(rulePack, '2026-09-24T12:00:00.000Z');
   return (
-    <article className="fp-tile fp-tile-conflict" id="rule-change" data-reveal>
+    <article className="fp-tile fp-tile-conflict" id="rule-change">
       <div className="fp-tile-copy">
         <h3>The contest rules changed. Saved reviews show it.</h3>
         <p>
@@ -74,7 +74,7 @@ function RuleChangeTile() {
 function SourceTile() {
   const source = rulePack.sources[2];
   return (
-    <article className="fp-tile fp-tile-source" data-reveal>
+    <article className="fp-tile fp-tile-source">
       <div className="fp-finding" aria-hidden="true">
         <div className="fp-finding-row">
           <span>
@@ -107,7 +107,7 @@ function SourceTile() {
 export function Bento({ comparison }: { comparison: Row[] }) {
   return (
     <section className="fp-bento-section" id="features" aria-labelledby="features-title">
-      <div className="fp-section-head" data-reveal>
+      <div className="fp-section-head">
         <h2 id="features-title">An answer is only useful if you can check it.</h2>
         <p>
           Your project facts are declarations. The rules are quotes. FinePrint keeps the two apart
@@ -117,14 +117,14 @@ export function Bento({ comparison }: { comparison: Row[] }) {
       <div className="fp-bento">
         <RuleChangeTile />
         <SourceTile />
-        <article className="fp-tile fp-tile-change" data-reveal>
+        <article className="fp-tile fp-tile-change">
           <div className="fp-tile-copy">
             <h3>Change one fact. See what follows.</h3>
             <p>Reusing components and resubmitting an app are different situations.</p>
           </div>
           <FactChange rows={comparison} />
         </article>
-        <article className="fp-tile fp-tile-compare" data-reveal>
+        <article className="fp-tile fp-tile-compare">
           <div className="fp-tile-copy">
             <h3>Same project. Different rulebooks.</h3>
             <p>
@@ -138,7 +138,7 @@ export function Bento({ comparison }: { comparison: Row[] }) {
           </div>
           <RecordedComparison results={multiEvent.results} />
         </article>
-        <article className="fp-tile fp-tile-repo" data-reveal>
+        <article className="fp-tile fp-tile-repo">
           <div className="fp-tile-copy">
             <h3>Bring the code. Find the evidence.</h3>
             <p>
