@@ -465,7 +465,7 @@ export function ReviewDesk() {
     setBaseline(null);
     setComparing(false);
     setReport(null);
-    setAssistantOpen(true);
+    setAssistantOpen(false);
     setIsExample(true);
     setView('review');
     setSelected(index === 2 ? 'entry-limit' : 'origin');
