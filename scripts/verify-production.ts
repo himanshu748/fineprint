@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { SignJWT } from 'jose';
 import { examples } from '../src/lib/rules';
 
@@ -184,6 +184,7 @@ try {
     '__Host-fineprint-agent=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0; Secure',
   );
   checks.push('Production logout clears the secure host-only cookie');
+  await mkdir('evidence', { recursive: true });
   await writeFile(
     'evidence/production-smoke.json',
     JSON.stringify(
