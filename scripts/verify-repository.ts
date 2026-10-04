@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { assessRepository } from '../src/lib/repository-assessment';
 const report = await assessRepository(
@@ -8,6 +8,7 @@ const report = await assessRepository(
 assert.equal(report.findings.length, 4);
 assert(report.findings.some((f) => f.evidence.length > 0));
 assert(report.contextPaths.length > 0);
+await mkdir('evidence', { recursive: true });
 await writeFile('evidence/repository-review.json', JSON.stringify(report, null, 2) + '\n');
 console.log(
   JSON.stringify({

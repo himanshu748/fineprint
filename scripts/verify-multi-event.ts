@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { askWithSources, questionDossier } from '../src/lib/question-agent';
 import { loadRulePack } from '../src/lib/sanity';
 import { checkDossier } from '../src/lib/engine';
@@ -114,6 +114,7 @@ assert.deepEqual(
   impact.changes.map((change) => change.id),
   ['gibc-team'],
 );
+await mkdir('evidence', { recursive: true });
 await writeFile(
   'evidence/multi-event-impact.json',
   JSON.stringify(
