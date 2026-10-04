@@ -27,6 +27,8 @@ You can also import a public rules page. The model proposes requirements, but ea
 
 For your own code, [review a public GitHub repository](https://fineprint-kappa.vercel.app/repository) against three curated judging rubrics: Sanity Path One, Path Two or GIBC Open Invention. FinePrint fixes the review to the current default-branch commit, reads up to ten files and 60,000 characters of selected text, and checks citations against inspected lines. Selected public code goes to Modal, never the public Sanity dataset. It runs no code and gives evidence, gaps and next steps; runtime behavior and judging scores remain outside this review.
 
+If a deployment requires a demo code or its access session expires, repository review opens the access form and keeps your repository, rubric and previous result. After unlocking, select **Review repository** to retry; unlocking alone does not start an assessment.
+
 Saved reports retain their requirements and sources. New curated packs identify added, removed or changed rules and affected findings. Capture-date refreshes alone do not change conditions. FinePrint checks curated Sanity records; it does not monitor organizer websites.
 
 ## Demo
@@ -52,6 +54,8 @@ For a live run, [open the review desk](https://fineprint-kappa.vercel.app/review
 The manual review desk remains available if the shared live-agent allowance is busy. Sample and recorded runs are labeled; they do not start a live model request.
 
 A 65-second run on the deployed app, recorded September 25 with nothing sped up: the dated rule change, the agent answering a two-entries question through Sanity Context and an imported Devpost rules page.
+
+This recording predates repository review and its access recovery. The current [repository-review page](https://fineprint-kappa.vercel.app/repository) exposes that workflow; the video remains evidence of the September 25 flows.
 
 {% embed https://www.youtube.com/watch?v=Vy0qynByqZ4 %}
 

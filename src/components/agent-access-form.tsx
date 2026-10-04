@@ -6,9 +6,11 @@ import { LoaderCircle, LockKeyhole } from 'lucide-react';
 export function AgentAccessForm({
   onAuthorized,
   onCancel,
+  context = 'source-explanations',
 }: {
   onAuthorized: () => void;
   onCancel: () => void;
+  context?: 'source-explanations' | 'repository-review';
 }) {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -22,13 +24,20 @@ export function AgentAccessForm({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
+        signal: AbortSignal.timeout(20_000),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'The source agent could not be unlocked.');
       setCode('');
       onAuthorized();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'The source agent could not be unlocked.');
+      setError(
+        error instanceof Error && error.name === 'TimeoutError'
+          ? 'Unlocking took too long. Check your connection and try again.'
+          : error instanceof Error
+            ? error.message
+            : 'The source agent could not be unlocked.',
+      );
     } finally {
       setBusy(false);
     }
@@ -40,8 +49,9 @@ export function AgentAccessForm({
         Source agent access
       </h4>
       <p>
-        Enter the demo code to use live source explanations for two hours. The rule report is
-        available without it.
+        {context === 'repository-review'
+          ? 'Enter the demo code to review public repositories for two hours. After unlocking, select Review repository to continue.'
+          : 'Enter the demo code to use live source explanations for two hours. The rule report is available without it.'}
       </p>
       <label className="field">
         <span>Demo access code</span>

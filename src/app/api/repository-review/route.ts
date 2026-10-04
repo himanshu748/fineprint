@@ -18,10 +18,18 @@ export async function POST(request: Request) {
   if (!sameOrigin(request))
     return json({ error: 'Open FinePrint directly to review a repository.' }, 403);
   const access = await agentAccess(request);
-  if (!access.available || !access.authorized)
+  if (!access.available)
     return json(
       { error: 'Repository review requires source-agent access on this deployment.' },
-      access.available ? 401 : 503,
+      503,
+    );
+  if (!access.authorized)
+    return json(
+      {
+        error: 'Unlock the source agent with the demo access code to review a repository.',
+        code: 'ACCESS_REQUIRED',
+      },
+      401,
     );
   let release: (() => void) | null = null;
   try {

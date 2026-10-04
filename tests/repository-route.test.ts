@@ -34,9 +34,22 @@ it('blocks other origins and invalid GitHub URLs before spending the allowance',
 });
 it('enforces agent access and shared rate limits', async () => {
   mocks.access.mockResolvedValueOnce({ available: true, authorized: false });
-  expect((await POST(req())).status).toBe(401);
+  const locked = await POST(req());
+  expect(locked.status).toBe(401);
+  expect(await locked.json()).toMatchObject({ code: 'ACCESS_REQUIRED' });
+  expect(mocks.limit).not.toHaveBeenCalled();
+  expect(mocks.reserve).not.toHaveBeenCalled();
   mocks.limit.mockResolvedValueOnce({ allowed: false, status: 429, error: 'Try later' });
   expect((await POST(req())).status).toBe(429);
+  expect(mocks.assess).not.toHaveBeenCalled();
+});
+it('keeps an unavailable deployment distinct from an expired session', async () => {
+  mocks.access.mockResolvedValueOnce({ available: false, authorized: false });
+  const unavailable = await POST(req());
+  expect(unavailable.status).toBe(503);
+  expect(await unavailable.json()).not.toHaveProperty('code');
+  expect(mocks.limit).not.toHaveBeenCalled();
+  expect(mocks.reserve).not.toHaveBeenCalled();
   expect(mocks.assess).not.toHaveBeenCalled();
 });
 it('does not leak provider errors and releases the concurrency slot', async () => {

@@ -5,6 +5,7 @@ import { BrandMark } from './brand-mark';
 import { rubrics, rubricIdSchema } from '@/lib/rubrics';
 import { repositoryReportSchema, type RepositoryReport } from '@/lib/repository-schema';
 import { AgentTrace } from './agent-trace';
+import { AgentAccessForm } from './agent-access-form';
 const storage = 'fineprint.repository-review.v1';
 const labels = {
   'evidence-found': 'Evidence found',
@@ -18,6 +19,7 @@ export function RepositoryReview() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [unlock, setUnlock] = useState(false);
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storage);
@@ -47,8 +49,13 @@ export function RepositoryReview() {
         signal: AbortSignal.timeout(240000),
       });
       const body = await response.json();
+      if (response.status === 401 && body.code === 'ACCESS_REQUIRED') {
+        setUnlock(true);
+        return;
+      }
       if (!response.ok) throw new Error(body.error || 'The review could not be completed.');
       const report = repositoryReportSchema.parse(body);
+      setUnlock(false);
       setResult(report);
       try {
         localStorage.setItem(storage, JSON.stringify(report));
@@ -146,6 +153,17 @@ export function RepositoryReview() {
           </p>
         )}
         {notice && <p role="status">{notice}</p>}
+        {unlock && (
+          <AgentAccessForm
+            context="repository-review"
+            onAuthorized={() => {
+              setUnlock(false);
+              setError('');
+              setNotice('Source agent unlocked. Select Review repository to continue.');
+            }}
+            onCancel={() => setUnlock(false)}
+          />
+        )}
         {!result && (
           <section className="repo-rubric">
             <h2>What this review looks for</h2>
