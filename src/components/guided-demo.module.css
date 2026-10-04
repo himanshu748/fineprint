@@ -27,6 +27,7 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 650;
+  min-height: 44px;
 }
 .main {
   max-width: 1168px;
@@ -250,6 +251,9 @@
   width: auto;
 }
 .stepActions > a:not(.primaryLink) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-size: 13px;
   font-weight: 650;
 }

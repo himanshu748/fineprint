@@ -475,7 +475,7 @@
 @media (prefers-reduced-motion: reduce) {
   .product-landing * {
     animation: none !important;
-    transition: none !important;
+    transition-property: color, background-color, border-color, opacity, box-shadow !important;
   }
   .product-landing {
     scroll-behavior: auto;
@@ -1273,7 +1273,7 @@
   .product-landing *::before,
   .product-landing *::after {
     animation: none !important;
-    transition: none !important;
+    transition-property: color, background-color, border-color, opacity, box-shadow !important;
   }
   .fp-finding-chevron {
     transform: rotate(180deg);
@@ -1495,4 +1495,11 @@
 
 .fp-recheck-result[data-status='unclear'] {
   background: var(--blue-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-cta:active,
+  .fp-secondary:active {
+    transform: none;
+  }
 }

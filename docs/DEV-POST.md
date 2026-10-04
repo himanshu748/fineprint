@@ -1,6 +1,6 @@
 ---
 title: "FinePrint: an agent that checks your hackathon entry against the rules it reads"
-published: false
+published: true
 description: "Check your entry against the hackathon rules. The agent reads a Sanity Knowledge Base, quotes the facts it took from your question and runs typed rule checks, with every step visible."
 tags: devchallenge, sanitychallenge, sanity, ai
 ---
@@ -9,25 +9,39 @@ tags: devchallenge, sanitychallenge, sanity, ai
 
 ## What I Built
 
-FinePrint checks a hackathon entry before you submit it. Ask, "I am planning two entries in Path One," and it reads a Sanity Knowledge Base, quotes the fact it took from your question and checks it against the event's structured rules. You can inspect the source reads, the accepted facts and the condition that produced **Blocked**.
+FinePrint checks a saved hackathon entry as the rules and your project facts change. When this challenge changed its entry-limit wording, the same two-entry plan went from **Rules unclear** to **Blocked**. The review keeps the old and new dated sources and identifies the finding that needs rechecking.
+
+Sanity Context caught the rule change before I noticed it. After I added the official DEV pages to the Knowledge Base, Context flagged my September 20 "no limit" record against the revised one-submission-per-path wording. I reviewed the conflict, resolved it in favor of the live contest page and published the September 24 pack. Content Lake keeps both dated versions and their linked requirements, so FinePrint can trace the source change to a saved finding and recheck the same project facts.
+
+Ask, “I am planning two entries in Path One.” The agent reads the Knowledge Base, quotes your fact and runs the typed check, showing the source reads and condition.
 
 [Try FinePrint](https://fineprint-kappa.vercel.app) · [Open the guided demo](https://fineprint-kappa.vercel.app/demo) · [Watch the 65-second demo](https://youtu.be/Vy0qynByqZ4) · [Source code](https://github.com/himanshu748/fineprint)
 
-Hackathon rules live in three places: the challenge page, the FAQ and the official contest rules. They don't always agree, and one missed line can disqualify a good project. I wanted an answer I could check, including the cases where the answer is "I still need a fact" or "these sources disagree."
+The challenge page, FAQ and contest rules can disagree. I wanted an answer I could check, including “I still need a fact” and “these sources disagree.”
 
-Each Sanity requirement has a condition, an event and a reference to the dated source version it came from. That lets FinePrint evaluate your facts, keep uncertainty visible and show which finding needs another check when a rule changes. The model proposes facts and explains the sources; the typed checker evaluates the conditions.
+Each requirement links an event, a typed condition and a dated source. The model proposes facts and explains sources; the checker evaluates conditions. On September 20 the FAQ limited entries to one per path while the contest rules allowed unlimited entries. FinePrint returned Rules unclear and a question for the organizer. The September 24 pack, `2026-09-24.1`, keeps both dated quotes and makes the same two-entry declaration Blocked.
 
-I picked this challenge as the first rule pack, and it changed under me. On September 20 the FAQ limited entries to one per path while the contest rules allowed unlimited entries. FinePrint marked two entries in one path **Rules unclear** and gave a question for the organizer. By September 24 DEV had changed the contest rules to "Only one submission per path is allowed." I published a new rule pack, `2026-09-24.1`, and a saved two-entry review now shows the check going from Rules unclear to **Blocked**, with both dated quotes. The old pack stays in Sanity, so the change remains visible.
+GIBC V2’s Open Invention track is the second curated event, with 18 requirements alongside Sanity’s 19. **Compare events** carries team size and development date across both, leaving event-specific answers unknown: what existed before September 18 cannot establish what existed before July 11. Findings can be Supported, Blocked, Missing fact, Rules unclear or Not applicable. Reviews autosave in the browser and export as Markdown; a facts-only backup moves answers between browsers without importing a verdict.
 
-I added GIBC V2’s Open Invention track as a second curated event. FinePrint checks 19 Sanity requirements and 18 GIBC requirements. **Compare events** carries team size and development date across both, while leaving event-specific answers unknown. An answer about what existed before September 18 cannot establish what existed before July 11. Each check can be Supported, Blocked, Missing fact, Rules unclear or Not applicable. Changing a fact highlights the affected findings. Personal reviews autosave in the browser and can be downloaded as Markdown. A facts-only backup moves work between browsers without importing an unverified verdict.
+You can also import a public rules page. The model proposes requirements, but each must quote the page word for word or be dropped and listed. FinePrint maps quotes onto a fixed fact vocabulary and builds the conditions itself. Unmapped rules and numbers absent from the quote become **Check yourself**, which can never show as Supported. Imports carry the real host and an “unreviewed” label, and stay in your browser.
 
-Two curated events don't cover the hackathon you're entering next, so FinePrint can also import a public rules page. Paste its link and the model proposes requirements. Every requirement must quote the page word for word, or it is dropped and listed. FinePrint maps each quote onto its fixed fact vocabulary (team size, age, build window, entries and so on) and builds the typed condition itself. Anything it can't map, or any number the quote doesn't contain, becomes a **Check yourself** rule that can never show as Supported. Imported events are labeled "Imported from zero-origin.devpost.com, not reviewed" (with the real host) and stay in your browser, never in the Sanity dataset.
+For your own code, [review a public GitHub repository](https://fineprint-kappa.vercel.app/repository) against three curated judging rubrics: Sanity Path One, Path Two or GIBC Open Invention. FinePrint fixes the review to the current default-branch commit, reads up to ten files and 60,000 characters of selected text, and checks citations against inspected lines. Selected public code goes to Modal, never the public Sanity dataset. It runs no code and gives evidence, gaps and next steps; runtime behavior and judging scores remain outside this review.
 
-Saved reports retain the requirements and sources used at check time. When a new curated pack is published, FinePrint identifies added, removed or changed requirements and follows source references to the affected findings. A capture-date refresh alone does not pretend that a condition changed. This checks curated Sanity records; it does not monitor organizer websites.
+Saved reports retain their requirements and sources. New curated packs identify added, removed or changed rules and affected findings. Capture-date refreshes alone do not change conditions. FinePrint checks curated Sanity records; it does not monitor organizer websites.
 
 ## Demo
 
 Start with the [guided demo](https://fineprint-kappa.vercel.app/demo). It follows **Two entries, one path** without spending the live-agent allowance and labels its recorded evidence.
+
+Inspect the entry-limit requirement through three states:
+
+| Selected rules and declared fact | Entry-limit finding |
+| --- | --- |
+| September 20 pack; two entries in Path One | Rules unclear: the FAQ and contest rules disagree |
+| September 24 pack; the same two entries | Blocked: one entry per path is now stated in both sources |
+| September 24 pack; change the declaration to one entry | Supported for this requirement; any other requirements with missing facts stay visible |
+
+The dated packs are stored in Sanity. The guide replays this sequence locally; its optional live question makes a fresh Context and model request. Changing the declaration does not edit either rule pack or certify the whole submission.
 
 For a live run, [open the review desk](https://fineprint-kappa.vercel.app/review), create a Sanity review and use **Ask FinePrint** at the top:
 
@@ -51,9 +65,7 @@ Open **Try a rule-change rehearsal** to lower a hypothetical team limit from six
 
 To check another event, start a review and pick **Another hackathon (paste its rules link)**. Try `https://zero-origin.devpost.com/rules`, then press **Read the rules**. You get a review of that event's requirements, with the ones FinePrint could not map listed as Check yourself. **Ask FinePrint** works on it too.
 
-The homepage replays a dated, recorded source explanation. Another example lets you change whether an entire application or only its components existed before the event. The origin check changes, while the August development date remains blocked.
-
-The landing page includes the four recorded comparison runs. Switch between team size and development date, then expand a source read to see which Sanity Knowledge Base entry and structured records were used. The GIBC date example keeps the model disagreement visible.
+The homepage labels its recorded source explanation and four comparison runs. Expand their source reads to inspect the Knowledge Base entries and structured records. The GIBC date example preserves a model/checker disagreement; the prior-work example lets you change whether an application or only its components existed before the event.
 
 Live requests share a five-run allowance per ten minutes in a Vercel regional bucket, with additional checks that can limit repeated requests from the same network. The question and any form facts explicitly included with it go to the model provider. Personal reviews stay out of the public Sanity dataset.
 
@@ -63,13 +75,13 @@ FinePrint uses Next.js, TypeScript, Zod, Sanity Content Lake and Context MCP. De
 
 Start with [`question-agent.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-agent.ts) for the tool loop, [`question-facts.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-facts.ts) for quote validation and [`engine.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/engine.ts) for the checks.
 
-The automated suite includes migration of older reviews, event isolation, unknown facts, changed source dependencies, added and removed rules, deadline changes and bounded API requests. Production smoke checks also exercise anonymous comparisons with cloud providers disabled. The engine matches 42 authored regression scenarios. An earlier recorded model baseline, given the nine Knowledge Base entries that existed at that time, matches 39 of those labels. I wrote the fixtures and the rule pack; that comparison measures agreement with my labels, not independent accuracy or retrieval quality.
+Tests cover review migration, event isolation, unknown facts, source changes, rule additions/removals, deadlines and bounded requests. The engine matches 42 authored scenarios; an earlier model baseline given the then-current nine Knowledge Base entries matches 39. I authored the labels and pack, so this measures agreement, not independent accuracy or retrieval quality.
 
 ## How I Used Sanity
 
 The public `production` dataset in project `cxbqxkq6` contains two competitions whose current packs hold 37 requirements, plus the dated source versions each pack quotes. Superseded packs stay in the dataset. Each requirement references its event’s official sources. Event IDs, pack versions and explicit source references keep identical concepts such as team size separate. A GROQ query loads the pack, and Zod validates it before the checker uses it.
 
-The content model is small enough to inspect:
+The content model:
 
 ```text
 Competition → versioned Requirement → dated SourceVersion
@@ -77,11 +89,11 @@ Knowledge Base → Context reads → quoted project facts
 Validated facts + Requirement conditions → typed findings
 ```
 
-The requirement and its source are records that the agent retrieves and the checker uses. These relationships also make the change review possible. A saved finding records the requirement and source versions it used. If a curator changes the team-size requirement, FinePrint follows those references to the team finding. If only the capture date changes, it leaves the condition unchanged. Sanity holds the content and its relationships; the app uses them for retrieval, comparisons and report updates.
+A saved finding records its requirement and source versions. Changing a team-size requirement identifies the team finding for review; refreshing a capture date leaves the condition unchanged. Content Lake supplies the records and relationships used for retrieval, comparisons and report updates.
 
 Knowledge Base `kbyrY7h8fTnL` reads the public dataset through the dedicated `fineprint` MCP endpoint. Its purpose now covers Sanity and GIBC Open Invention, with separate event paths, exact rule titles and source versions. The app uses a server-side Context Viewer token. The browser never receives that credential.
 
-For a question, the agent follows this sequence:
+For each question:
 
 1. Call `initial_context` to get the Knowledge Base outline.
 2. Select relevant paths and call `knowledge_base_read`. The server validates each path against the outline before reading it.
@@ -95,7 +107,7 @@ For a question, the agent follows this sequence:
 
 The question flow allows four model rounds, six entry reads and 45,000 source characters. The trace shows the actual calls and elapsed times. A provider error produces an error state with the completed steps.
 
-The Knowledge Base has four sources. The first is the curated FinePrint `production` dataset, filtered to the current rule packs. The other three are DEV pages added as website sources: the [challenge page](https://dev.to/challenges/sanity-2026-09-16), the [Sanity contest rules](https://dev.to/page/sanity-challenge-v26-09-16-contest-rules) and the [official hackathon rules](https://dev.to/page/official-hackathon-rules). When those sources were added, Context raised two conflicts. One was mine: an entry said development had to start after the opening moment, while the rules say "during, and not prior to, the Entry Period" and the checker accepts the opening moment. I resolved it in favor of the source. The other was the entry limit. The contest rules page Context crawled that day already said one submission per path, while my September 20 dataset record still quoted "no limit". Context flagged the stale record before I had noticed the change myself. I resolved it in favor of the live page, added a standing instruction that dates the old wording as a rule change and published the new pack.
+The Knowledge Base reads four sources: the current curated `production` packs and three website sources, the [challenge page](https://dev.to/challenges/sanity-2026-09-16), [Sanity contest rules](https://dev.to/page/sanity-challenge-v26-09-16-contest-rules) and [official hackathon rules](https://dev.to/page/official-hackathon-rules). Adding those pages exposed the stale entry-limit record described above. Context also flagged my “after the opening moment” wording against “during, and not prior to, the Entry Period”; the checker accepts the opening moment. I resolved both conflicts against the official sources and added a standing instruction dating the old entry-limit wording as a rule change.
 
 For an imported event, the agent still reads the Knowledge Base for how FinePrint weighs sources, and uses a separate `imported_rules_read` tool over the quoted requirements. The trace names both, and citations are limited to what was actually read in that run.
 
@@ -103,21 +115,11 @@ For an imported event, the agent still reads the Knowledge Base for how FinePrin
 
 The September 29 production check asked about a five-person team entering Path One. The agent read the Knowledge Base, accepted the quoted team-size fact and returned the correct **Blocked** finding. Its nine-step trace completed in about 6.3 seconds. A separate cited explanation completed in about 6.0 seconds, and a third request from the same network in that window returned the rate-limit message without starting a model call. The release passed 345 automated tests, the production build and 13 checks with providers disabled. Those checks cover different boundaries; a passing local test alone does not establish a working hosted agent.
 
-The latest guided-demo browser check also ran the optional live question. It completed in 8.3 seconds with nine recorded steps and four retrieved entries, and the entry-limit requirement appeared beside its quoted fact and Blocked finding. The guided sequence separately showed Rules unclear, Blocked and Supported for that selected requirement. Desktop and 390-pixel browser checks passed; the demonstration kept personal saved reviews untouched.
+The guided-demo browser check showed the three entry-limit states and completed its optional live question in 8.3 seconds: nine steps, four retrieved entries, the quoted fact and Blocked finding. Desktop and 390-pixel checks passed.
 
-The following earlier runs preserve the disagreements and importer failures that shaped the current implementation.
+Earlier integration runs exposed disagreements. Four real Sanity Context/Modal calls checked team size and development date for both events. All typed checks matched my authored labels; the model agreed on three. Calls took 9.2–14.9 seconds and cited retrieved entries. On the GIBC date question the model requested a timezone despite August 23 being well inside the build window; the checker supported the date. The [questions, answers and traces](https://github.com/himanshu748/fineprint/blob/main/evaluation/multi-event-context.json) retain that failure. Four questions cannot establish general accuracy.
 
-The two-event test made four real calls to Sanity Context and Modal: team size and development date, once for each event. All four typed checks matched my authored labels. The model agreed on three. Every answer cited a relevant retrieved entry, and the calls took 9.2 to 14.9 seconds.
-
-On the fourth question, the model asked for a timezone even though August 23 was well inside GIBC’s July-to-October build window. It called the result unclear; the typed checker supported the supplied date. FinePrint kept the disagreement visible. That is a failure I want to inspect before relying on the explanation.
-
-The [recorded questions, answers and tool traces](https://github.com/himanshu748/fineprint/blob/main/evaluation/multi-event-context.json) include that disagreement. Four questions are a small integration check, not an accuracy study.
-
-In a September 22 local run against the real Sanity and Modal services, the August question completed in 12.8 seconds. The agent read four entries and accepted three quoted facts. The date remained a month, with the inferred challenge year disclosed. It refused to treat “started in August” as proof that the whole application already existed. The model still interpreted the prior-work rule as blocked, while the typed check needed that missing fact. Both results were visible.
-
-A second run took 11.4 seconds and read three entries. For “I am planning two entries in Path One,” both the source interpretation and the typed checker kept the submission limit unclear. That was correct against the September 20 rules; against the September 24 pack the same question is Blocked.
-
-After deployment, the same question ran in a browser without an access code in 6.4 seconds. Its trace showed eight actual steps, including three Knowledge Base reads and the requirement check. A separate hosted check verified that the per-finding explanation still worked.
+A September 22 local run against real services also kept a missing fact visible: “started in August” did not establish that the whole application already existed. The model called prior work blocked; the checker required that fact. A second run returned Rules unclear for two Path One entries against the September 20 pack. That historical result changes to Blocked under the September 24 pack.
 
 I tested the importer on three real pages on September 24, before the stricter September 29 guards. These are historical counts, not a remeasurement of the current importer:
 
@@ -127,25 +129,17 @@ I tested the importer on three real pages on September 24, before the stricter S
 | This challenge's DEV page | 16 | 8 | 8 | 0 |
 | A lablab.ai event plus its guidelines page | 9 | 2 | 7 | 0 |
 
-The first runs mapped too loosely. "AI tools are permitted" became "AI use disclosed", and a start date quoted without a timezone came out nine hours early. I added two deterministic guards: a date quote must name a timezone, and a quote must contain words for the requirement it's mapped to. Those guards are why most rules end up as Check yourself. On production, the Zero Origin import took 4.3 seconds. In a local run against the real Sanity and Modal services, a question on that imported review ("We are a team of five and the youngest of us is 16") took three model rounds and 18.5 seconds, and team size came out Blocked from both the agent and the checker.
+The first importer mapped “AI tools are permitted” to “AI use disclosed” and placed a start date nine hours early. I required timezone wording and words supporting the chosen fact mapping. A production Zero Origin import took 4.3 seconds; a local question against real services (“We are a team of five and the youngest of us is 16”) took 18.5 seconds over three rounds. Both agent and checker blocked team size.
 
-The September 29 audit tightened the same boundary. A numeric rule must state the bound and its direction. A retained date must match the full quoted calendar date, time and timezone. Optional wording cannot become a mandatory requirement, and a denial elsewhere in a sentence cannot turn an affirmative project fact into a false one. Ambiguous claims stay unresolved. Questions on imported events prefer the server's cached rules; when only browser-supplied quotes are available, the answer says they have not been rechecked against the website.
+The September 29 guards require a numeric bound and its direction, and a full quoted calendar date, time and timezone for date checks. Optional wording cannot become mandatory; a denial elsewhere in a sentence cannot negate an affirmative project fact. Ambiguous claims stay unresolved. Imported questions prefer server-cached rules; answers using only browser-supplied quotes disclose that they were not rechecked against the website.
 
-The importer's limits are real. Pages that render their rules with JavaScript expose little text, so a lablab event page gives about 1,000 characters and you need to add its rules page. The model's mappings aren't reviewed and vary between runs; the labels and quote checks keep that visible.
-
-Those runs test particular questions and pages. They do not establish general eligibility accuracy.
+JavaScript-rendered pages may expose little text: one lablab event returned about 1,000 characters and needed its guidelines page. Model mappings vary and remain unreviewed. These runs test particular questions and pages, not general eligibility accuracy.
 
 ## Working with coding agents
 
-I started with a broader pitch for a pre-submission checking agent, then chose “Revise the concept together before building.” My next instruction was “uncertain eligibility.” That narrowed the project to one event and a concrete applicability problem.
+I began with a pre-submission agent, chose “Revise the concept together before building” and narrowed it with “uncertain eligibility.” Codex built the first version using Modal, a public rules dataset and a read-only Context token. I requested a Three.js landing page, then chose Claude’s product-focused replacement and public question flow. Codex continued when Claude reached its session limit.
 
-Codex built the first version. I chose Modal when it asked for a model provider, approved a public rules dataset and connected a read-only Context token. I initially asked for a Three.js landing page. After reviewing it, I chose Claude’s product-focused replacement without 3D, along with a public question flow and visible tool calls. Claude stopped at its session limit partway through that upgrade. Codex recovered the unfinished work and continued it.
-
-I then asked for a product people could keep using and chose multi-event comparison plus rule-change impact. That introduced another boundary: a project fact can travel between events, but a declaration about an event’s requirements usually cannot.
-
-Another addition was mine to push for: "fineprint should be able to work towards all of the hacks if possible". Claude built the importer, and the live runs above are where its first mappings fell short.
-
-The hardest boundary is deciding what a person stated. An English question does not establish an English submission; planning an integration does not establish a working integration. FinePrint rejects several such shortcuts, keeps unknown facts visible and lets the person inspect the quoted facts before applying them to the desk.
+I pushed for multi-event comparison, rule-change impact and “all of the hacks if possible.” Claude built the importer; the live runs exposed its loose mappings. These additions made the boundaries concrete: team size can travel between events, event-specific declarations usually cannot. An English question cannot prove an English submission; a planned integration cannot prove a working one. Users inspect quoted facts before applying them.
 
 ## Sanity Project Details
 

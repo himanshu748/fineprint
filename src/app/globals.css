@@ -216,6 +216,9 @@ button:disabled:hover {
   margin-left: 5px;
 }
 .connection-button {
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -508,6 +511,9 @@ button:disabled:hover {
   color: var(--muted);
   border-radius: 5px;
   padding: 5px;
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
 }
 .new-review {
   justify-content: center;
@@ -1253,6 +1259,7 @@ button:disabled:hover {
   color: #718278;
 }
 .secondary-button {
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1266,6 +1273,10 @@ button:disabled:hover {
   font-size: 11px;
 }
 .icon-button {
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
   display: flex;
   padding: 9px;
   border-radius: 7px;
@@ -1677,7 +1688,7 @@ button:disabled:hover {
   }
   .toolbar-actions button {
     font-size: 10px;
-    min-height: 34px;
+    min-height: 44px;
   }
   .mobile-pane-tabs {
     display: flex;
@@ -1864,7 +1875,7 @@ button:disabled:hover {
   }
   .organizer-question button {
     font-size: 11px;
-    min-height: 34px;
+    min-height: 44px;
   }
   .explain-button {
     font-size: 12px;
@@ -2016,9 +2027,8 @@ button:disabled:hover {
   *,
   *:before,
   *:after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition-property: color, background-color, border-color, opacity, box-shadow !important;
   }
 }
 @media print {

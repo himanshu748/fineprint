@@ -1,6 +1,6 @@
 # FinePrint
 
-FinePrint is an agent that checks your hackathon entry against the rules it reads. Ask whether your project qualifies and it reads a Sanity Knowledge Base through Sanity Context MCP, quotes the facts it took from your question and runs typed checks over structured requirement records in Sanity Content Lake, with every tool call visible. Rule checks also run for free without AI, and any other hackathon can be imported from its public rules page.
+FinePrint is an agent that checks your hackathon entry against the rules it reads. Ask whether your project qualifies and it reads a Sanity Knowledge Base through Sanity Context MCP, quotes the facts it took from your question and runs typed checks over structured requirement records in Sanity Content Lake, with every tool call visible. Rule checks also run for free without AI, and other hackathons can be imported from readable public rules pages, with explicit unreviewed labels.
 
 ```sh
 npm ci
@@ -8,13 +8,23 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Then open http://127.0.0.1:3000. Use Node.js 24 (see `.nvmrc`). With `.env.local` left blank the desk uses a dated local rule pack. Setting `SANITY_PROJECT_ID=cxbqxkq6` and `SANITY_DATASET=production` in `.env.local` reads the public curated dataset without a token. Live questions also need `SANITY_CONTEXT_URL`, `SANITY_CONTEXT_TOKEN` and the Modal variables in `.env.example`.
+Then open http://127.0.0.1:3000. Use Node.js 24 (see `.nvmrc`). With provider variables left blank in `.env.local` the desk uses a dated local rule pack. Setting `SANITY_PROJECT_ID=cxbqxkq6` and `SANITY_DATASET=production` in `.env.local` reads the public curated dataset without a token. Live questions also need `SANITY_CONTEXT_URL`, `SANITY_CONTEXT_TOKEN` and the Modal variables in `.env.example`.
 
 [Live app](https://fineprint-kappa.vercel.app) · [Guided demo](https://fineprint-kappa.vercel.app/demo) · [Review desk](https://fineprint-kappa.vercel.app/review) · [DEV post](https://dev.to/himanshu_748/fineprint-an-agent-that-checks-your-hackathon-entry-against-the-rules-it-reads-5fpa) · [Demo video](https://youtu.be/Vy0qynByqZ4)
 
 Compare selected event rules against your project, save your progress, and return as your project changes. FinePrint guides you through missing facts and links each finding to its official source.
 
 Two events are curated and reviewed. Any other hackathon can be imported from its public rules link: FinePrint fetches the page, a model proposes requirements, every requirement must quote the page word for word and each one is mapped onto FinePrint's fixed fact vocabulary or left as "check yourself". Imported rules are always labeled "Imported from <host>, not reviewed" and stay in your browser.
+
+## What works from a fresh clone
+
+| Mode                 | Setup                                                          | Available workflow                                                                                                                                         |
+| -------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local snapshots      | Node 24 and the commands above; leave provider variables blank | Homepage limit check, guided source-change demo, manual review desk, browser saves, backups and recorded Context receipts.                                 |
+| Public curated rules | Add the project and dataset IDs above                          | Read the versioned public Content Lake records; this does not refresh official websites.                                                                   |
+| Live AI and imports  | Your own Context Viewer token and Modal endpoint credentials   | Live questions, finding explanations, public-page imports and public GitHub rubric assessments. These require network access and can incur provider costs. |
+
+Credentials for the hosted app are not included in this repository. The saved Context receipts and evaluations remain readable without credentials; they are dated evidence, not fresh provider runs. No write token is needed for the web app. Curator seed/publication scripts require separate write authorization and are unnecessary for trying the local workflow.
 
 ## Try it
 
@@ -114,6 +124,6 @@ Sanity project: `cxbqxkq6`. Dataset: `production` (public, curated rules only).
 
 `/repository` reviews public GitHub repositories against Sanity Path One, Sanity Path Two or GIBC Open Invention. It resolves the default branch to a fixed commit, selects up to ten readable text files (60,000 characters total, 300 lines and 10,000 characters per file), reads event-specific Sanity Context entries, and checks model citations against the inspected lines. Official rubric names and editorial evidence guidance are separate fields in three `reviewRubric` Content Lake records. Repository contents are sent to Modal, never written to the public Sanity dataset or executed.
 
-The report records coverage, skipped files, truncation, immutable links, source reads and criterion-level next steps. README evidence is classified as documentation even if the model labels it implementation. Unverifiable citations are discarded. The report is a bounded static assessment, not a score, proof of runtime behavior, global originality check or eligibility decision. Only the latest repository report is saved locally and can be downloaded as JSON. Private repositories and imported events are outside repository review.
+The report records coverage, skipped files, truncation, immutable links, source reads and criterion-level next steps. README evidence is classified as documentation even if the model labels it implementation. Unverifiable citations are discarded. The report is a bounded static assessment, not a score, proof of runtime behavior, global originality check or eligibility decision. Only the latest repository report is saved locally and can be downloaded as JSON. Private repositories and imported events are outside repository review. GitHub reads use its unauthenticated public API and can hit a shared IP request limit; retry later if the report says the limit was reached. A successful static assessment does not verify a deployed app, tests, credentials or external integrations.
 
 Publish new versioned public rubric records with `node --env-file=.env.local --import tsx scripts/publish-rubrics.ts --use-cli-auth`, then refresh and rebuild the existing Knowledge Base. Never upload repository content in that publishing step. `scripts/verify-repository.ts` makes a real provider call using FinePrint's public repository; its receipt stays in ignored `evidence/`.
