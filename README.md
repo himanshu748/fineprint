@@ -14,7 +14,7 @@ Then open http://127.0.0.1:3000. Use Node.js 24 (see `.nvmrc`). With provider va
 
 Compare selected event rules against your project, save your progress, and return as your project changes. FinePrint guides you through missing facts and links each finding to its official source.
 
-Two events are curated and reviewed. Any other hackathon can be imported from its public rules link: FinePrint fetches the page, a model proposes requirements, every requirement must quote the page word for word and each one is mapped onto FinePrint's fixed fact vocabulary or left as "check yourself". Imported rules are always labeled "Imported from <host>, not reviewed" and stay in your browser.
+Two events are curated and reviewed. Other hackathons can be imported from readable public rules pages: FinePrint fetches the page, a model proposes requirements, every requirement must quote the page word for word and each one is mapped onto FinePrint's fixed fact vocabulary or left as "check yourself". Imported rules are always labeled "Imported from <host>, not reviewed" and stay in your browser.
 
 ## What works from a fresh clone
 
@@ -97,6 +97,8 @@ npm run format:check
 ```
 
 `verify:production` starts a production server with disposable test credentials and cloud calls disabled. Tests are not proof that external providers or a hosted deployment work; those require separate live runs.
+
+Local verification on October 5, 2026: 346 tests across 19 files and `npm run typecheck` passed with Next.js 16.3.8. This documentation audit did not rerun the build, browser checks or live providers; earlier recorded results remain dated evidence.
 
 ## Code guide
 
