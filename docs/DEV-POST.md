@@ -25,7 +25,7 @@ GIBC V2’s Open Invention track is the second curated event, with 18 requiremen
 
 You can also import a public rules page. The model proposes requirements, but each must quote the page word for word or be dropped and listed. FinePrint maps quotes onto a fixed fact vocabulary and builds the conditions itself. Unmapped rules and numbers absent from the quote become **Check yourself**, which can never show as Supported. Imports carry the real host and an “unreviewed” label, and stay in your browser.
 
-For your own code, [review a public GitHub repository](https://fineprint-kappa.vercel.app/repository) against three curated judging rubrics: Sanity Path One, Path Two or GIBC Open Invention. FinePrint fixes the review to the current default-branch commit, reads up to ten files and 60,000 characters of selected text, and checks citations against inspected lines. Selected public code goes to Modal, never the public Sanity dataset. It runs no code and gives evidence, gaps and next steps; runtime behavior and judging scores remain outside this review.
+For your own code, [review a public GitHub repository](https://fineprint-kappa.vercel.app/repository) against three curated judging rubrics: Sanity Path One, Path Two or GIBC Open Invention. FinePrint fixes the review to the current default-branch commit, reads up to ten files and 60,000 characters of selected text, and checks substantive citation quotes against inspected lines. Tiny or punctuation-only quotes are discarded; a matching quote establishes presence, not that the cited code proves the whole claim. Selected public code goes to Modal, never the public Sanity dataset. It runs no code and gives evidence, gaps and next steps; runtime behavior and judging scores remain outside this review.
 
 If a deployment requires a demo code or its access session expires, repository review opens the access form and keeps your repository, rubric and previous result. After unlocking, select **Review repository** to retry; unlocking alone does not start an assessment.
 
@@ -79,7 +79,7 @@ FinePrint uses Next.js, TypeScript, Zod, Sanity Content Lake and Context MCP. De
 
 Start with [`question-agent.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-agent.ts) for the tool loop, [`question-facts.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/question-facts.ts) for quote validation and [`engine.ts`](https://github.com/himanshu748/fineprint/blob/main/src/lib/engine.ts) for the checks.
 
-Tests cover review migration, event isolation, unknown facts, source changes, rule additions/removals, deadlines and bounded requests. The engine matches 42 authored scenarios; an earlier model baseline given the then-current nine Knowledge Base entries matches 39. I authored the labels and pack, so this measures agreement, not independent accuracy or retrieval quality.
+Tests cover review migration, event isolation, unknown facts, source changes, rule additions/removals, deadlines and bounded requests. The current checker matches 42 authored scenarios on pack `2026-09-24.1`. A recorded September 20 model run matched 39 of 42 labels on `2026-09-20.1`; the rule pack and the two-entry label changed afterward. These are not a head-to-head comparison. I authored the labels and pack, so neither result establishes independent accuracy or retrieval quality. The [evaluation notes](https://github.com/himanshu748/fineprint/blob/main/evaluation/README.md) explain the missing frozen inputs and the protocol needed for a controlled comparison.
 
 ## How I Used Sanity
 

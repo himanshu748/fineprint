@@ -171,6 +171,7 @@ export function ReviewDesk() {
     passed: number;
     cases: { name: string; passed: boolean; expected: string; actual: string }[];
     baseline?: {
+      packVersion: string;
       runAt: string;
       model: string;
       total: number;
@@ -1700,6 +1701,10 @@ export function ReviewDesk() {
                         {new Date(evaluation.baseline.runAt).toLocaleDateString()}. Every batch
                         received all nine Sanity Knowledge Base entries, without the typed
                         conditions or expected answers. Retrieval selection was held constant.
+                      </p>
+                      <p>
+                        Historical run on {evaluation.baseline.packVersion}; different rule version,
+                        not a head-to-head comparison.
                       </p>
                       <ul>
                         {evaluation.baseline.mismatches.map((item) => (

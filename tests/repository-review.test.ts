@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { parseRepository, reviewablePath, boundedText } from '../src/lib/github-review';
 import { validateEvidence, groundedFindings } from '../src/lib/repository-assessment';
 import { rubrics } from '../src/lib/rubrics';
@@ -127,4 +127,155 @@ it('forces README evidence to documentation even when the model calls it impleme
   expect(
     result.every((f) => f.status === 'partial' && f.evidence[0].kind === 'documentation'),
   ).toBe(true);
+});
+
+describe('GitHub authenticated public reads', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+  async function fresh() {
+    vi.resetModules();
+    return import('../src/lib/github-review');
+  }
+  const sha = 'a'.repeat(40);
+  const metadata = { private: false, default_branch: 'main' };
+  const tree = { tree: [{ path: 'README.md', type: 'blob', mode: '100644', size: 25 }] };
+  const response = (data: unknown) => new Response(JSON.stringify(data));
+  it('pins authenticated API requests and reads raw files without credentials', async () => {
+    vi.stubEnv('GITHUB_TOKEN', 'mock-read-only-token');
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(response(metadata))
+      .mockResolvedValueOnce(response({ sha }))
+      .mockResolvedValueOnce(response(tree))
+      .mockResolvedValueOnce(new Response('Public repository documentation.'));
+    vi.stubGlobal('fetch', fetcher);
+    const github = await fresh();
+    const repo = await github.repositoryTree('https://github.com/team/public');
+    await github.readRepositoryFiles(repo, ['README.md']);
+    for (const [url, init] of fetcher.mock.calls.slice(0, 3)) {
+      expect(new URL(url).origin).toBe('https://api.github.com');
+      expect(url).not.toContain('mock-read-only-token');
+      expect(init.headers.Authorization).toBe('Bearer mock-read-only-token');
+      expect(init.redirect).toBe('error');
+    }
+    const [url, init] = fetcher.mock.calls[3];
+    expect(url).toBe(`https://raw.githubusercontent.com/team/public/${sha}/README.md`);
+    expect(init.headers).toBeUndefined();
+    expect(init.redirect).toBe('error');
+    expect(JSON.stringify(repo)).not.toContain('mock-read-only-token');
+  });
+  it.each([true, undefined])(
+    'refuses non-public metadata (%s), even with token access',
+    async (privateFlag) => {
+      vi.stubEnv('GITHUB_TOKEN', 'mock-read-only-token');
+      const fetcher = vi
+        .fn()
+        .mockResolvedValue(response({ private: privateFlag, default_branch: 'main' }));
+      vi.stubGlobal('fetch', fetcher);
+      const github = await fresh();
+      await expect(github.repositoryTree('https://github.com/team/private')).rejects.toThrow(
+        'Only public',
+      );
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+  it('works without a token and does not follow API redirects', async () => {
+    vi.stubEnv('GITHUB_TOKEN', '');
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(
+        new Response('', { status: 302, headers: { Location: 'https://evil.test/' } }),
+      );
+    vi.stubGlobal('fetch', fetcher);
+    const github = await fresh();
+    await expect(github.repositoryTree('https://github.com/team/public')).rejects.toThrow(
+      'could not read',
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0][1].headers.Authorization).toBeUndefined();
+    expect(fetcher.mock.calls[0][1].redirect).toBe('error');
+  });
+  it('refuses browser execution before reading credentials or making requests', async () => {
+    vi.stubEnv('GITHUB_TOKEN', 'mock-read-only-token');
+    vi.stubGlobal('window', {});
+    const fetcher = vi.fn();
+    vi.stubGlobal('fetch', fetcher);
+    const github = await fresh();
+    await expect(github.repositoryTree('https://github.com/team/public')).rejects.toThrow(
+      'server-only',
+    );
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('caches immutable trees briefly while rechecking visibility and current SHA', async () => {
+    vi.stubEnv('GITHUB_TOKEN', '');
+    vi.useFakeTimers();
+    const fetcher = vi
+      .fn()
+      .mockImplementation(async (url: string) =>
+        response(
+          url.includes('/git/trees/') ? tree : url.includes('/commits/') ? { sha } : metadata,
+        ),
+      );
+    vi.stubGlobal('fetch', fetcher);
+    const github = await fresh();
+    await github.repositoryTree('https://github.com/team/public');
+    await github.repositoryTree('https://github.com/team/public');
+    expect(fetcher).toHaveBeenCalledTimes(5);
+    const updatedSha = 'b'.repeat(40);
+    fetcher
+      .mockResolvedValueOnce(response(metadata))
+      .mockResolvedValueOnce(response({ sha: updatedSha }))
+      .mockResolvedValueOnce(response(tree));
+    const updated = await github.repositoryTree('https://github.com/team/public');
+    expect(updated.sha).toBe(updatedSha);
+    expect(fetcher.mock.calls[7][0]).toContain(`/git/trees/${updatedSha}`);
+    vi.advanceTimersByTime(60_001);
+    await github.repositoryTree('https://github.com/team/public');
+    expect(fetcher).toHaveBeenCalledTimes(11);
+    fetcher.mockResolvedValueOnce(response({ private: true, default_branch: 'main' }));
+    await expect(github.repositoryTree('https://github.com/team/public')).rejects.toThrow(
+      'Only public',
+    );
+    expect(fetcher).toHaveBeenCalledTimes(12);
+  });
+});
+
+it('filters short or whitespace-padded evidence without discarding valid findings', () => {
+  const text = 'export const substantiveEvidence = true;\nconst x = 1;\n                 x;';
+  const raw = {
+    findings: rubrics[0].criteria.map((c, i) => ({
+      criterionId: c.id,
+      status: 'evidence-found',
+      summary: 'The inspected code provides evidence.',
+      nextStep: 'Verify behavior in the running application.',
+      evidence: [
+        {
+          path: 'src/app.ts',
+          start: 1,
+          end: 3,
+          kind: 'implementation',
+          quote: [
+            'x;',
+            '                 x;',
+            'const x = 1;',
+            'export const substantiveEvidence = true;',
+          ][i],
+        },
+      ],
+    })),
+  };
+  const result = groundedFindings(
+    raw,
+    rubrics[0],
+    [{ path: 'src/app.ts', text, truncated: false }],
+    'https://github.com/a/b',
+    'a'.repeat(40),
+  );
+  expect(
+    result.slice(0, 3).every((f) => f.status === 'not-found' && f.discardedEvidence === 1),
+  ).toBe(true);
+  expect(result[3].status).toBe('evidence-found');
 });

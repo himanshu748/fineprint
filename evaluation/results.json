@@ -324,5 +324,11 @@
         "expected": "not-applicable"
       }
     ]
+  },
+  "comparison": {
+    "directlyComparable": false,
+    "currentRulePackVersion": "2026-09-24.1",
+    "historicalRulePackVersion": "2026-09-20.1",
+    "note": "Current authored regression and historical model run use different rule-pack versions. The two-entry case changed from unclear to blocked. These totals are not a head-to-head comparison or independent accuracy measurement."
   }
 }

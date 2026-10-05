@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { z } from 'zod';
 export type RepoFile = { path: string; text: string; truncated: boolean };
 export function parseRepository(input: string) {
@@ -46,10 +47,21 @@ export async function boundedText(response: Response, limit: number) {
   return Buffer.concat(chunks).toString('utf8');
 }
 async function api(path: string) {
+  if (typeof window !== 'undefined') throw new Error('GitHub review is server-only.');
+  // Construct every authenticated request here; never follow redirects or attach
+  // this credential to raw files, user URLs, model inputs or browser responses.
+  const url = new URL(`https://api.github.com${path}`);
+  if (url.origin !== 'https://api.github.com' || !path.startsWith('/repos/'))
+    throw new Error('Invalid GitHub API destination.');
+  const token = process.env.GITHUB_TOKEN?.trim();
   return JSON.parse(
     await boundedText(
-      await fetch(`https://api.github.com${path}`, {
-        headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'FinePrint' },
+      await fetch(url.href, {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'FinePrint',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         redirect: 'error',
         signal: AbortSignal.timeout(15000),
         cache: 'no-store',
@@ -76,18 +88,31 @@ export function reviewablePath(path: string) {
     )
   );
 }
+// Small process-local cache; raw source files and failed requests are never cached.
+const treeCache = new Map<
+  string,
+  { tree: { tree: unknown; truncated?: boolean }; expiresAt: number }
+>();
 export async function repositoryTree(url: string) {
   const { owner, repo } = parseRepository(url);
   const root = `/repos/${owner}/${repo}`;
   const meta = await api(root);
-  if (meta.private || !meta.default_branch)
+  // A token may see private repositories: require an explicit public response.
+  if (meta.private !== false || !meta.default_branch)
     throw new Error('Only public, non-empty repositories are supported.');
   const commit = await api(`${root}/commits/${encodeURIComponent(meta.default_branch)}`);
   const sha = z
     .string()
     .regex(/^[a-f0-9]{40}$/)
     .parse(commit.sha);
-  const tree = await api(`${root}/git/trees/${sha}?recursive=1`);
+  const treeKey = `${owner.toLowerCase()}/${repo.toLowerCase()}/${sha}`;
+  const cached = treeCache.get(treeKey);
+  // Recheck visibility and resolve the current commit on EVERY request. Only
+  // immutable trees are reused, after the public check, for at most one minute.
+  const tree =
+    cached && cached.expiresAt > Date.now()
+      ? cached.tree
+      : await api(`${root}/git/trees/${sha}?recursive=1`);
   const entries = z
     .array(
       z.object({
@@ -98,6 +123,11 @@ export async function repositoryTree(url: string) {
       }),
     )
     .parse(tree.tree);
+  if (!cached || cached.expiresAt <= Date.now()) {
+    for (const [key, value] of treeCache) if (value.expiresAt <= Date.now()) treeCache.delete(key);
+    if (treeCache.size >= 16) treeCache.delete(treeCache.keys().next().value!);
+    treeCache.set(treeKey, { tree, expiresAt: Date.now() + 60_000 });
+  }
   const eligible = entries.filter(
     (e) =>
       e.type === 'blob' &&

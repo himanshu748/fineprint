@@ -5,9 +5,9 @@ export const citationSchema = z.object({
   path: z.string().max(240),
   start: z.number().int().positive(),
   end: z.number().int().positive(),
+  // Short strings are accepted structurally, then discarded by line grounding.
   quote: z
     .string()
-    .min(3)
     .max(2000)
     .transform((value) => value.slice(0, 400)),
   kind: z.enum(['implementation', 'documentation', 'test']),
