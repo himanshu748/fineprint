@@ -15,7 +15,7 @@ Sanity Context caught the rule change before I noticed it. After I added the off
 
 Ask, “I am planning two entries in Path One.” The agent reads the Knowledge Base, quotes your fact and runs the typed check, showing the source reads and condition.
 
-[Try FinePrint](https://fineprint-kappa.vercel.app) · [Open the guided demo](https://fineprint-kappa.vercel.app/demo) · [Watch the latest demo](https://www.youtube.com/watch?v=X_DqhbkHAWk) · [Source code](https://github.com/himanshu748/fineprint)
+[Try FinePrint](https://fineprint-kappa.vercel.app) · [Open the guided demo](https://fineprint-kappa.vercel.app/demo) · [Watch the latest demo](https://www.youtube.com/watch?v=Hm8-wydopz8) · [Source code](https://github.com/himanshu748/fineprint)
 
 The challenge page, FAQ and contest rules can disagree. I wanted an answer I could check, including “I still need a fact” and “these sources disagree.”
 
@@ -53,11 +53,11 @@ For a live run, [open the review desk](https://fineprint-kappa.vercel.app/review
 
 The manual review desk remains available if the shared live-agent allowance is busy. Sample and recorded runs are labeled; they do not start a live model request.
 
-The latest 95-second narrated demo uses browser captures from the deployed app on October 5, 2026: the dated rule change, a fresh answer through Sanity Context, and a fresh repository review against the Sanity Path One rubric.
+The latest 91-second demo, narrated with Deepgram, uses browser captures from the deployed app on October 5, 2026: the dated rule change, a fresh answer through Sanity Context, and a fresh repository review against the Sanity Path One rubric.
 
 It is an edited sequence, with captions and waiting compressed. The rule-change walkthrough uses illustrative facts; the Context answer and repository assessment are new requests. Repository review inspects selected files at a fixed commit without executing code. The demonstration does not establish overall eligibility.
 
-{% embed https://www.youtube.com/watch?v=X_DqhbkHAWk %}
+{% embed https://www.youtube.com/watch?v=Hm8-wydopz8 %}
 
 ![FinePrint compares an illustrative five-person project against the Sanity and GIBC rule packs. Team size and the August start date are blocked for Sanity and supported for GIBC.](https://fineprint-kappa.vercel.app/docs/event-comparison.png)
 
